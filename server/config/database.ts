@@ -1,0 +1,102 @@
+import path from 'path';
+import fs from 'fs';
+import { Sequelize } from 'sequelize';
+import logger from 'electron-log';
+
+const configPath = path.join(__dirname, './config.json');
+const configObj = fs.existsSync(configPath)
+  ? JSON.parse(fs.readFileSync(configPath, 'utf-8'))
+  : {
+      DB_HOST: 'localhost',
+      DB_PORT: 3306,
+      DB_NAME: 'nexa',
+      DB_USERNAME: 'root',
+      DB_PASSWORD: '',
+    };
+
+// 数据库配置
+const sequelize = new Sequelize({
+  dialect: 'mysql',
+  host: configObj.DB_HOST,
+  port: Number(configObj.DB_PORT),
+  username: configObj.DB_USERNAME,
+  password: configObj.DB_PASSWORD,
+  database: configObj.DB_NAME,
+  logging: false, // 生产环境关闭日志
+  timezone: '+08:00', // 设置时区
+});
+
+// 建立模型关联（延迟导入避免循环依赖）
+const setupAssociations = (): void => {
+  // 延迟导入模型，避免循环依赖
+  const User = require('../models/User').default;
+  const Note = require('../models/Note').default;
+  const Cate = require('../models/Cate').default;
+  const Knowledge = require('../models/Knowledge').default;
+  const Docs = require('../models/Docs').default;
+
+  // 用户关联笔记
+  User.hasMany(Note, { foreignKey: 'userId', as: 'notes' });
+  Note.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+  // 用户关联分类
+  User.hasMany(Cate, { foreignKey: 'userId', as: 'cates' });
+  Cate.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+  // 分类自关联（父子分类）
+  Cate.hasMany(Cate, { foreignKey: 'parentId', as: 'children' });
+  Cate.belongsTo(Cate, { foreignKey: 'parentId', as: 'parent' });
+
+  // 用户关联知识库
+  User.hasMany(Knowledge, { foreignKey: 'userId', as: 'knowledges' });
+  Knowledge.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+  // 知识库关联文档
+  Knowledge.hasMany(Docs, {
+    foreignKey: 'knowledgeId',
+    as: 'documents',
+  });
+  Docs.belongsTo(Knowledge, {
+    foreignKey: 'knowledgeId',
+    as: 'knowledge',
+  });
+
+  // 笔记关联知识库文档
+  Note.hasMany(Docs, { foreignKey: 'noteId', as: 'documents' });
+  Docs.belongsTo(Note, { foreignKey: 'noteId', as: 'note' });
+};
+
+// 测试数据库连接
+export const testConnection = async (): Promise<void> => {
+  try {
+    await sequelize.authenticate();
+    logger.info('数据库连接成功');
+  } catch (error) {
+    logger.error('数据库连接失败:', error);
+    throw error;
+  }
+};
+
+// 同步数据库模型
+export const syncDatabase = async (force = false): Promise<void> => {
+  try {
+    // 建立模型关联
+    setupAssociations();
+
+    // 先尝试不强制创建，忽略已有表
+    await sequelize.sync({ force: false });
+    logger.info('数据库模型同步成功');
+  } catch (error: any) {
+    logger.error('数据库模型同步失败:', error.message || error);
+    // 如果失败，尝试强制创建（会删除旧表）
+    try {
+      await sequelize.sync({ force: true });
+      logger.info('数据库模型同步成功（强制重建）');
+    } catch (retryError: any) {
+      logger.error('数据库模型强制同步也失败:', retryError.message || retryError);
+      throw retryError;
+    }
+  }
+};
+
+export default sequelize;

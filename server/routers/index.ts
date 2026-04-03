@@ -1,0 +1,84 @@
+import express from 'express';
+import { uploadImage } from '../controllers/common-controller';
+import { isInstalled, saveConfig } from '../controllers/install-controller';
+import { createUser, userLogin, updateUser } from '../controllers/user-controller';
+import { createCate, getCateInfo, getCates, updateCate, deleteCate } from '../controllers/cate-controller';
+import {
+  createNote,
+  getNoteInfo,
+  getNotes,
+  updateNote,
+  removeNote,
+  moveNote,
+  getNoteCounts,
+  searchNotes,
+  addNoteToKnowledge,
+} from '../controllers/note-controller';
+import {
+  uploadDocs,
+  getDocsInfo,
+  getDocsList,
+  updateDocs,
+  removeDocs,
+  downloadDocs,
+} from '../controllers/docs-controller';
+import {
+  createChat,
+  getChatInfo,
+  getChats,
+  updateChat,
+  deleteChat,
+  getMessages,
+  chatToLLM,
+} from '../controllers/chat-controller';
+
+const router = express.Router();
+
+// 初始化接口
+router.get('/system/isInstalled', isInstalled);
+router.post('/system/saveConfig', saveConfig);
+
+// 通用接口
+router.post('/common/uploadImage', uploadImage);
+
+// 用户相关
+router.post('/user/register', createUser);
+router.post('/user/login', userLogin);
+router.post('/user/update', updateUser);
+
+// 笔记分类
+router.post('/cate/create', createCate);
+router.get('/cate/detail', getCateInfo);
+router.get('/cate/list', getCates);
+router.post('/cate/update', updateCate);
+router.get('/cate/delete', deleteCate);
+
+// 笔记相关
+router.post('/note/add', createNote);
+router.get('/note/getList', getNotes);
+router.post('/note/searchList', searchNotes);
+router.get('/note/counts', getNoteCounts);
+router.post('/note/update', updateNote);
+router.get('/note/detail', getNoteInfo);
+router.post('/note/move', moveNote);
+router.get('/note/delete', removeNote);
+router.get('/note/addToKnowledge', addNoteToKnowledge);
+
+// 文档相关
+router.post('/docs/upload', uploadDocs);
+router.get('/docs/getList', getDocsList);
+router.post('/docs/update', updateDocs);
+router.get('/docs/detail', getDocsInfo);
+router.get('/docs/download', downloadDocs);
+router.post('/docs/delete', removeDocs);
+
+// 会话相关
+router.post('/chat/add', createChat);
+router.get('/chat/detail', getChatInfo);
+router.get('/chat/list', getChats);
+router.post('/chat/update', updateChat);
+router.post('/chat/delete', deleteChat);
+router.get('/chat/msglist', getMessages);
+router.get('/chat/withllm', chatToLLM);
+
+export default router;

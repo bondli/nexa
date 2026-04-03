@@ -1,0 +1,34 @@
+.chatTitleContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.chatListContainer {
+  width: 100%;
+  display: flex;
+  padding: 10px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1;
+  min-height: 0;
+  .list {
+    width: 100%;
+    padding: 12px 0;
+    // 隐藏滚动条但保持滚动功能
+    &::-webkit-scrollbar {
+      width: 0;
+      background: transparent;
+    }
+
+    // Firefox
+    scrollbar-width: none;
+
+    // IE
+    -ms-overflow-style: none;
+  }
+}

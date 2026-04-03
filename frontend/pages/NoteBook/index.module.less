@@ -1,0 +1,160 @@
+.notebookDrawer {
+  :global(.ant-drawer-body) {
+    padding: 0;
+  }
+}
+
+// 页面主框架
+.content {
+  width: 100%;
+  height: calc(100vh - 65px);
+  overflow: hidden;
+  .left {
+    width: 208px;
+    height: calc(100vh - 65px);
+    border-right: 1px solid #E5E5E5;
+  }
+  .right {
+    height: calc(100vh - 65px);
+    overflow: hidden;
+  }
+}
+
+.noteHeader {
+  height: 64px;
+  border-bottom: 1px solid #E5E5E5;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  .title {
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    .searchContainer {
+      display: flex;
+      align-items: center;
+      .searchResult {
+        font-size: 12px;
+      }
+    }
+  }
+  .titleText {
+    padding-right: 16px;
+  }
+}
+
+// 列表
+.listContainer {
+  width: 100%;
+  height: calc(100vh - 65px - 65px);
+  padding: 0 24px 16px 16px;
+  overflow-y: scroll;
+  scrollbar-width: none;
+
+  .listTitle {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    .time {
+      margin-top: 4px;
+      padding-left: 14px;
+      color: #71717a;
+      font-size: 12px;
+    }
+  }
+  .listExtra {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    .extraText {
+      color: #71717a;
+      font-size: 12px;
+    }
+    .extraActions {
+      height: 25px;
+      line-height: 25px;
+    }
+  }
+  .listDesc {
+    cursor: pointer;
+    font-size: 12px;
+  }
+}
+
+// 详情
+.detail {
+  width: 100%;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #e5e5e5;
+
+  .titleContainer {
+    height: 60px;
+    border-bottom: 1px solid #e5e5e5;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    .left {
+      width: 70%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      .titleTips {
+        color: #71717a;
+        font-size: 12px;
+        margin-top: 4px;
+      }
+    }
+    .right {
+      width: 30%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-end;
+      color: #71717a;
+      font-size: 12px;
+    }
+  }
+  .articleContainer {
+    width: 100%;
+  }
+}
+
+// 分类
+.cateContainer {
+  width: 100%;
+  display: flex;
+  padding: 10px;
+  box-sizing: border-box;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  .cateTitle {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 14px;
+    margin-bottom: 4px;
+    .titleTips {
+      font-size: 12px;
+      color: #9c9c9c;
+      padding-left: 4px;
+      font-style: normal;
+    }
+  }
+  .menuContainer {
+    height: calc(100vh - 290px);
+    overflow-y: scroll;
+    scrollbar-width: none;
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "name": "nexa",
+  "version": "0.0.1",
+  "description": "AI 知识库桌面应用",
+  "main": "dist/electron/main.js",
+  "scripts": {
+    "dev:frontend": "cross-env NODE_ENV=development vite",
+    "dev:server": "cross-env NODE_ENV=development tsc -p tsconfig.electron.json -w",
+    "dev:electron": "cross-env NODE_ENV=development electron .",
+    "dev": "concurrently -k -n FRONTEND,SERVER,ELECTRON -c green,blue,yellow \"npm run dev:frontend\" \"npm run dev:server\" \"npm run dev:electron\"",
+    "build:frontend": "vite build",
+    "build:server": "tsc -p tsconfig.electron.json",
+    "build": "npm run build:frontend && npm run build:server",
+    "pack:win": "npm run build && electron-builder --win --x64",
+    "pack:mac": "npm run build && electron-builder --mac",
+    "postinstall": "electron-builder install-app-deps",
+    "eslint": "eslint ./ --fix --ext .ts,.tsx,.js,.jsx",
+    "prettier": "prettier --write ./**/*.{ts,tsx,js,jsx,html,css,scss,less}",
+    "lint": "npm run prettier && npm run eslint"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.1.1",
+    "@ant-design/x": "^2.5.0",
+    "@langchain/community": "^1.0.0",
+    "@langchain/core": "^1.0.1",
+    "@langchain/langgraph": "^1.0.1",
+    "@langchain/openai": "^1.0.0",
+    "@langchain/textsplitters": "^1.0.0",
+    "antd": "^6.3.5",
+    "axios": "^1.6.8",
+    "body-parser": "^1.20.2",
+    "cheerio": "^1.1.2",
+    "chromadb": "^2.1.5",
+    "cors": "^2.8.5",
+    "dayjs": "^1.11.11",
+    "decimal.js": "^10.5.0",
+    "dotenv": "^16.6.1",
+    "electron-log": "^5.1.2",
+    "electron-store": "^8.2.0",
+    "express": "^4.19.2",
+    "lodash-es": "^4.17.21",
+    "markdown-it": "^14.1.0",
+    "multer": "^1.4.5-lts.2",
+    "mysql2": "^3.11.9",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-quill": "^2.0.0",
+    "sequelize": "^6.37.3",
+    "timeago.js": "^4.0.2",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.10",
+    "@types/cors": "^2.8.19",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.18.1",
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.9",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^35.1.5",
+    "electron-builder": "^25.1.1",
+    "electron-rebuild": "^3.2.9",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react": "^7.29.4",
+    "husky": "^7.0.4",
+    "less": "^4.2.0",
+    "prettier": "^3.0.0",
+    "terser": "^5.14.2",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.0.5",
+    "vite-plugin-electron": "^0.9.0",
+    "vite-plugin-eslint": "^1.8.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "bondli",
+  "homepage": "https://github.com/bondli/nexa",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bondli/nexa.git"
+  },
+  "build": {
+    "productName": "Nexa",
+    "appId": "com.bondli.ai.nexa.app",
+    "asar": true,
+    "copyright": "Copyright © 2026 ${author}",
+    "files": [
+      "dist/**/*"
+    ],
+    "directories": {
+      "output": "release/${version}"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "dist/icons/icon.ico"
+    },
+    "mac": {
+      "artifactName": "${productName}-Mac-${arch}-${version}.${ext}",
+      "target": {
+        "target": "dmg",
+        "arch": [
+          "arm64",
+          "x64"
+        ]
+      },
+      "icon": "dist/icons/Icon.icns",
+      "entitlements": "dist/entitlements.mac.plist",
+      "entitlementsInherit": "dist/entitlements.mac.plist",
+      "hardenedRuntime": true,
+      "identity": null
+    },
+    "nsis": {
+      "language": 2052,
+      "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false,
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false,
+      "installerIcon": "dist/icons/icon.ico",
+      "uninstallerIcon": "dist/icons/icon.ico",
+      "installerHeaderIcon": "dist/icons/icon.ico"
+    }
+  }
+}

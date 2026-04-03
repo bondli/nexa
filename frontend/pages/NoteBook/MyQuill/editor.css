@@ -1,0 +1,109 @@
+.ql-toolbar.ql-snow {
+  border: 0 !important;
+  border-bottom: 1px solid rgb(228, 228, 231) !important;
+}
+.ql-container.ql-snow {
+  border: 0 !important;
+  height: calc(100vh - 400px);
+  overflow-y: scroll;
+  /* 隐藏滚动条 - 兼容主流浏览器 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+.ql-container.ql-snow::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+.ql-editor {
+  scrollbar-width: none;
+}
+.ql-editor.ql-blank {
+  line-height: 28px !important;
+}
+.ql-editor p {
+  word-break: break-all;
+  overflow-wrap: break-word;
+  line-height: 28px;
+}
+.ql-editor ol,
+.ql-editor ul {
+  padding-left: 0px !important;
+}
+.ql-editor ol li:not(.ql-direction-rtl), .ql-editor ul li:not(.ql-direction-rtl) {
+  /*padding-left: 16px !important;*/
+  line-height: 28px;
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+.ql-editor li.ql-indent-1:not(.ql-direction-rtl) {
+  padding-left: 3em !important;
+}
+.ql-editor .ql-indent-2:not(.ql-direction-rtl) {
+  padding-left: 4.5em !important;
+}
+.ql-editor li.ql-indent-3:not(.ql-direction-rtl) {
+  padding-left: 6em !important;
+}
+.ql-editor li.ql-indent-4:not(.ql-direction-rtl) {
+  padding-left: 7.5em !important;
+}
+
+/* 可调整大小的图片样式 */
+.resizable-quill-image {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+  outline: none;
+  cursor: pointer;
+}
+
+.resizable-quill-image.selected {
+  outline: 2px solid #1890ff;
+}
+
+/* 调整容器样式 */
+#image-resize-container {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* 调整手柄样式 */
+.resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: #1890ff;
+  border-radius: 50%;
+  z-index: 10000;
+  pointer-events: auto;
+}
+
+/* 左上角 */
+.resize-handle-top-left {
+  top: -6px;
+  left: -6px;
+  cursor: nw-resize;
+}
+
+/* 右上角 */
+.resize-handle-top-right {
+  top: -6px;
+  right: -6px;
+  cursor: ne-resize;
+}
+
+/* 左下角 */
+.resize-handle-bottom-left {
+  bottom: -6px;
+  left: -6px;
+  cursor: sw-resize;
+}
+
+/* 右下角 */
+.resize-handle-bottom-right {
+  bottom: -6px;
+  right: -6px;
+  cursor: nwse-resize;
+}

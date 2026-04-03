@@ -1,0 +1,5 @@
+{
+  "on": "PostToolUse",
+  "tool": "Bash",
+  "command": "node scripts/auto-format.js"
+}
