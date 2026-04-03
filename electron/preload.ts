@@ -29,5 +29,10 @@ contextBridge.exposeInMainWorld('electron', {
     userLog(msg) {
       ipcRenderer.send('userLog', msg);
     },
+
+    // 关闭快速笔记窗口
+    closeQuickNote() {
+      ipcRenderer.send('close-quick-note');
+    },
   },
 });

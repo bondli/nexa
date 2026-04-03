@@ -3,8 +3,8 @@ import { fork, type ChildProcess } from 'child_process';
 import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
 import Store from 'electron-store';
 import logger from 'electron-log';
-
 import { createTray } from './tray';
+import { createQuickNoteWindow, setQuickNoteApiStatus, closeQuickNoteWindow } from './quickNote';
 
 // file position on macOS: ~/Library/Logs/{app name}/main.log
 // file position on windows: C:\Users\Administrator\AppData\Roaming\{app name}\main.log
@@ -35,6 +35,11 @@ const initIpcRenderer = () => {
   // 打日志
   ipcMain.on('userLog', (_, message) => {
     logger.info(message);
+  });
+
+  // 关闭快速笔记窗口
+  ipcMain.on('close-quick-note', () => {
+    closeQuickNoteWindow();
   });
 };
 
@@ -69,6 +74,7 @@ const startServer = (): void => {
     }
 
     apiServerStatus = 'success';
+    setQuickNoteApiStatus('success');
   });
 
   apiServerChild.on('exit', (code, signal) => {
@@ -89,6 +95,7 @@ const restartServer = (): void => {
   // 延迟重启，等待旧进程完全退出
   setTimeout(() => {
     apiServerStatus = '';
+    setQuickNoteApiStatus('');
     startServer();
     logger.info('[Main Process] API Server restarted');
   }, 1000);
@@ -140,7 +147,7 @@ const createWindow = () => {
   } else {
     let timer = 0;
     const t = setInterval(() => {
-      timer ++;
+      timer++;
       // 5s之后服务还没有起来了，结束轮询，前台报错提示就好
       if (apiServerStatus === 'success' || timer >= 50) {
         openWin();
@@ -148,16 +155,16 @@ const createWindow = () => {
         clearInterval(t);
       }
     }, 100);
-  }  
+  }
 
   // 关闭 window 时触发下列事件
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
 
-  // 创建系统托盘
+  // 创建系统托盘，传入快速笔记窗口创建函数
   if (mainWindow) {
-    createTray(mainWindow);
+    createTray(mainWindow, createQuickNoteWindow);
   }
 };
 

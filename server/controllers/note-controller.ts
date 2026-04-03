@@ -140,17 +140,17 @@ export const updateNote = async (req: Request, res: Response) => {
           );
       }
       // todo:如果内容或标题有变化，而且之前已经加入到知识库中，则需要更新嵌入向量
-      if (title || desc) {
-        try {
-          const embedding = await generateEmbedding(`${result.title}\n${result.desc}`);
-          await updateDocumentEmbedding(result.id, embedding, {
-            title: result.title,
-            desc: result.desc || '',
-          });
-        } catch (embeddingError) {
-          logger.error('更新嵌入向量失败:', embeddingError);
-        }
-      }
+      // if (title || desc) {
+      //   try {
+      //     const embedding = await generateEmbedding(`${result.title}\n${result.desc}`);
+      //     await updateDocumentEmbedding(result.id, embedding, {
+      //       title: result.title,
+      //       desc: result.desc || '',
+      //     });
+      //   } catch (embeddingError) {
+      //     logger.error('更新嵌入向量失败:', embeddingError);
+      //   }
+      // }
       res.json(result.toJSON());
     } else {
       res.json({ error: 'Note not found' });

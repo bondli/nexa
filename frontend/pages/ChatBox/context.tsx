@@ -28,21 +28,21 @@ export const ChatBoxProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // 获取会话列表
   const getChatList = async () => {
-    const response = await request.get('/conversation/list');
+    const response = await request.get('/chat/list');
     const result = response.data;
     setChatList(result.data);
   };
 
   // 获取消息列表
   const getMessageList = async () => {
-    const response = await request.get(`/conversation/msglist?sessionId=${currentChat?.sessionId}`);
+    const response = await request.get(`/chat/msglist?sessionId=${currentChat?.sessionId}`);
     const result = response.data;
     setMessageList(result.data);
   };
 
   // 新增会话
   const addConversation = async (conversationId) => {
-    const response = await request.post('/conversation/add', {
+    const response = await request.post('/chat/add', {
       title: `新会话${dayjs().format('DD/MMTHH:mm:ss')}`,
       sessionId: conversationId,
     });

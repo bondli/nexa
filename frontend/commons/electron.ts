@@ -51,11 +51,19 @@ export const userLog = (msg: any, msgData?: any) => {
   ipcRenderer?.userLog?.(outMsg);
 };
 
+// 关闭快速笔记窗口
+export const closeQuickNote = (): void => {
+  if (isInElectron) {
+    ipcRenderer.closeQuickNote?.();
+  }
+};
+
 const ElectronBridge = {
   setStore,
   getStore,
   deleteStore,
   userLog,
+  closeQuickNote,
 };
 
 export default ElectronBridge;

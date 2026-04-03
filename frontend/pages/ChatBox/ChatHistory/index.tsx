@@ -56,7 +56,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = (props) => {
 
   // 删除会话
   const handleDeleteConversation = async (sessionId: string) => {
-    const response = await request.post('/conversation/delete', {
+    const response = await request.post('/chat/delete', {
       sessionId,
     });
     if (response.status === 200) {
@@ -71,7 +71,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = (props) => {
 
   // 重命名会话
   const handleRenameConversation = async (sessionId: string, title: string) => {
-    const response = await request.post('/conversation/update', {
+    const response = await request.post('/chat/update', {
       sessionId,
       title,
     });

@@ -148,7 +148,7 @@ const Category: React.FC = () => {
       return;
     }
     // 如果当前的笔记本已经达到20个了，不给创建了
-    if (cateList.length >= 20) {
+    if (cateList?.length >= 20) {
       message.error('最多创建20个分类');
       return;
     }
@@ -219,7 +219,7 @@ const Category: React.FC = () => {
       <div className={style.cateContainer}>
         <div className={style.cateTitle}>
           <span>
-            笔记分类<em className={style.titleTips}>[{cateList?.length}/20]</em>
+            笔记分类<em className={style.titleTips}>[{cateList?.length || 0}/20]</em>
           </span>
           <Popover
             content={createNoteForm}

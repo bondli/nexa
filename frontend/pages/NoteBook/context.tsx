@@ -1,6 +1,5 @@
 import React, { createContext, useState } from 'react';
 import request from '@commons/request';
-import { App } from 'antd';
 import { DEFAULT_CATE, Cate, Note } from './constant';
 
 type NoteContextType = {
@@ -32,7 +31,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const getCateList = async () => {
     const response = await request.get('/cate/list');
     const result = response.data;
-    setCateList(result.data);
+    setCateList(result);
   };
 
   // 获取笔记列表
@@ -40,7 +39,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setNotesLoading(true);
     const response = await request.get(`/note/getList?cateId=${currentCate.id}`);
     const result = response.data;
-    setNoteList(result.data);
+    setNoteList(result);
     setNotesLoading(false);
   };
 

@@ -7,22 +7,18 @@
 // 页面主框架
 .content {
   width: 100%;
-  height: calc(100vh - 65px);
+  height: 100vh;
   overflow: hidden;
-  .left {
-    width: 208px;
-    height: calc(100vh - 65px);
-    border-right: 1px solid #E5E5E5;
-  }
-  .right {
-    height: calc(100vh - 65px);
-    overflow: hidden;
-  }
+}
+
+.sider {
+  border-right: 1px solid #e5e5e5;
 }
 
 .noteHeader {
   height: 64px;
-  border-bottom: 1px solid #E5E5E5;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #fff;
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -44,12 +40,16 @@
   .titleText {
     padding-right: 16px;
   }
+  .headerRight {
+    flex-direction: row;
+  }
 }
 
 // 列表
 .listContainer {
   width: 100%;
-  height: calc(100vh - 65px - 65px);
+  height: calc(100vh - 65px);
+  background-color: #fff;
   padding: 0 24px 16px 16px;
   overflow-y: scroll;
   scrollbar-width: none;

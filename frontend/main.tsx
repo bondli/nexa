@@ -7,6 +7,7 @@ import 'dayjs/locale/zh-cn';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { MainProvider } from '@commons/context';
+import QuickNote from '@components/QuickNote';
 import AppContainer from './App';
 
 import 'antd/dist/reset.css';
@@ -26,35 +27,64 @@ notification.config({
   rtl: false,
 });
 
+// 判断是否为快速笔记窗口
+const isQuickNote = (): boolean => {
+  const hash = window.location.hash;
+  return hash === '#/quick-note' || hash.includes('quick-note');
+};
+
 const root = createRoot(document.getElementById('root'));
-root.render(
-  <App>
-    <ConfigProvider
-      locale={zhCN}
-      input={{ autoComplete: 'off' }}
-      theme={{
-        token: {
-          colorPrimary: '#18181b',
-          colorPrimaryActive: 'rgb(24 24 27 / 80%)',
-          colorPrimaryHover: 'rgb(24 24 27 / 80%)',
-          borderRadius: 6,
-        },
-        components: {
-          Menu: {
-            itemHeight: 36,
-            itemSelectedColor: 'white',
-            itemSelectedBg: '#18181b',
+
+// 快速笔记窗口独立渲染
+if (isQuickNote()) {
+  root.render(
+    <App>
+      <ConfigProvider
+        locale={zhCN}
+        input={{ autoComplete: 'off' }}
+        theme={{
+          token: {
+            colorPrimary: '#18181b',
+            colorPrimaryActive: 'rgb(24 24 27 / 80%)',
+            colorPrimaryHover: 'rgb(24 24 27 / 80%)',
+            borderRadius: 6,
           },
-          Button: {
-            contentFontSizeSM: 12,
-            primaryShadow: '0',
+        }}
+      >
+        <QuickNote />
+      </ConfigProvider>
+    </App>,
+  );
+} else {
+  root.render(
+    <App>
+      <ConfigProvider
+        locale={zhCN}
+        input={{ autoComplete: 'off' }}
+        theme={{
+          token: {
+            colorPrimary: '#18181b',
+            colorPrimaryActive: 'rgb(24 24 27 / 80%)',
+            colorPrimaryHover: 'rgb(24 24 27 / 80%)',
+            borderRadius: 6,
           },
-        },
-      }}
-    >
-      <MainProvider>
-        <AppContainer />
-      </MainProvider>
-    </ConfigProvider>
-  </App>,
-);
+          components: {
+            Menu: {
+              itemHeight: 36,
+              itemSelectedColor: 'white',
+              itemSelectedBg: '#18181b',
+            },
+            Button: {
+              contentFontSizeSM: 12,
+              primaryShadow: '0',
+            },
+          },
+        }}
+      >
+        <MainProvider>
+          <AppContainer />
+        </MainProvider>
+      </ConfigProvider>
+    </App>,
+  );
+}

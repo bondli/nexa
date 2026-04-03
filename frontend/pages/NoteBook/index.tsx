@@ -2,15 +2,15 @@ import React, { memo, useState, useEffect, useContext } from 'react';
 import { Button, Modal, Layout } from 'antd';
 import { NoteContext, NoteProvider } from './context';
 import Category from './Category';
-import MainHeader from './MainHeader';
+import Header from './Header';
 import Notes from './Notes';
 import Detail from './Detail';
 import style from './index.module.less';
 
-const { Header, Sider, Content } = Layout;
+const { Sider, Content } = Layout;
 
 const NoteBook: React.FC = () => {
-  const { getNoteList, getNoteCounts, selectedNote, setSelectedNote } = useContext(NoteContext);
+  const { getNoteList, selectedNote, setSelectedNote } = useContext(NoteContext);
 
   const [showDetailModal, setShowDetailModal] = useState(false);
 
@@ -30,16 +30,13 @@ const NoteBook: React.FC = () => {
 
   return (
     <>
-      <Layout className={style.container}>
+      <Layout>
         <Sider trigger={null} collapsible theme={'light'} width={260} className={style.sider}>
           <Category />
         </Sider>
         <Layout>
-          <Header className={style.header}>
-            <MainHeader />
-          </Header>
-
           <Content className={style.content}>
+            <Header />
             <Notes />
           </Content>
         </Layout>

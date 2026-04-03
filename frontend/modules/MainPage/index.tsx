@@ -16,7 +16,7 @@ const MainPage: React.FC = () => {
   const { message } = App.useApp();
 
   const { userInfo, setUserInfo } = useContext(MainContext);
-  const [currentPage, setCurrentPage] = useState<string>('chat'); // 默认页面
+  const [currentPage, setCurrentPage] = useState<string>('notebook'); // 默认页面
 
   const onLogout = () => {
     deleteStore('loginData');
@@ -34,14 +34,23 @@ const MainPage: React.FC = () => {
 
         <div className={style.list}>
           <div className={style.menu}>
-            <div className={style.iconItem} onClick={() => setCurrentPage('chat')}>
+            <div
+              className={`${style.iconItem} ${currentPage === 'notebook' ? style.active : ''}`}
+              onClick={() => setCurrentPage('notebook')}
+            >
+              <FileTextFilled style={{ fontSize: 24 }} />
+            </div>
+            <div
+              className={`${style.iconItem} ${currentPage === 'chat' ? style.active : ''}`}
+              onClick={() => setCurrentPage('chat')}
+            >
               <WechatFilled style={{ fontSize: 24 }} />
             </div>
-            <div className={style.iconItem}>
-              <FileTextFilled style={{ fontSize: 24 }} onClick={() => setCurrentPage('notebook')} />
-            </div>
-            <div className={style.iconItem}>
-              <FolderOpenFilled style={{ fontSize: 24 }} onClick={() => setCurrentPage('knowledge')} />
+            <div
+              className={`${style.iconItem} ${currentPage === 'knowledge' ? style.active : ''}`}
+              onClick={() => setCurrentPage('knowledge')}
+            >
+              <FolderOpenFilled style={{ fontSize: 24 }} />
             </div>
           </div>
         </div>

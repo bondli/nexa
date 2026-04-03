@@ -54,6 +54,7 @@ const SearchBox: React.FC = () => {
     <div>
       <Input
         style={{ width: 300 }}
+        size={`small`}
         placeholder={`请输入关键字进行查找`}
         prefix={<SearchOutlined />}
         allowClear

@@ -1,31 +1,53 @@
 import path from 'path';
-import { app, Tray, Menu, nativeImage, BrowserWindow } from 'electron';
+import { app, Tray, Menu, nativeImage, BrowserWindow, screen } from 'electron';
 
 let tray: Tray | null = null;
 
 /**
- * 创建系统托盘
+ * 获取托盘实例
  */
-export const createTray = (mainWindow: BrowserWindow): Tray => {
+export const getTray = (): Tray | null => {
+  return tray;
+};
+
+/**
+ * 获取托盘图标的屏幕位置
+ */
+export const getTrayBounds = (): { x: number; y: number } | null => {
+  if (!tray) return null;
+
+  const trayBounds = tray.getBounds();
+  // 计算托盘图标中心位置
+  const x = Math.round(trayBounds.x + trayBounds.width / 2);
+  const y = trayBounds.y + trayBounds.height;
+
+  return { x, y };
+};
+
+/**
+ * 创建系统托盘
+ * @param mainWindow 主窗口
+ * @param onQuickNote 点击快速笔记时的回调函数
+ */
+export const createTray = (mainWindow: BrowserWindow, onQuickNote?: () => void): Tray => {
   // 根据平台选择图标
-  const iconPath = path.join(
-    __dirname,
-    '/dist/icons/tray.png',
-  );
+  const iconPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'icons', 'tray.png')
+    : path.join(__dirname, '../../public/icons/tray.png');
 
   const icon = nativeImage.createFromPath(iconPath);
+  // 设置为模板图片，让系统根据菜单栏背景色自动适配图标颜色
+  icon.setTemplateImage(true);
   tray = new Tray(icon);
 
   // 创建托盘菜单
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: '显示窗口',
+      label: '快速笔记',
       click: () => {
-        if (mainWindow) {
-          if (mainWindow.isMinimized()) {
-            mainWindow.restore();
-          }
-          mainWindow.focus();
+        // 调用快速笔记回调函数
+        if (onQuickNote) {
+          onQuickNote();
         }
       },
     },
@@ -41,18 +63,14 @@ export const createTray = (mainWindow: BrowserWindow): Tray => {
   tray.setToolTip('Nexa');
   tray.setContextMenu(contextMenu);
 
-  // 点击托盘图标显示/隐藏窗口
+  // 点击托盘图标显示窗口到最前面
   tray.on('click', () => {
     if (mainWindow) {
-      if (mainWindow.isVisible()) {
-        mainWindow.hide();
-      } else {
-        if (mainWindow.isMinimized()) {
-          mainWindow.restore();
-        }
-        mainWindow.show();
-        mainWindow.focus();
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore();
       }
+      mainWindow.show();
+      mainWindow.focus();
     }
   });
 

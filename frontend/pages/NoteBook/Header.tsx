@@ -1,6 +1,6 @@
 import React, { memo, useContext, useState, useRef } from 'react';
 import { EllipsisOutlined, FormOutlined, DeleteOutlined, DragOutlined, ReloadOutlined } from '@ant-design/icons';
-import { Button, Popover, Modal, Input, App } from 'antd';
+import { Button, Popover, Modal, Input, App, Space } from 'antd';
 import { userLog } from '@commons/electron';
 import request from '@commons/request';
 import { DEFAULT_CATE } from './constant';
@@ -30,11 +30,11 @@ const Header: React.FC = () => {
         desc: '',
         cateId: currentCate.id,
       })
-      .then((res) => {
-        userLog('Create Note: ', res.data);
+      .then((data) => {
+        userLog('Create Note: ', data);
 
         // 选中这个note，用于打开编辑器框
-        setSelectedNote(res.data);
+        setSelectedNote(data);
 
         // 刷新查询维度的数字
         getNoteCounts();
@@ -218,12 +218,12 @@ const Header: React.FC = () => {
           <Button icon={<EllipsisOutlined />} type={`text`}></Button>
         </Popover>
       </div>
-      <div>
+      <Space>
         <SearchBox />
         <Button type={`primary`} size={`small`} onClick={handleNewNote}>
           创建笔记
         </Button>
-      </div>
+      </Space>
       <Modal title={`修改笔记分类`} open={showEditPanel} onOk={handleSaveEdit} onCancel={handleCancelEdit}>
         <Input
           value={tempCateName}
