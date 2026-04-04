@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
 import logger from 'electron-log';
-import path from 'path';
 import fs from 'fs';
+import { getConfigPath, ensureConfigDir } from '../config/setting';
 
-// 配置文件路径
-const configPath = path.join(__dirname, '../config/config.json');
+const configPath = getConfigPath();
 
 // 判断是否安装了
 export const isInstalled = async (req: Request, res: Response) => {
@@ -29,6 +28,9 @@ export const isInstalled = async (req: Request, res: Response) => {
 export const saveConfig = async (req: Request, res: Response) => {
   const { dbhost, dbport, dbname, dbuser, dbpwd } = req.body;
   try {
+    // 确保配置目录存在
+    ensureConfigDir();
+
     const config = {
       DB_HOST: dbhost,
       DB_PORT: dbport,

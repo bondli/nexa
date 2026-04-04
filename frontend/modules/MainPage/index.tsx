@@ -1,5 +1,5 @@
 import React, { memo, useContext, useState } from 'react';
-import { App, Layout, Button, Space } from 'antd';
+import { App, Layout } from 'antd';
 import { WechatFilled, FileTextFilled, FolderOpenFilled } from '@ant-design/icons';
 import { MainContext } from '@commons/context';
 import { deleteStore } from '@commons/electron';

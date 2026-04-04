@@ -1,5 +1,5 @@
 import React, { memo, useState, useEffect, useContext } from 'react';
-import { Button, Modal, Layout } from 'antd';
+import { Drawer, Layout } from 'antd';
 import { NoteContext, NoteProvider } from './context';
 import Category from './Category';
 import Header from './Header';
@@ -16,9 +16,15 @@ const NoteBook: React.FC = () => {
 
   // 关闭笔记详情
   const closeDetail = () => {
-    setSelectedNote(null);
     setShowDetailModal(false);
     getNoteList();
+  };
+
+  // Drawer 完全关闭后再清空，避免关闭动画过程中 Detail 组件报错
+  const handleDrawerAfterOpenChange = (open: boolean) => {
+    if (!open) {
+      setSelectedNote(null);
+    }
   };
 
   // 展示/关闭 笔记详情
@@ -42,21 +48,17 @@ const NoteBook: React.FC = () => {
         </Layout>
       </Layout>
 
-      <Modal
+      <Drawer
         title={`笔记详情`}
         open={showDetailModal}
-        width={1000}
-        footer={
-          <Button type={`primary`} onClick={closeDetail}>
-            保存
-          </Button>
-        }
+        size={800}
+        styles={{ body: { padding: 0 } }}
         destroyOnHidden={true}
-        onOk={closeDetail}
-        onCancel={closeDetail}
+        onClose={closeDetail}
+        afterOpenChange={handleDrawerAfterOpenChange}
       >
         <Detail selectedNote={selectedNote} />
-      </Modal>
+      </Drawer>
     </>
   );
 };

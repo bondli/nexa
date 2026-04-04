@@ -2,19 +2,25 @@ import React, { memo, useState, useRef } from 'react';
 import { Input, App } from 'antd';
 import dayjs from 'dayjs';
 import { format as timeAgoFormat } from 'timeago.js';
-import { throttle } from 'lodash-es';
+import { throttle, debounce } from 'lodash-es';
 import request from '@commons/request';
 import { userLog } from '@commons/electron';
-import MyQuill from './MyQuill/index';
+import MarkdownEditor from './MarkdownEditor/index';
 import style from './index.module.less';
 
 // 将节流函数定义在组件外部，确保复用同一个实例
+// 3秒节流：频繁输入时最多每3秒保存一次
 const saveArticleChange = throttle((value, handleSaveContent) => {
-  if (value === '<p><br></p>') {
+  if (!value || value.trim() === '') {
     return;
   }
   handleSaveContent(value);
 }, 3000);
+
+// 防抖：首次输入后1秒触发保存，确保用户开始输入后能快速保存
+const triggerFirstSave = debounce(() => {
+  saveArticleChange.flush();
+}, 1000);
 
 type DetailProps = {
   selectedNote: any;
@@ -27,8 +33,8 @@ const Detail: React.FC<DetailProps> = (props) => {
   const [showEditTitle, setShowEditTitle] = useState(false);
   const inputRef = useRef(null);
 
-  const [tempTitle, setTempTitle] = useState<string>(selectedNote.title || '');
-  const [tempDesc, setTempDesc] = useState<string>(selectedNote.desc || '');
+  const [tempTitle, setTempTitle] = useState<string>(selectedNote?.title || '');
+  const [tempDesc, setTempDesc] = useState<string>(selectedNote?.desc || '');
 
   // 设置标题输入框出现
   const handleEditTitle = () => {
@@ -43,7 +49,7 @@ const Detail: React.FC<DetailProps> = (props) => {
   const saveTitleChange = (e) => {
     const tempTitle = e.target.value;
     if (!tempTitle || !tempTitle.length) {
-      message.error('请输入代办事项标题');
+      message.error('请输入代办/笔记/文章标题');
       return;
     }
     request
@@ -67,26 +73,27 @@ const Detail: React.FC<DetailProps> = (props) => {
     if (tempDesc === value) {
       return;
     }
-    request
-      .post(`/note/update`, {
-        id: selectedNote.id,
-        desc: value,
-      })
-      .then(() => {
-        userLog(`Note Content Saved Successful`);
-      });
+    request.post(`/note/update`, {
+      id: selectedNote.id,
+      desc: value,
+    });
   };
 
-  // 内容输入，直接更新（不再自动转换链接）
+  // 内容输入，直接更新
   const handleChange = (value: string) => {
     setTempDesc(value);
+    // 使用防抖触发首次保存
+    triggerFirstSave();
     // 使用节流函数进行保存
     saveArticleChange(value, handleSaveContent);
   };
 
-  // 失去焦点时处理链接
+  // 失去焦点时立即保存
   const handleBlur = () => {
-    setTempDesc(tempDesc);
+    // 取消防抖，确保最后一次内容被保存
+    triggerFirstSave.cancel();
+    saveArticleChange.cancel();
+    // 立即保存当前内容
     handleSaveContent(tempDesc);
   };
 
@@ -119,7 +126,7 @@ const Detail: React.FC<DetailProps> = (props) => {
       </div>
 
       <div className={style.articleContainer}>
-        <MyQuill value={tempDesc} onChange={handleChange} onBlur={handleBlur} placeholder={`请输入内容`} />
+        <MarkdownEditor value={tempDesc} onChange={handleChange} onBlur={handleBlur} />
       </div>
     </div>
   );

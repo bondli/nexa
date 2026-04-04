@@ -4,7 +4,7 @@ import { ChatBoxContext } from '../context';
 import style from './index.module.less';
 
 type ChatSenderProps = {
-  handleSubmitMessage: (msg: string, action?: string) => void;
+  handleSubmitMessage: (msg: string) => void;
 };
 
 const ChatSender: React.FC<ChatSenderProps> = (props) => {
@@ -14,7 +14,7 @@ const ChatSender: React.FC<ChatSenderProps> = (props) => {
   const [inputValue, setInputValue] = useState('');
 
   // 提交消息
-  const handleUserSubmit = async (msg: string, action?: string) => {
+  const handleUserSubmit = async (msg: string) => {
     if (!msg.trim()) return;
     handleSubmitMessage(msg.trim());
   };

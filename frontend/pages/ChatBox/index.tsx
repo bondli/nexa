@@ -1,5 +1,5 @@
 import React, { memo, useContext } from 'react';
-import { App, Layout, Space } from 'antd';
+import { Layout, Space } from 'antd';
 import { generateUUID, sleep } from '@commons/utils';
 import { AGENT_BASE_URL } from '@commons/constant';
 import { MainContext } from '@commons/context';
@@ -13,7 +13,6 @@ import style from './index.module.less';
 const { Header, Sider, Content } = Layout;
 
 const ChatBoxPage: React.FC = () => {
-  // const { message } = App.useApp();
   const { userInfo } = useContext(MainContext);
 
   const { currentChat, setMessageList, abortController, setMessageProcessing, conversationId, setConversationId } =
@@ -103,6 +102,7 @@ const ChatBoxPage: React.FC = () => {
                 }
               } catch (e) {
                 // 忽略解析错误
+                console.warn(e);
               }
             }
           });

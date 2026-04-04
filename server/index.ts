@@ -4,6 +4,7 @@ import cors from 'cors';
 import logger from 'electron-log';
 import fs from 'fs';
 import { PORT } from './config/constant';
+import { getConfigPath } from './config/setting';
 import { testConnection, syncDatabase } from './config/database';
 import { initVectorDB } from './config/vectorDB';
 import router from './routers/index';
@@ -12,7 +13,7 @@ const app = express();
 
 // 检查是否已配置数据库
 const isDatabaseConfigured = (): boolean => {
-  const configPath = path.join(__dirname, './config/config.json');
+  const configPath = getConfigPath();
   if (!fs.existsSync(configPath)) {
     return false;
   }

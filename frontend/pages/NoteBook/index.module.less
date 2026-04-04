@@ -88,9 +88,9 @@
 // 详情
 .detail {
   width: 100%;
-  margin-top: 16px;
-  margin-bottom: 16px;
-  border: 1px solid #e5e5e5;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 
   .titleContainer {
     height: 60px;
@@ -125,6 +125,10 @@
   }
   .articleContainer {
     width: 100%;
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 }
 

@@ -1,18 +1,36 @@
-import path from 'path';
 import fs from 'fs';
 import { Sequelize } from 'sequelize';
 import logger from 'electron-log';
+import { getConfigPath, ensureConfigDir } from './setting';
 
-const configPath = path.join(__dirname, './config.json');
-const configObj = fs.existsSync(configPath)
-  ? JSON.parse(fs.readFileSync(configPath, 'utf-8'))
-  : {
-      DB_HOST: 'localhost',
-      DB_PORT: 3306,
-      DB_NAME: 'nexa',
-      DB_USERNAME: 'root',
-      DB_PASSWORD: '',
-    };
+const configPath = getConfigPath();
+
+// 读取配置
+const loadConfig = (): {
+  DB_HOST: string;
+  DB_PORT: number;
+  DB_NAME: string;
+  DB_USERNAME: string;
+  DB_PASSWORD: string;
+} => {
+  ensureConfigDir();
+  if (fs.existsSync(configPath)) {
+    try {
+      return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    } catch (error) {
+      logger.error('读取配置文件失败，使用默认配置:', error);
+    }
+  }
+  return {
+    DB_HOST: 'localhost',
+    DB_PORT: 3306,
+    DB_NAME: 'nexa',
+    DB_USERNAME: 'root',
+    DB_PASSWORD: '',
+  };
+};
+
+const configObj = loadConfig();
 
 // 数据库配置
 const sequelize = new Sequelize({
@@ -22,8 +40,8 @@ const sequelize = new Sequelize({
   username: configObj.DB_USERNAME,
   password: configObj.DB_PASSWORD,
   database: configObj.DB_NAME,
-  logging: false, // 生产环境关闭日志
-  timezone: '+08:00', // 设置时区
+  logging: false,
+  timezone: '+08:00',
 });
 
 // 建立模型关联（延迟导入避免循环依赖）

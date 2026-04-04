@@ -2,7 +2,6 @@ import React, { memo, useState, useEffect, useContext } from 'react';
 import { Button, Drawer, Upload, Table, Radio, App, Tag } from 'antd';
 import type { UploadProps } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
 import { API_BASE_URL } from '@commons/constant';
 import { MainContext } from '@commons/context';
 import { formatFileSize } from '@commons/utils';
@@ -53,6 +52,7 @@ const Knowledge: React.FC = () => {
       setList(result.data);
     } catch (error) {
       message.error('查询文档列表失败');
+      console.warn(error);
     }
   };
 
@@ -78,6 +78,7 @@ const Knowledge: React.FC = () => {
       message.success('文件下载成功');
     } catch (error) {
       message.error('文件下载失败');
+      console.warn(error);
     }
   };
 
@@ -101,6 +102,7 @@ const Knowledge: React.FC = () => {
           }
         } catch (error) {
           message.error('文档删除失败');
+          console.warn(error);
         }
       },
     });

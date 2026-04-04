@@ -1,5 +1,4 @@
 import React, { memo, useEffect } from 'react';
-import { Button } from 'antd';
 
 type ComProps = {
   content: string;
