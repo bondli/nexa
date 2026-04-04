@@ -30,24 +30,21 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // 获取分类列表
   const getCateList = async () => {
     const response = await request.get('/cate/list');
-    const result = response.data;
-    setCateList(result);
+    setCateList(response.data || []);
   };
 
   // 获取笔记列表
   const getNoteList = async () => {
     setNotesLoading(true);
     const response = await request.get(`/note/getList?cateId=${currentCate.id}`);
-    const result = response.data;
-    setNoteList(result);
+    setNoteList(response.data || []);
     setNotesLoading(false);
   };
 
   // 获取各种分类下笔记的数量
   const getNoteCounts = async () => {
     const response = await request.get(`/note/counts`);
-    const result = response.data;
-    setNoteCounts(result);
+    setNoteCounts(response.data || {});
   };
 
   return (

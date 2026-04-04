@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import logger from 'electron-log';
 import Chat from '../models/Chat';
 import { getMessages as getAllMessages, deleteMessages } from '../services/chat-service';
+import { success, successWithPage, notFound, badRequest, serverError } from '../utils/response';
 
 // 新增一个会话
 export const createChat = async (req: Request, res: Response) => {
@@ -9,10 +10,10 @@ export const createChat = async (req: Request, res: Response) => {
   try {
     const { title, sessionId } = req.body;
     const result = await Chat.create({ title, sessionId, userId });
-    res.status(200).json(result.toJSON());
+    success(res, result.toJSON());
   } catch (error) {
     logger.error('Error on creating chat:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error creating chat');
   }
 };
 
@@ -26,13 +27,13 @@ export const getChatInfo = async (req: Request, res: Response) => {
       },
     });
     if (result) {
-      res.json(result.toJSON());
+      success(res, result.toJSON());
     } else {
-      res.json({ error: 'chat not found' });
+      notFound(res, 'Chat not found');
     }
   } catch (error) {
     logger.error('Error on getting chat by sessionId:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error getting chat');
   }
 };
 
@@ -44,13 +45,10 @@ export const getChats = async (req: Request, res: Response) => {
       where: { userId },
       order: [['createdAt', 'DESC']],
     });
-    res.json({
-      count: count || 0,
-      data: rows || [],
-    });
+    successWithPage(res, rows || [], count || 0);
   } catch (error) {
     logger.error('Error on getting chats:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error getting chats');
   }
 };
 
@@ -65,19 +63,18 @@ export const updateChat = async (req: Request, res: Response) => {
     });
     if (result) {
       await result.update({ title });
-      res.json(result.toJSON());
+      success(res, result.toJSON());
     } else {
-      res.json({ error: 'chat not found' });
+      notFound(res, 'Chat not found');
     }
   } catch (error) {
     logger.error('Error on updating chat:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error updating chat');
   }
 };
 
 // 删除会话
 export const deleteChat = async (req: Request, res: Response) => {
-  // const userId = req.headers['x-user-id'];
   try {
     const { sessionId } = req.body;
     const result = await Chat.findOne({
@@ -91,16 +88,13 @@ export const deleteChat = async (req: Request, res: Response) => {
 
       // 删除会话记录
       await result.destroy();
-      res.json({
-        message: 'chat deleted successfully',
-        deletedMessages: deleteResult,
-      });
+      success(res, { deletedMessages: deleteResult }, 'chat deleted successfully');
     } else {
-      res.json({ error: 'chat not found' });
+      notFound(res, 'Chat not found');
     }
   } catch (error) {
     logger.error('Error on deleting chat:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error deleting chat');
   }
 };
 
@@ -109,38 +103,27 @@ export const getMessages = async (req: Request, res: Response) => {
   const { sessionId } = req.query;
 
   if (!sessionId) {
-    return res.status(400).json({
-      success: false,
-      message: 'sessionId is required',
-    });
+    badRequest(res, 'sessionId is required');
+    return;
   }
 
   try {
     const messages = await getAllMessages(sessionId as string);
-    // console.log(messages);
 
     // 转换为前端需要的格式
     const output = messages.map((msg) => ({
       role: msg.role,
       content: msg.content,
-      // timestamp: msg.timestamp
     }));
 
-    res.json({
-      data: output,
-      count: output.length,
-    });
+    successWithPage(res, output, output.length);
   } catch (error) {
     logger.error('[ChatController] Error getting messages:', error);
-    res.status(500).json({
-      success: false,
-      message: '获取消息列表时发生错误',
-      error: error.message,
-    });
+    serverError(res, 'Error getting messages');
   }
 };
 
 export const chatToLLM = async (req: Request, res: Response) => {
   // TODO: 实现与 LLM 交互的逻辑
-  res.json({ message: 'Hello World' });
+  success(res, { message: 'Hello World' });
 };

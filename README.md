@@ -21,6 +21,16 @@ changes/xxxx        ---> 需要记录这个xxxx，后续要用到
 ├── tasks.md       # 任务列表
 └── specs/         # 规范增量
 
+如果生成的需求方案不满意，可以：
+- 1.修改desgin.md
+- 2.和claude对话：
+```
+我会给你修改后的 design.md，请你：
+1. 基于新 design 校验逻辑一致性
+2. 更新 task.md
+3. 指出可能遗漏的任务
+```
+
 ### Step 2：/opsx:apply（执行）
 ```
 /opsx:apply xxxx

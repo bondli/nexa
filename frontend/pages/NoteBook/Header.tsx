@@ -30,18 +30,17 @@ const Header: React.FC = () => {
         desc: '',
         cateId: currentCate.id,
       })
-      .then((data) => {
-        userLog('Create Note: ', data);
+      .then((response) => {
+        const noteData = response.data;
+        userLog('Create Note: ', noteData);
 
         // 选中这个note，用于打开编辑器框
-        setSelectedNote(data);
+        setSelectedNote(noteData);
 
         // 刷新查询维度的数字
         getNoteCounts();
         // 重新拉取note列表(用于更新分类下的Note数目)
         getCateList();
-        // 重新获取note列表
-        // getNoteList(); // 先注释，不用在列表中刷新出来，因为马上就打开了编辑器框，等编辑器框关闭的时候刷新出来也是相同的效果
       })
       .catch((err) => {
         userLog('Create Note Failed: ', currentCate);

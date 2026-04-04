@@ -29,15 +29,13 @@ export const ChatBoxProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // 获取会话列表
   const getChatList = async () => {
     const response = await request.get('/chat/list');
-    const result = response.data;
-    setChatList(result.data);
+    setChatList(response.data || []);
   };
 
   // 获取消息列表
   const getMessageList = async () => {
     const response = await request.get(`/chat/msglist?sessionId=${currentChat?.sessionId}`);
-    const result = response.data;
-    setMessageList(result.data);
+    setMessageList(response.data || []);
   };
 
   // 新增会话
@@ -46,13 +44,10 @@ export const ChatBoxProvider: React.FC<{ children: React.ReactNode }> = ({ child
       title: `新会话${dayjs().format('DD/MMTHH:mm:ss')}`,
       sessionId: conversationId,
     });
-    const result = response.data;
-    setChatList((prev) => [
-      result, // 新创建的会话加入到列表中
-      ...prev,
-    ]);
+    const chatData = response.data;
+    setChatList((prev) => [chatData, ...prev]);
     // 并且选中当前的会话
-    setCurrentChat(result);
+    setCurrentChat(chatData);
   };
 
   // 消息发送和处理响应中

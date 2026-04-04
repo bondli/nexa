@@ -46,25 +46,34 @@ const Knowledge: React.FC = () => {
   const getNoteList = async () => {
     try {
       const response = await request.get('/docs/getList');
-      const result = response.data;
 
       setInitLoading(false);
-      setList(result.data);
+      setList(response.data || []);
     } catch (error) {
       message.error('查询文档列表失败');
       console.warn(error);
     }
   };
 
-  // 下载文件
+  // 下载文件 - 使用 responseType blob 不经过拦截器处理
   const handleDownload = async (record: DataType) => {
     try {
-      const response = await request.get(`/docs/download?id=${record.id}`, {
-        responseType: 'blob',
+      // 直接用 axios 来下载文件，避免拦截器处理
+      const loginData = JSON.parse(localStorage.getItem('loginData') || '{}');
+      const response = await fetch(`${API_BASE_URL}/docs/download?id=${record.id}`, {
+        headers: {
+          'X-User-Id': loginData.id || 0,
+          'X-From': 'Nexa-App-Client',
+        },
       });
 
+      if (!response.ok) {
+        throw new Error('下载失败');
+      }
+
+      const blob = await response.blob();
       // 创建下载链接
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', record.name);
@@ -93,12 +102,12 @@ const Knowledge: React.FC = () => {
       onOk: async () => {
         try {
           const response = await request.post(`/docs/delete?id=${record.id}`);
-          if (response.data.success) {
+          if (response.code === 0) {
             message.success('文档删除成功');
             // 刷新列表
             await getNoteList();
           } else {
-            message.error(response.data.error || '文档删除失败');
+            message.error(response.message || '文档删除失败');
           }
         } catch (error) {
           message.error('文档删除失败');
@@ -123,7 +132,7 @@ const Knowledge: React.FC = () => {
         // console.log(info.file, info.fileList);
       }
       if (status === 'done') {
-        if (response.success) {
+        if (response.code === 0) {
           modal.success({
             title: '温馨提示',
             content: '文档上传成功',
@@ -132,7 +141,7 @@ const Knowledge: React.FC = () => {
             },
           });
         } else {
-          message.error(response.error);
+          message.error(response.message);
         }
       } else if (status === 'error') {
         message.error(`${info.file.name} file upload failed.`);

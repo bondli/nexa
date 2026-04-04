@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import logger from 'electron-log';
 import Cate from '../models/Cate';
+import { success, successWithPage, badRequest, notFound, forbidden, serverError } from '../utils/response';
 
 // 新增一个分类
 export const createCate = async (req: Request, res: Response) => {
@@ -8,7 +9,7 @@ export const createCate = async (req: Request, res: Response) => {
   try {
     const { icon, name, orders } = req.body;
     if (!name) {
-      res.status(400).json({ error: 'Name is required' });
+      badRequest(res, 'Name is required');
       return;
     }
     const result = await Cate.create({
@@ -18,10 +19,10 @@ export const createCate = async (req: Request, res: Response) => {
       counts: 0,
       userId,
     });
-    res.status(200).json(result.toJSON());
+    success(res, result.toJSON());
   } catch (error) {
     logger.error('Error on creating cate:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error creating cate');
   }
 };
 
@@ -31,13 +32,13 @@ export const getCateInfo = async (req: Request, res: Response) => {
     const { id } = req.query;
     const result = await Cate.findByPk(Number(id));
     if (result) {
-      res.json(result.toJSON());
+      success(res, result.toJSON());
     } else {
-      res.json({ error: 'Cate not found' });
+      notFound(res, 'Cate not found');
     }
   } catch (error) {
     logger.error('Error on getting cate by ID:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error getting cate');
   }
 };
 
@@ -52,13 +53,10 @@ export const getCates = async (req: Request, res: Response) => {
         ['createdAt', 'DESC'],
       ],
     });
-    res.json({
-      count: count || 0,
-      data: rows || [],
-    });
+    successWithPage(res, rows || [], count || 0);
   } catch (error) {
     logger.error('Error on getting cates:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error getting cates');
   }
 };
 
@@ -69,18 +67,19 @@ export const updateCate = async (req: Request, res: Response) => {
     const { icon, name, orders } = req.body;
     // 针对虚拟分类，不能修改
     if (id === 'all' || id === 'today' || id === 'done' || id === 'trash') {
-      res.json({ error: 'Virtual cate cannot be modified' });
+      badRequest(res, 'Virtual cate cannot be modified');
+      return;
     }
     const result = await Cate.findByPk(Number(id));
     if (result) {
       await result.update({ icon, name, orders });
-      res.json(result.toJSON());
+      success(res, result.toJSON());
     } else {
-      res.json({ error: 'cate not found' });
+      notFound(res, 'Cate not found');
     }
   } catch (error) {
     logger.error('Error on updating cate:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error updating cate');
   }
 };
 
@@ -93,16 +92,16 @@ export const deleteCate = async (req: Request, res: Response) => {
     if (result) {
       // 判断这个分类是否属于自己的
       if (result.userId !== Number(userId)) {
-        res.json({ error: 'Forbidden', message: '权限不足' });
+        forbidden(res, '权限不足');
         return;
       }
       await result.destroy();
-      res.json({ message: 'cate deleted successfully' });
+      success(res, null, 'cate deleted successfully');
     } else {
-      res.json({ error: 'cate not found' });
+      notFound(res, 'Cate not found');
     }
   } catch (error) {
     logger.error('Error on deleting cate:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error deleting cate');
   }
 };

@@ -11,6 +11,7 @@ import Note from '../models/Note';
 import Cate from '../models/Cate';
 import Knowledge from '../models/Knowledge';
 import Docs from '../models/Docs';
+import { success, successWithPage, badRequest, notFound, serverError } from '../utils/response';
 
 // 新增一条代办Note
 export const createNote = async (req: Request, res: Response) => {
@@ -36,10 +37,10 @@ export const createNote = async (req: Request, res: Response) => {
       return noteResult;
     });
 
-    res.status(200).json(result.toJSON());
+    success(res, result.toJSON());
   } catch (error) {
     logger.error('Error creating Note:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error creating Note');
   }
 };
 
@@ -49,13 +50,13 @@ export const getNoteInfo = async (req: Request, res: Response) => {
     const { id } = req.query;
     const result = await Note.findByPk(Number(id));
     if (result) {
-      res.json(result.toJSON());
+      success(res, result.toJSON());
     } else {
-      res.json({ error: 'Note not found' });
+      notFound(res, 'Note not found');
     }
   } catch (error) {
     logger.error('Error getting Note by ID:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error getting Note');
   }
 };
 
@@ -99,13 +100,10 @@ export const getNotes = async (req: Request, res: Response) => {
       where,
       order: [['updatedAt', 'DESC']],
     });
-    res.json({
-      count: count || 0,
-      data: rows || [],
-    });
+    successWithPage(res, rows || [], count || 0);
   } catch (error) {
     logger.error('Error getting NoteList by cateId:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error getting NoteList');
   }
 };
 
@@ -151,13 +149,13 @@ export const updateNote = async (req: Request, res: Response) => {
       //     logger.error('更新嵌入向量失败:', embeddingError);
       //   }
       // }
-      res.json(result.toJSON());
+      success(res, result.toJSON());
     } else {
-      res.json({ error: 'Note not found' });
+      notFound(res, 'Note not found');
     }
   } catch (error) {
     logger.error('Error updating Note:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error updating Note');
   }
 };
 
@@ -197,13 +195,13 @@ export const moveNote = async (req: Request, res: Response) => {
             },
           );
       }
-      res.json(result.toJSON());
+      success(res, result.toJSON());
     } else {
-      res.json({ error: 'Note not found' });
+      notFound(res, 'Note not found');
     }
   } catch (error) {
     logger.error('Error moving Note:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error moving Note');
   }
 };
 
@@ -246,15 +244,16 @@ export const getNoteCounts = async (req: Request, res: Response) => {
         },
       },
     });
-    res.json({
+    const countData = {
       all: statusCountMap.undo || 0,
       today: todayDeadline || 0,
       done: statusCountMap.done || 0,
       deleted: statusCountMap.deleted || 0,
-    });
+    };
+    success(res, countData);
   } catch (error) {
     logger.error('Error getting NoteCounts:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error getting NoteCounts');
   }
 };
 
@@ -332,13 +331,10 @@ export const searchNotes = async (req: Request, res: Response) => {
       where,
       order: [['createdAt', 'DESC']],
     });
-    res.json({
-      count: count || 0,
-      data: rows || [],
-    });
+    successWithPage(res, rows || [], count || 0);
   } catch (error) {
     logger.error('Error search NoteList by cateId:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error searching Notes');
   }
 };
 
@@ -358,13 +354,13 @@ export const removeNote = async (req: Request, res: Response) => {
         logger.error('删除嵌入向量失败:', embeddingError);
       }
 
-      res.json(result.toJSON());
+      success(res, result.toJSON());
     } else {
-      res.json({ error: 'Note not found' });
+      notFound(res, 'Note not found');
     }
   } catch (error) {
     logger.error('Error deletedFromTrash:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error deleting Note');
   }
 };
 
@@ -382,9 +378,12 @@ export const addNoteToKnowledge = async (req: Request, res: Response) => {
           desc: result.desc || '',
         });
         // 知识库文档量+1
-        await Knowledge.update({ counts: Sequelize.literal('counts + 1') }, { 
-          where: { id: Number(knowledgeId) } 
-        });
+        await Knowledge.update(
+          { counts: Sequelize.literal('counts + 1') },
+          {
+            where: { id: Number(knowledgeId) },
+          },
+        );
         // 知识库对应的文档表新增一条记录
         await Docs.create({
           knowledgeId: Number(knowledgeId),
@@ -396,15 +395,15 @@ export const addNoteToKnowledge = async (req: Request, res: Response) => {
           type: 'note',
           indexedAt: new Date(),
         });
-        res.json({ message: 'ok' });
+        success(res, null, 'Note added to knowledge');
       } else {
-        res.status(500).json({ error: '生成向量失败' });
+        serverError(res, '生成向量失败');
       }
     } else {
-      res.json({ error: 'Note not found' });
+      notFound(res, 'Note not found');
     }
   } catch (error) {
     logger.error('Error on adding Note to knowledge:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error adding Note to knowledge');
   }
 };

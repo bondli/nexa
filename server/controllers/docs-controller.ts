@@ -12,25 +12,21 @@ import {
   updateDocumentEmbedding,
   deleteDocumentEmbedding,
 } from '../services/vector-store-service';
+import { success, successWithPage, notFound, badRequest, serverError } from '../utils/response';
 
 /**
  * 获取应用文件存储目录
- * @returns 文件存储目录路径
  */
 const getFilesDirectory = (): string => {
-  // 检查是否在 Electron 环境中
   const isElectron = !!(process as any).resourcesPath;
 
   let filesDir: string;
   if (isElectron) {
-    // Electron 环境：使用 resourcesPath
     filesDir = path.join((process as any).resourcesPath, 'files');
   } else {
-    // Node.js 环境：使用项目根目录下的 files 文件夹
     filesDir = path.join(process.cwd(), 'files');
   }
 
-  // 确保目录存在
   if (!fs.existsSync(filesDir)) {
     fs.mkdirSync(filesDir, { recursive: true });
     logger.info('创建文件存储目录:', filesDir);
@@ -40,28 +36,21 @@ const getFilesDirectory = (): string => {
 };
 
 /**
- * 生成安全的文件名（处理中文乱码问题）
- * @param originalName 原始文件名
- * @returns 安全的文件名
+ * 生成安全的文件名
  */
 const generateSafeFilename = (originalName: string): string => {
-  // 使用 Buffer 确保中文文件名正确编码
   const filename = Buffer.from(originalName, 'utf8').toString('utf8');
   const timestamp = Date.now();
   const ext = path.extname(filename);
   const nameWithoutExt = path.basename(filename, ext);
 
-  // 生成带时间戳的文件名，避免重名冲突
   return `${nameWithoutExt}-${timestamp}${ext}`;
 };
 
-// 允许上传的文件扩展名配置
 const ALLOWED_FILE_EXTENSIONS = ['.md', '.txt'];
 
 /**
- * 验证文件扩展名是否在允许的类型中
- * @param filename 文件名
- * @returns 是否为允许的文件类型
+ * 验证文件扩展名
  */
 const isAllowedFileType = (filename: string): boolean => {
   const ext = path.extname(filename).toLowerCase();
@@ -81,7 +70,6 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     try {
-      // 确保中文文件名正确编码
       const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
       const safeFilename = generateSafeFilename(originalName);
       cb(null, safeFilename);
@@ -102,7 +90,7 @@ const upload = multer({
     cb(null, true);
   },
   limits: {
-    fileSize: 5 * 1024 * 1024, // 限制文件大小为 5MB
+    fileSize: 5 * 1024 * 1024,
   },
 }).single('file');
 
@@ -115,48 +103,33 @@ export const uploadDocs = (req: RequestWithFile, res: Response): void => {
   const userId = Number(req.headers['x-user-id']) || 0;
   upload(req as any, res as any, async (err: any) => {
     if (err instanceof multer.MulterError) {
-      return res.status(400).json({
-        success: false,
-        error: '文件上传失败',
-        details: err.message,
-      });
+      return badRequest(res, `文件上传失败: ${err.message}`);
     } else if (err) {
-      return res.status(400).json({
-        success: false,
-        error: err.message,
-      });
+      return badRequest(res, err.message);
     }
 
     try {
       if (!req.file) {
-        return res.status(400).json({
-          success: false,
-          error: '没有上传文件',
-        });
+        return badRequest(res, '没有上传文件');
       }
 
       if (req.file.path) {
-        // 确保原始文件名正确编码存储到数据库
         const originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
 
-        res.json({
-          success: true,
-          message: '文档上传成功',
-          data: {
+        success(
+          res,
+          {
             name: originalName,
             size: req.file.size,
             type: path.extname(originalName).toLowerCase(),
             path: req.file.path,
-          }
-        });
+          },
+          '文档上传成功',
+        );
       }
     } catch (error) {
       logger.error('文档上传处理错误:', error);
-      res.status(500).json({
-        success: false,
-        error: '文档上传处理失败',
-        details: error instanceof Error ? error.message : '未知错误',
-      });
+      serverError(res, '文档上传处理失败');
     }
   });
 };
@@ -165,11 +138,11 @@ export const uploadDocs = (req: RequestWithFile, res: Response): void => {
 export const createDocs = async (req: Request, res: Response) => {
   const userId = Number(req.headers['x-user-id']) || 0;
   try {
-    const { name, desc, size, type, path, knowledgeId } = req.body;
-    const result = await Docs.create({ name, desc, size, type, userId, path, knowledgeId });
+    const { name, desc, size, type, path: filePath, knowledgeId } = req.body;
+    const result = await Docs.create({ name, desc, size, type, userId, path: filePath, knowledgeId });
     // 更新知识库中的文档数量
     await Knowledge.update({ counts: Sequelize.literal('counts + 1') }, { where: { id: knowledgeId } });
-    // todo:读取文档内容，生成嵌入向量
+    // 生成嵌入向量
     try {
       const embedding = await generateEmbedding(`${name}\n${desc}`);
       await addDocumentEmbedding(result.id, embedding, {
@@ -178,12 +151,11 @@ export const createDocs = async (req: Request, res: Response) => {
       });
     } catch (embeddingError) {
       logger.error('生成嵌入向量失败:', embeddingError);
-      // 不影响笔记创建，只记录错误
     }
-    res.status(200).json(result.toJSON());
+    success(res, result.toJSON());
   } catch (error) {
     console.error('Error creating Docs:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error creating Docs');
   }
 };
 
@@ -193,20 +165,20 @@ export const getDocsInfo = async (req: Request, res: Response) => {
     const { id } = req.query;
     const result = await Docs.findByPk(Number(id));
     if (result) {
-      res.json(result.toJSON());
+      success(res, result.toJSON());
     } else {
-      res.json({ error: 'Docs not found' });
+      notFound(res, 'Docs not found');
     }
   } catch (error) {
     console.error('Error getting Docs by ID:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error getting Docs');
   }
 };
 
 // 查询文档列表
 export const getDocsList = async (req: Request, res: Response) => {
   const userId = Number(req.headers['x-user-id']) || 0;
-  const { knowledgeId, page = 1, pageSize = 10 } = req.query;
+  const { knowledgeId } = req.query;
   try {
     const where = {
       userId,
@@ -217,20 +189,17 @@ export const getDocsList = async (req: Request, res: Response) => {
       where,
       order: [['createdAt', 'DESC']],
     });
-    res.json({
-      count: count || 0,
-      data: rows || [],
-    });
+    successWithPage(res, rows || [], count || 0);
   } catch (error) {
     console.error('Error getting DocsList by knowledgeId:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error getting DocsList');
   }
 };
 
 // 更新文档
 export const updateDocs = async (req: Request, res: Response) => {
   try {
-    const { id, op } = req.query;
+    const { id } = req.query;
     const { name, desc, status, size, type } = req.body;
     const result = await Docs.findByPk(Number(id));
     if (result) {
@@ -245,17 +214,17 @@ export const updateDocs = async (req: Request, res: Response) => {
       } catch (embeddingError) {
         logger.error('更新嵌入向量失败:', embeddingError);
       }
-      res.json(result.toJSON());
+      success(res, result.toJSON());
     } else {
-      res.json({ error: 'Docs not found' });
+      notFound(res, 'Docs not found');
     }
   } catch (error) {
     console.error('Error updating Docs:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error updating Docs');
   }
 };
 
-// 下载文档
+// 下载文档 - 不使用统一响应格式，因为需要发送文件
 export const downloadDocs = async (req: Request, res: Response) => {
   try {
     const { id } = req.query;
@@ -266,10 +235,7 @@ export const downloadDocs = async (req: Request, res: Response) => {
 
       // 检查文件是否存在
       if (!fs.existsSync(filePath)) {
-        return res.status(404).json({
-          success: false,
-          error: '文件不存在',
-        });
+        return res.status(404).json({ code: 404, message: '文件不存在' });
       }
 
       // 设置响应头，处理中文文件名
@@ -280,18 +246,11 @@ export const downloadDocs = async (req: Request, res: Response) => {
       // 发送文件
       res.sendFile(path.resolve(filePath));
     } else {
-      res.status(404).json({
-        success: false,
-        error: '文档不存在',
-      });
+      return res.status(404).json({ code: 404, message: '文档不存在' });
     }
   } catch (error) {
     logger.error('Error downloadDocs:', error);
-    res.status(500).json({
-      success: false,
-      error: '文件下载失败',
-      details: error instanceof Error ? error.message : '未知错误',
-    });
+    return res.status(500).json({ code: 500, message: '文件下载失败' });
   }
 };
 
@@ -310,7 +269,6 @@ export const removeDocs = async (req: Request, res: Response) => {
           logger.info('已删除物理文件:', doc.path);
         } catch (fileError) {
           logger.error('删除物理文件失败:', fileError);
-          // 继续删除数据库记录，即使物理文件删除失败
         }
       }
 
@@ -331,23 +289,12 @@ export const removeDocs = async (req: Request, res: Response) => {
         logger.error('删除嵌入向量失败:', embeddingError);
       }
 
-      res.json({
-        success: true,
-        message: '文档删除成功',
-        data: result.toJSON(),
-      });
+      success(res, result.toJSON(), '文档删除成功');
     } else {
-      res.status(404).json({
-        success: false,
-        error: '文档不存在',
-      });
+      notFound(res, '文档不存在');
     }
   } catch (error) {
     logger.error('Error removeDocs:', error);
-    res.status(500).json({
-      success: false,
-      error: '文档删除失败',
-      details: error instanceof Error ? error.message : '未知错误',
-    });
+    serverError(res, '文档删除失败');
   }
 };

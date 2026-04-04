@@ -33,8 +33,8 @@ const BootPage: React.FC = () => {
       dbpwd: values.dbpwd,
     });
     userLog('Submit appInstall Result:', result);
-    if (!result || !result?.success) {
-      message.error(`安装失败：${result?.data?.error}`);
+    if (!result || result.code !== 0) {
+      message.error(`安装失败：${result?.message}`);
       return;
     }
     message.success(`安装成功，正在进入系统`);

@@ -30,18 +30,18 @@ const SearchBox: React.FC = () => {
       const response = await request.post(`/note/searchList?cateId=${currentCate.id}`, {
         searchKey,
       });
-      const { data, status } = response;
-      if (status === 200) {
-        if (data.count > 0) {
+      if (response.code === 0) {
+        const { data, count } = response;
+        if (count > 0) {
           notification.success({
-            message: `搜索到“${searchKey}”的结果共 ${data.count} 条`,
+            message: `搜索到”${searchKey}”的结果共 ${count} 条`,
           });
         } else {
           notification.info({
-            message: `没有搜索到“${searchKey}”的结果`,
+            message: `没有搜索到”${searchKey}”的结果`,
           });
         }
-        setNoteList(data.data || []);
+        setNoteList(data || []);
       }
     }, 2500);
   };

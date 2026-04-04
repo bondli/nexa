@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import logger from 'electron-log';
 import Knowledge from '../models/Knowledge';
+import { success, notFound, badRequest, serverError } from '../utils/response';
 
 /**
  * 获取所有知识库
@@ -17,10 +18,10 @@ export const getKnowledges = async (req: Request, res: Response): Promise<void> 
       order: [['createdAt', 'DESC']],
     });
 
-    res.json({ success: true, data: knowledgeBases });
+    success(res, knowledgeBases);
   } catch (error) {
     logger.error('Error on get Knowledges:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error getting Knowledges');
   }
 };
 
@@ -33,14 +34,14 @@ export const getKnowledgeById = async (req: Request, res: Response): Promise<voi
     const knowledgeBase = await Knowledge.findByPk(Number(id));
 
     if (!knowledgeBase) {
-      res.status(404).json({ success: false, message: '知识库不存在' });
+      notFound(res, '知识库不存在');
       return;
     }
 
-    res.json({ success: true, data: knowledgeBase });
+    success(res, knowledgeBase);
   } catch (error) {
     logger.error('Error on getKnowledgeById:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error getting Knowledge');
   }
 };
 
@@ -53,7 +54,7 @@ export const createKnowledge = async (req: Request, res: Response): Promise<void
     const { name, description } = req.body;
 
     if (!name || !userId) {
-      res.status(400).json({ success: false, message: '缺少必填字段' });
+      badRequest(res, '缺少必填字段');
       return;
     }
 
@@ -64,10 +65,10 @@ export const createKnowledge = async (req: Request, res: Response): Promise<void
       counts: 0,
     });
 
-    res.status(201).json({ success: true, data: result });
+    success(res, result.toJSON());
   } catch (error) {
     logger.error('Error on creating Knowledge:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error creating Knowledge');
   }
 };
 
@@ -81,7 +82,7 @@ export const updateKnowledge = async (req: Request, res: Response): Promise<void
 
     const result = await Knowledge.findByPk(Number(id));
     if (!result) {
-      res.status(404).json({ success: false, message: '知识库不存在' });
+      notFound(res, '知识库不存在');
       return;
     }
 
@@ -92,10 +93,10 @@ export const updateKnowledge = async (req: Request, res: Response): Promise<void
 
     await result.reload();
 
-    res.json({ success: true, data: result });
+    success(res, result.toJSON());
   } catch (error) {
     logger.error('Error on update Knowledge:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error updating Knowledge');
   }
 };
 
@@ -108,16 +109,16 @@ export const deleteKnowledge = async (req: Request, res: Response): Promise<void
     const result = await Knowledge.findByPk(Number(id));
 
     if (!result) {
-      res.status(404).json({ success: false, message: '知识库不存在' });
+      notFound(res, '知识库不存在');
       return;
     }
 
     // 删除知识库
     await result.destroy();
 
-    res.json({ success: true, message: '知识库删除成功' });
+    success(res, null, '知识库删除成功');
   } catch (error) {
     logger.error('Error on delete Knowledge:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    serverError(res, 'Error deleting Knowledge');
   }
 };

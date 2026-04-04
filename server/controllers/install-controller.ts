@@ -1,7 +1,8 @@
+import fs from 'fs';
 import { Request, Response } from 'express';
 import logger from 'electron-log';
-import fs from 'fs';
 import { getConfigPath, ensureConfigDir } from '../config/setting';
+import { success, serverError } from '../utils/response';
 
 const configPath = getConfigPath();
 
@@ -9,18 +10,19 @@ const configPath = getConfigPath();
 export const isInstalled = async (req: Request, res: Response) => {
   try {
     if (!fs.existsSync(configPath)) {
-      res.json({ success: true, installed: false });
+      success(res, { installed: false });
       return;
     }
     const config = fs.readFileSync(configPath, 'utf-8');
     const configObj = JSON.parse(config);
     if (configObj && configObj.DB_HOST) {
-      res.json({ success: true, installed: true });
+      success(res, { installed: true });
+      return;
     }
-    res.json({ success: true, installed: false });
+    success(res, { installed: false });
   } catch (error) {
     logger.error('读取配置文件失败:', error);
-    res.status(500).json({ installed: false });
+    res.status(500).json({ code: 500, message: '读取配置文件失败' });
   }
 };
 
@@ -47,9 +49,9 @@ export const saveConfig = async (req: Request, res: Response) => {
       }
     }, 1000);
 
-    res.json({ success: true, message: '配置保存成功，请重启应用' });
+    success(res, null, '配置保存成功，请重启应用');
   } catch (error) {
     logger.error('保存配置文件失败:', error);
-    res.status(500).json({ success: false, message: '配置保存失败' });
+    serverError(res, '配置保存失败');
   }
 };

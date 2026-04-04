@@ -45,17 +45,18 @@ const UserPage: React.FC = () => {
       password: values.password,
     });
     userLog('Submit Login Result:', result);
-    if (!result || !result.id) {
-      message.error(`请检查用户名和密码是否正确，失败原因：${result?.error}`);
+    if (!result || result.code !== 0 || !result.data) {
+      message.error(`请检查用户名和密码是否正确，失败原因：${result?.message}`);
       return;
     }
 
+    const user = result.data;
     message.success(`登录成功`);
-    setStore('loginData', result);
+    setStore('loginData', user);
     setUserInfo({
-      id: result.id,
-      name: result.name,
-      avatar: result.avatar,
+      id: user.id,
+      name: user.name,
+      avatar: user.avatar,
     });
   };
 
@@ -69,12 +70,12 @@ const UserPage: React.FC = () => {
       avatar: values.regname.substring(0, 1),
     });
     userLog('Submit Register Result:', result);
-    if (!result || !result.data || !result.data.id) {
-      message.error(`注册失败：${result?.data?.error}`);
+    if (!result || result.code !== 0 || !result.data) {
+      message.error(`注册失败：${result?.message}`);
       return;
     }
-    message.success(`注册成功，已自动为你登录`);
     const user = result.data;
+    message.success(`注册成功，已自动为你登录`);
     setStore('loginData', user);
     setUserInfo({
       id: user.id,

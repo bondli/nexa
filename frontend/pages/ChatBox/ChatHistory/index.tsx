@@ -59,9 +59,8 @@ const ChatHistory: React.FC<ChatHistoryProps> = (props) => {
     const response = await request.post('/chat/delete', {
       sessionId,
     });
-    if (response.status === 200) {
+    if (response.code === 0) {
       getChatList();
-      // todo: 删除之后选择第一个
       setCurrentChat(null);
       message.success('该会话成功被删除了');
     } else {
@@ -75,7 +74,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = (props) => {
       sessionId,
       title,
     });
-    if (response.status === 200) {
+    if (response.code === 0) {
       getChatList();
       setIsModalOpen(false);
     } else {

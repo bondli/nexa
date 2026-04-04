@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { setAPIKey, getAPIKey } from '../services/ai-service';
 import { getCollectionCount, clearCollection } from '../services/vector-store-service';
+import { success, badRequest, serverError } from '../utils/response';
 
 /**
  * 获取当前设置
@@ -10,13 +11,10 @@ export const getSettings = async (req: Request, res: Response, next: NextFunctio
     const apiKey = getAPIKey();
     const vectorDBCount = await getCollectionCount();
 
-    res.json({
-      success: true,
-      data: {
-        apiKey: apiKey ? '******' : '', // 不返回完整密钥
-        hasApiKey: !!apiKey,
-        vectorDBCount,
-      },
+    success(res, {
+      apiKey: apiKey ? '******' : '',
+      hasApiKey: !!apiKey,
+      vectorDBCount,
     });
   } catch (error) {
     next(error);
@@ -31,13 +29,13 @@ export const updateAPIKey = async (req: Request, res: Response, next: NextFuncti
     const { apiKey } = req.body;
 
     if (!apiKey) {
-      res.status(400).json({ success: false, message: '缺少 API Key' });
+      badRequest(res, '缺少 API Key');
       return;
     }
 
     setAPIKey(apiKey);
 
-    res.json({ success: true, message: 'API Key 更新成功' });
+    success(res, null, 'API Key 更新成功');
   } catch (error) {
     next(error);
   }
@@ -50,12 +48,9 @@ export const getVectorDBStatus = async (req: Request, res: Response, next: NextF
   try {
     const count = await getCollectionCount();
 
-    res.json({
-      success: true,
-      data: {
-        count,
-        status: count > 0 ? 'active' : 'empty',
-      },
+    success(res, {
+      count,
+      status: count > 0 ? 'active' : 'empty',
     });
   } catch (error) {
     next(error);
@@ -69,7 +64,7 @@ export const clearVectorDB = async (req: Request, res: Response, next: NextFunct
   try {
     await clearCollection();
 
-    res.json({ success: true, message: '向量数据库已清空' });
+    success(res, null, '向量数据库已清空');
   } catch (error) {
     next(error);
   }
