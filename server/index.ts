@@ -9,6 +9,14 @@ import { testConnection, syncDatabase } from './config/database';
 import { initVectorDB } from './config/vectorDB';
 import router from './routers/index';
 
+// 引入所有模型，确保数据库同步时能创建所有表
+import './models/User';
+import './models/Note';
+import './models/Cate';
+import './models/Knowledge';
+import './models/Docs';
+import './models/Chat';
+
 const app = express();
 
 // 检查是否已配置数据库

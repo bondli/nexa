@@ -16,12 +16,20 @@ import {
 } from '../controllers/note-controller';
 import {
   uploadDocs,
+  createDocs,
   getDocsInfo,
   getDocsList,
   updateDocs,
   removeDocs,
   downloadDocs,
 } from '../controllers/docs-controller';
+import {
+  getKnowledges,
+  getKnowledgeById,
+  createKnowledge,
+  updateKnowledge,
+  deleteKnowledge,
+} from '../controllers/knowledge-controller';
 import {
   createChat,
   getChatInfo,
@@ -66,11 +74,19 @@ router.get('/note/addToKnowledge', addNoteToKnowledge);
 
 // 文档相关
 router.post('/docs/upload', uploadDocs);
+router.post('/docs/create', createDocs);
 router.get('/docs/getList', getDocsList);
 router.post('/docs/update', updateDocs);
-router.get('/docs/detail', getDocsInfo);
+router.get('/docs/info', getDocsInfo);
 router.get('/docs/download', downloadDocs);
 router.post('/docs/delete', removeDocs);
+
+// 知识库相关
+router.get('/knowledge/list', getKnowledges);
+router.get('/knowledge/detail', getKnowledgeById);
+router.post('/knowledge/create', createKnowledge);
+router.post('/knowledge/update', updateKnowledge);
+router.post('/knowledge/delete', deleteKnowledge);
 
 // 会话相关
 router.post('/chat/add', createChat);

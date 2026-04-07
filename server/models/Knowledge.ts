@@ -9,6 +9,7 @@ interface KnowledgeAttributes {
   name: string;
   description: string | null;
   counts: number;
+  orders: number;
   userId: number;
 }
 
@@ -46,15 +47,22 @@ const Knowledge = sequelize.define<KnowledgeInstance, KnowledgeCreationAttribute
       defaultValue: 0,
       comment: '知识库条目数量',
     },
+    orders: {
+      comment: '排序',
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       comment: '用户ID',
-      field: 'user_id',
+      field: 'userId',
     },
   },
   {
     tableName: 'Knowledge',
+    indexes: [{ fields: ['userId'] }, { fields: ['orders'] }, { fields: ['userId', 'orders'] }],
   },
 );
 

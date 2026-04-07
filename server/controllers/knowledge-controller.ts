@@ -53,8 +53,8 @@ export const createKnowledge = async (req: Request, res: Response): Promise<void
   try {
     const { name, description } = req.body;
 
-    if (!name || !userId) {
-      badRequest(res, '缺少必填字段');
+    if (!name) {
+      badRequest(res, '请输入知识库名称');
       return;
     }
 
@@ -66,9 +66,9 @@ export const createKnowledge = async (req: Request, res: Response): Promise<void
     });
 
     success(res, result.toJSON());
-  } catch (error) {
-    logger.error('Error on creating Knowledge:', error);
-    serverError(res, 'Error creating Knowledge');
+  } catch (error: any) {
+    logger.error('Error on creating Knowledge:', error.message || error);
+    serverError(res, 'Error creating Knowledge: ' + (error.message || ''));
   }
 };
 

@@ -43,3 +43,9 @@ changes/xxxx        ---> 需要记录这个xxxx，后续要用到
 ```
 规范会被合并到 openspec/specs/ 目录，成为持久规范的一部分。
 
+## 其他
+
+### 视觉稿还原：
+- prompt: 请使用Figma MCP，在 @test.html 页面还原落地页设计：https://www.figma.com/design/zZQZmhP0lSw4OeCsBvuzFG/Bean-Scene-Coffee--Community-?node-id=1-4&t=2TnBNPKQMGuHxi8w-4
+- 前提：安装和配置好Figma MCP插件
+
