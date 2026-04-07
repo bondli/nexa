@@ -15,6 +15,7 @@ type KnowledgeContextType = {
   getKnowledgeList: () => Promise<void>;
   getDocumentList: (knowledgeId: number) => Promise<void>;
   createKnowledge: (name: string, description: string) => Promise<any>;
+  updateKnowledge: (id: number, name: string, description: string) => Promise<any>;
   deleteKnowledge: (id: number) => Promise<any>;
 };
 
@@ -64,6 +65,12 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return response;
   };
 
+  // 更新知识库
+  const updateKnowledge = async (id: number, name: string, description: string) => {
+    const response = await request.post(`/knowledge/update?id=${id}`, { name, description });
+    return response;
+  };
+
   // 删除知识库
   const deleteKnowledge = async (id: number) => {
     const response = await request.post(`/knowledge/delete?id=${id}`);
@@ -97,6 +104,7 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         getKnowledgeList,
         getDocumentList,
         createKnowledge,
+        updateKnowledge,
         deleteKnowledge,
       }}
     >

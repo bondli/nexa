@@ -38,8 +38,8 @@ const Knowledge: React.FC = () => {
 
   return (
     <>
-      <div className={style.knowledgeLayout}>
-        <Sider trigger={null} collapsible theme={'light'} width={280} className={style.sider}>
+      <Layout>
+        <Sider trigger={null} collapsible theme={'light'} width={260} className={style.sider}>
           <KnowBase />
         </Sider>
         <Layout>
@@ -48,10 +48,10 @@ const Knowledge: React.FC = () => {
             <Documents />
           </Content>
         </Layout>
-      </div>
+      </Layout>
 
       <Drawer
-        title={`文档详情 - ${selectedDocument?.name || ''}`}
+        title={`文档详情`}
         open={showDetailModal}
         size={800}
         styles={{ body: { padding: 0 } }}

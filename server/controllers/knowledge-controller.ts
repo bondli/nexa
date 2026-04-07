@@ -105,7 +105,7 @@ export const updateKnowledge = async (req: Request, res: Response): Promise<void
  */
 export const deleteKnowledge = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const { id } = req.query;
     const result = await Knowledge.findByPk(Number(id));
 
     if (!result) {

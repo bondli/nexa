@@ -2,7 +2,7 @@ import React from 'react';
 
 // 知识库
 export type KnowBaseType = {
-  id: number | string;
+  id: number;
   name: string;
   description: string;
   counts: number;

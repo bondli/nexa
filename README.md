@@ -36,8 +36,17 @@ changes/xxxx        ---> 需要记录这个xxxx，后续要用到
 /opsx:apply xxxx
 ```
 
+### Step 3：/opsx:review（查找问题）
+```
+/opsx:review xxxx
+```
 
-### Step 3：/opsx:archive（归档）
+### Step 4：/opsx:fix（问题修复）
+```
+/opsx:fix xxxx
+```
+
+### Step 5：/opsx:archive（归档）
 ```
 /opsx:archive xxxx
 ```
@@ -45,7 +54,10 @@ changes/xxxx        ---> 需要记录这个xxxx，后续要用到
 
 ## 其他
 
-### 视觉稿还原：
+### Figma视觉稿还原：
 - prompt: 请使用Figma MCP，在 @test.html 页面还原落地页设计：https://www.figma.com/design/zZQZmhP0lSw4OeCsBvuzFG/Bean-Scene-Coffee--Community-?node-id=1-4&t=2TnBNPKQMGuHxi8w-4
 - 前提：安装和配置好Figma MCP插件
 
+### stitch设计稿还原：
+- prompt：使用stitch mcp修改所有页面的风格为“咸鱼App”对应的风格
+- 前提：https://mp.weixin.qq.com/s/mb1rgKMmSHFXp5v24FTY2g
