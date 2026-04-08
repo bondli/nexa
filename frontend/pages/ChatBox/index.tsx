@@ -1,8 +1,8 @@
 import React, { memo, useContext } from 'react';
 import { Layout, Space } from 'antd';
 import { generateUUID, sleep } from '@commons/utils';
-import { AGENT_BASE_URL } from '@commons/constant';
 import { MainContext } from '@commons/context';
+import { API_BASE_URL } from '@commons/constant';
 import { ChatBoxContext, ChatBoxProvider } from './context';
 import ChatHistory from './ChatHistory';
 import MessageList from './MessageList';
@@ -48,16 +48,13 @@ const ChatBoxPage: React.FC = () => {
     const controller = new AbortController();
     abortController.current = controller;
     const body = JSON.stringify({
-      input: msg,
-      options: {
-        userId: `${userInfo?.id}`,
-        conversationId: finalSessionId,
-        action,
-      },
+      message: msg,
+      sessionId: finalSessionId,
+      useTools: action !== 'simple', // 默认使用工具调用
     });
 
     try {
-      const response = await fetch(AGENT_BASE_URL, {
+      const response = await fetch(`${API_BASE_URL}chat/withllm`, {
         method: 'POST',
         headers: {
           accept: 'text/event-stream',
@@ -82,8 +79,9 @@ const ChatBoxPage: React.FC = () => {
             if (line.startsWith('data: ')) {
               try {
                 const data = JSON.parse(line.replace('data: ', ''));
-                if (typeof data.text === 'string') {
-                  assistantContent += data.text;
+                // 处理新格式的响应: { content, done, toolCalls }
+                if (data.content) {
+                  assistantContent += data.content;
                   setMessageList((prev) => {
                     const updated = [...prev];
                     // 从后往前找最近的loading状态的assistant消息进行更新
@@ -93,6 +91,23 @@ const ChatBoxPage: React.FC = () => {
                           ...updated[i],
                           content: assistantContent,
                           status: 'loading',
+                        };
+                        break;
+                      }
+                    }
+                    return updated;
+                  });
+                }
+                // 处理错误
+                if (data.error) {
+                  setMessageList((prev) => {
+                    const updated = [...prev];
+                    for (let i = updated.length - 1; i >= 0; i--) {
+                      if (updated[i].role === 'assistant' && updated[i].status === 'loading') {
+                        updated[i] = {
+                          ...updated[i],
+                          status: 'error',
+                          content: data.error,
                         };
                         break;
                       }

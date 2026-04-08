@@ -162,6 +162,7 @@ const Header: React.FC = () => {
             }
           } catch (error) {
             message.error('文档创建失败');
+            console.error(error);
           }
         } else {
           message.error(response.message || '上传失败');

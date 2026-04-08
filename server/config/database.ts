@@ -115,6 +115,41 @@ export const syncDatabase = async (force = false): Promise<void> => {
       throw retryError;
     }
   }
+
+  // 确保 checkpoints 表存在且结构正确
+  await ensureChatMessagesTable();
+};
+
+// 确保 chat_messages 表存在
+const ensureChatMessagesTable = async (): Promise<void> => {
+  try {
+    // 检查表是否存在
+    const [results] = await sequelize.query(`
+      SELECT COUNT(*) as count
+      FROM information_schema.tables
+      WHERE table_schema = DATABASE()
+      AND table_name = 'chat_messages'
+    `);
+
+    const count = (results as Array<{ count: number }>)[0]?.count || 0;
+
+    if (count === 0) {
+      // 创建 chat_messages 表（简化版）
+      await sequelize.query(`
+        CREATE TABLE chat_messages (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          session_id VARCHAR(255) NOT NULL,
+          role VARCHAR(20) NOT NULL,
+          content TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          INDEX idx_session (session_id, created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+      `);
+      logger.info('chat_messages 表创建成功');
+    }
+  } catch (error) {
+    logger.error('确保 chat_messages 表存在时出错:', error);
+  }
 };
 
 export default sequelize;

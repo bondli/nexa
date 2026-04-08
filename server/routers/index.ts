@@ -95,6 +95,6 @@ router.get('/chat/list', getChats);
 router.post('/chat/update', updateChat);
 router.post('/chat/delete', deleteChat);
 router.get('/chat/msglist', getMessages);
-router.get('/chat/withllm', chatToLLM);
+router.post('/chat/withllm', chatToLLM);
 
 export default router;

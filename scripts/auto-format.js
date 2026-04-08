@@ -12,7 +12,7 @@ if (!fs.existsSync('package.json')) {
 // 格式化代码
 try {
   console.log('🎨 正在格式化代码...');
-  execSync('npx prettier --write "src/**/*.{ts, less}"');
+  execSync('npx prettier --write "frontend/**/*.{ts, less}"');
   console.log('✅ 代码格式化完成');
 } catch (e) {
   console.log('⚠️  格式化失败：', e.message);
