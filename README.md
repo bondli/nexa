@@ -61,3 +61,9 @@ changes/xxxx        ---> 需要记录这个xxxx，后续要用到
 ### stitch设计稿还原：
 - prompt：使用stitch mcp修改所有页面的风格为“咸鱼App”对应的风格
 - 前提：https://mp.weixin.qq.com/s/mb1rgKMmSHFXp5v24FTY2g
+
+
+## 待实现的想法
+- openclaw的集成，支持常见配置，对话，skill安装
+- 托盘支持：截图存知识，将截图粘帖到上传框，能传到服务器
+- 浏览器插件：一键提取文章内容，支持对话优化，提取到制定的分类

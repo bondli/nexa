@@ -5,7 +5,7 @@ import sequelize from '../config/database';
  * Checkpoint 模型属性接口 - 用于 langgraph 状态持久化
  */
 interface CheckpointAttributes {
-  threadId: string;
+  sessionId: string;
   checkpointNs: string;
   checkpointId?: string;
   parentCheckpointId?: string;
@@ -17,21 +17,22 @@ interface CheckpointAttributes {
 /**
  * Checkpoint 创建时的可选属性
  */
-interface CheckpointCreationAttributes extends Optional<CheckpointAttributes, 'checkpointId' | 'parentCheckpointId' | 'metadata' | 'createdAt'> {}
+interface CheckpointCreationAttributes extends Optional<
+  CheckpointAttributes,
+  'checkpointId' | 'parentCheckpointId' | 'metadata' | 'createdAt'
+> {}
 
 /**
  * Checkpoint 模型实例接口
  */
-interface CheckpointInstance
-  extends Model<CheckpointAttributes, CheckpointCreationAttributes>,
-    CheckpointAttributes {}
+interface CheckpointInstance extends Model<CheckpointAttributes, CheckpointCreationAttributes>, CheckpointAttributes {}
 
-const Checkpoint = sequelize.define<CheckpointInstance, CheckpointCreationAttributes>(
-  'Checkpoint',
+const ChatMessage = sequelize.define<CheckpointInstance, CheckpointCreationAttributes>(
+  'ChatMessage',
   {
-    threadId: {
+    sessionId: {
       type: DataTypes.STRING(255),
-      field: 'thread_id',
+      field: 'session_id',
       primaryKey: true,
     },
     checkpointNs: {
@@ -64,15 +65,15 @@ const Checkpoint = sequelize.define<CheckpointInstance, CheckpointCreationAttrib
     },
   },
   {
-    tableName: 'checkpoints',
+    tableName: 'ChatMessage',
     timestamps: false,
     indexes: [
       {
-        fields: ['thread_id', 'checkpoint_ns', 'checkpoint_id', 'created_at'],
+        fields: ['session_id', 'checkpoint_ns', 'checkpoint_id', 'created_at'],
       },
     ],
   },
 );
 
-export default Checkpoint;
+export default ChatMessage;
 export type { CheckpointInstance, CheckpointAttributes, CheckpointCreationAttributes };

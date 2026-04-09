@@ -52,7 +52,7 @@ export default defineConfig(({ command, mode }) => {
         '@': getPath('frontend'),
         '@commons': getPath('frontend/commons'),
         '@components': getPath('frontend/components'),
-        "@modules": getPath('frontend/modules'),
+        '@modules': getPath('frontend/modules'),
         '@pages': getPath('frontend/pages'),
       },
     },

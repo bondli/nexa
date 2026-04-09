@@ -1,6 +1,5 @@
 import logger from 'electron-log';
-import { QueryTypes } from 'sequelize';
-import sequelize from '../config/database';
+import ChatMessage, { CheckpointInstance } from '../models/ChatMessage';
 
 /**
  * 单条消息的接口
@@ -12,9 +11,37 @@ export interface MessageItem {
 }
 
 /**
- * 获取会话的消息列表（从 chat_messages 表）
- * @param sessionId 会话ID
- * @returns 消息列表
+ * 从 checkpoint 中提取消息列表
+ */
+const extractMessagesFromCheckpoint = (checkpoint: Record<string, unknown>): MessageItem[] => {
+  const messages: MessageItem[] = [];
+  const channelValues = checkpoint.channel_values as Record<string, unknown> | undefined;
+
+  if (channelValues?.messages && Array.isArray(channelValues.messages)) {
+    for (const msg of channelValues.messages) {
+      const msgObj = msg as { id: string[]; kwargs: { content: string }; type: string };
+      if (msgObj.kwargs?.content) {
+        // 根据 type 判断 role
+        let role: 'user' | 'assistant' | 'system' = 'user';
+        if (msgObj.type === 'ai' || msgObj.type === 'AIMessage') {
+          role = 'assistant';
+        } else if (msgObj.type === 'system') {
+          role = 'system';
+        }
+        messages.push({
+          role,
+          content: msgObj.kwargs.content,
+          timestamp: new Date(),
+        });
+      }
+    }
+  }
+
+  return messages;
+};
+
+/**
+ * 获取会话的消息列表（从 ChatMessage checkpoint 表）
  */
 export const getMessages = async (sessionId: string): Promise<MessageItem[]> => {
   try {
@@ -23,20 +50,17 @@ export const getMessages = async (sessionId: string): Promise<MessageItem[]> => 
       return [];
     }
 
-    const sqlQuery = `
-      SELECT role, content, created_at as timestamp
-      FROM chat_messages
-      WHERE session_id = ?
-      ORDER BY created_at ASC
-    `;
-
-    const results = await sequelize.query(sqlQuery, {
-      replacements: [sessionId],
-      type: QueryTypes.SELECT,
+    // 获取最新的 checkpoint
+    const checkpoint = await ChatMessage.findOne({
+      where: { sessionId, checkpointNs: '' },
+      order: [['createdAt', 'DESC']],
     });
 
-    const messages = (results as MessageItem[]) || [];
+    if (!checkpoint) {
+      return [];
+    }
 
+    const messages = extractMessagesFromCheckpoint(checkpoint.checkpoint);
     logger.info(`[MessageService] Retrieved ${messages.length} messages for sessionId: ${sessionId}`);
 
     return messages;
@@ -47,39 +71,13 @@ export const getMessages = async (sessionId: string): Promise<MessageItem[]> => 
 };
 
 /**
- * 保存单条消息到数据库
- * @param sessionId 会话ID
- * @param role 角色 (user/assistant)
- * @param content 消息内容
- */
-export const saveMessage = async (sessionId: string, role: string, content: string): Promise<void> => {
-  try {
-    await sequelize.query(
-      `INSERT INTO chat_messages (session_id, role, content, created_at) VALUES (?, ?, ?, ?)`,
-      {
-        replacements: [sessionId, role, content, new Date()],
-        type: QueryTypes.INSERT,
-      }
-    );
-    logger.info(`[MessageService] Saved message for sessionId: ${sessionId}, role: ${role}`);
-  } catch (error) {
-    logger.error('[MessageService] Error saving message:', error);
-    throw error;
-  }
-};
-
-/**
  * 删除会话的所有消息
- * @param sessionId 会话ID
- * @returns 删除的记录数量
  */
 export const deleteMessages = async (sessionId: string): Promise<{ deletedMessages: number }> => {
   try {
-    const deleteQuery = 'DELETE FROM chat_messages WHERE session_id = ?';
-    const [result] = await sequelize.query(deleteQuery, {
-      replacements: [sessionId],
+    const deletedMessages = await ChatMessage.destroy({
+      where: { sessionId },
     });
-    const deletedMessages = (result as any).affectedRows || 0;
 
     logger.info(`[MessageService] Deleted ${deletedMessages} messages for sessionId: ${sessionId}`);
 

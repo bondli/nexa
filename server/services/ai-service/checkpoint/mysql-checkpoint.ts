@@ -1,6 +1,5 @@
-import { QueryTypes } from 'sequelize';
-import sequelize from '../../../config/database';
 import logger from 'electron-log';
+import ChatMessage from '../../../models/ChatMessage';
 
 /**
  * Checkpoint 数据结构
@@ -22,8 +21,7 @@ interface CheckpointData {
 }
 
 /**
- * MySQL Checkpoint Saver - 简化版本
- * 将对话消息存储到 MySQL checkpoints 表
+ * MySQL Checkpoint Saver - 使用 ChatMessage 表持久化
  */
 export class MySQLCheckpointSaver {
   /**
@@ -44,22 +42,13 @@ export class MySQLCheckpointSaver {
     }
 
     try {
-      await sequelize.query(
-        `INSERT INTO checkpoints (thread_id, checkpoint_ns, checkpoint_id, checkpoint, metadata, created_at)
-         VALUES (?, ?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE checkpoint = VALUES(checkpoint), metadata = VALUES(metadata), created_at = VALUES(created_at)`,
-        {
-          replacements: [
-            threadId,
-            checkpointNs,
-            checkpointId,
-            JSON.stringify(checkpoint),
-            JSON.stringify(metadata),
-            new Date(),
-          ],
-          type: QueryTypes.INSERT,
-        }
-      );
+      await ChatMessage.upsert({
+        sessionId: threadId,
+        checkpointNs,
+        checkpointId,
+        checkpoint,
+        metadata,
+      });
 
       logger.info(`[MySQLCheckpointSaver] Saved checkpoint: ${threadId}/${checkpointId}`);
 
@@ -78,9 +67,9 @@ export class MySQLCheckpointSaver {
   /**
    * 获取最新的 checkpoint
    */
-  async get(
-    config: { configurable: { thread_id?: string; checkpoint_id?: string } },
-  ): Promise<CheckpointData | undefined> {
+  async get(config: {
+    configurable: { thread_id?: string; checkpoint_id?: string };
+  }): Promise<CheckpointData | undefined> {
     const threadId = config.configurable?.thread_id;
     const checkpointId = config.configurable?.checkpoint_id;
 
@@ -89,32 +78,24 @@ export class MySQLCheckpointSaver {
     }
 
     try {
-      let query: string;
-      let replacements: string[];
+      let whereClause: { sessionId: string; checkpointNs: string };
 
       if (checkpointId) {
-        query = `SELECT checkpoint FROM checkpoints
-                 WHERE thread_id = ? AND checkpoint_ns = '' AND checkpoint_id = ?
-                 ORDER BY created_at DESC LIMIT 1`;
-        replacements = [threadId, checkpointId];
+        whereClause = { sessionId: threadId, checkpointNs: '' };
       } else {
-        query = `SELECT checkpoint FROM checkpoints
-                 WHERE thread_id = ? AND checkpoint_ns = ''
-                 ORDER BY created_at DESC LIMIT 1`;
-        replacements = [threadId];
+        whereClause = { sessionId: threadId, checkpointNs: '' };
       }
 
-      const results = await sequelize.query(query, {
-        replacements,
-        type: QueryTypes.SELECT,
+      const record = await ChatMessage.findOne({
+        where: whereClause,
+        order: [['createdAt', 'DESC']],
       });
 
-      if (results.length === 0) {
+      if (!record) {
         return undefined;
       }
 
-      const row = results[0] as { checkpoint: CheckpointData };
-      return row.checkpoint;
+      return record.checkpoint as CheckpointData;
     } catch (error) {
       logger.error('[MySQLCheckpointSaver] Error getting checkpoint:', error);
       return undefined;
@@ -124,13 +105,14 @@ export class MySQLCheckpointSaver {
   /**
    * 获取 checkpoint 元组
    */
-  async getTuple(
-    config: { configurable: { thread_id?: string; checkpoint_id?: string } },
-  ): Promise<{
-    config: { configurable: { thread_id: string; checkpoint_id: string } };
-    checkpoint: CheckpointData;
-    metadata: Record<string, unknown>;
-  } | undefined> {
+  async getTuple(config: { configurable: { thread_id?: string; checkpoint_id?: string } }): Promise<
+    | {
+        config: { configurable: { thread_id: string; checkpoint_id: string } };
+        checkpoint: CheckpointData;
+        metadata: Record<string, unknown>;
+      }
+    | undefined
+  > {
     const threadId = config.configurable?.thread_id;
     const checkpointId = config.configurable?.checkpoint_id;
 
@@ -139,40 +121,28 @@ export class MySQLCheckpointSaver {
     }
 
     try {
-      let query: string;
-      let replacements: string[];
+      const whereClause: { sessionId: string; checkpointNs: string; checkpointId?: string } = {
+        sessionId: threadId,
+        checkpointNs: '',
+      };
 
       if (checkpointId) {
-        query = `SELECT checkpoint_id, checkpoint, metadata FROM checkpoints
-                 WHERE thread_id = ? AND checkpoint_ns = '' AND checkpoint_id = ?
-                 ORDER BY created_at DESC LIMIT 1`;
-        replacements = [threadId, checkpointId];
-      } else {
-        query = `SELECT checkpoint_id, checkpoint, metadata FROM checkpoints
-                 WHERE thread_id = ? AND checkpoint_ns = ''
-                 ORDER BY created_at DESC LIMIT 1`;
-        replacements = [threadId];
+        whereClause.checkpointId = checkpointId;
       }
 
-      const results = await sequelize.query(query, {
-        replacements,
-        type: QueryTypes.SELECT,
+      const record = await ChatMessage.findOne({
+        where: whereClause,
+        order: [['createdAt', 'DESC']],
       });
 
-      if (results.length === 0) {
+      if (!record) {
         return undefined;
       }
 
-      const row = results[0] as {
-        checkpoint_id: string;
-        checkpoint: CheckpointData;
-        metadata: Record<string, unknown>;
-      };
-
       return {
-        config: { configurable: { thread_id: threadId, checkpoint_id: row.checkpoint_id } },
-        checkpoint: row.checkpoint,
-        metadata: row.metadata,
+        config: { configurable: { thread_id: threadId, checkpoint_id: record.checkpointId || '' } },
+        checkpoint: record.checkpoint as CheckpointData,
+        metadata: record.metadata as Record<string, unknown>,
       };
     } catch (error) {
       logger.error('[MySQLCheckpointSaver] Error getting checkpoint tuple:', error);
@@ -198,34 +168,17 @@ export class MySQLCheckpointSaver {
     }
 
     try {
-      let query = `SELECT checkpoint_id, checkpoint, metadata FROM checkpoints
-                   WHERE thread_id = ? AND checkpoint_ns = ''`;
-
-      const replacements: string[] = [threadId];
-
-      if (options?.limit) {
-        query += ` ORDER BY created_at DESC LIMIT ?`;
-        replacements.push(String(options.limit));
-      } else {
-        query += ` ORDER BY created_at DESC`;
-      }
-
-      const results = await sequelize.query(query, {
-        replacements,
-        type: QueryTypes.SELECT,
+      const records = await ChatMessage.findAll({
+        where: { sessionId: threadId, checkpointNs: '' },
+        order: [['createdAt', 'DESC']],
+        limit: options?.limit,
       });
 
-      for (const row of results) {
-        const r = row as {
-          checkpoint_id: string;
-          checkpoint: CheckpointData;
-          metadata: Record<string, unknown>;
-        };
-
+      for (const record of records) {
         yield {
-          config: { configurable: { thread_id: threadId, checkpoint_id: r.checkpoint_id } },
-          checkpoint: r.checkpoint,
-          metadata: r.metadata,
+          config: { configurable: { thread_id: threadId, checkpoint_id: record.checkpointId || '' } },
+          checkpoint: record.checkpoint as CheckpointData,
+          metadata: record.metadata as Record<string, unknown>,
         };
       }
     } catch (error) {
@@ -254,9 +207,8 @@ export class MySQLCheckpointSaver {
     }
 
     try {
-      await sequelize.query(`DELETE FROM checkpoints WHERE thread_id = ?`, {
-        replacements: [threadId],
-        type: QueryTypes.DELETE,
+      await ChatMessage.destroy({
+        where: { sessionId: threadId },
       });
 
       logger.info(`[MySQLCheckpointSaver] Deleted all checkpoints for thread: ${threadId}`);

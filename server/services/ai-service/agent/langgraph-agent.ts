@@ -1,8 +1,8 @@
 import { HumanMessage, AIMessage, SystemMessage, BaseMessage } from '@langchain/core/messages';
 import { ChatOpenAI } from '@langchain/openai';
-import { LLMConfig, loadLLMConfig, getDefaultBaseUrl } from '../config/llm-config';
-import { saveMessage } from '../../chat-service';
 import logger from 'electron-log';
+import { LLMConfig, loadLLMConfig, getDefaultBaseUrl } from '../config/llm-config';
+import { getCheckpointSaver } from '../checkpoint/mysql-checkpoint';
 
 /**
  * Agent 配置
@@ -152,9 +152,7 @@ export class LangGraphAgent {
   /**
    * 转换消息格式
    */
-  private convertToLangChainMessages(
-    messages: Array<{ role: string; content: string }>,
-  ): BaseMessage[] {
+  private convertToLangChainMessages(messages: Array<{ role: string; content: string }>): BaseMessage[] {
     return messages.map((msg) => {
       if (msg.role === 'user') {
         return new HumanMessage(msg.content);
@@ -167,21 +165,34 @@ export class LangGraphAgent {
   }
 
   /**
-   * 保存消息到数据库
+   * 保存消息到数据库（通过 checkpoint）
    */
-  private async saveMessages(
-    sessionId: string,
-    messages: Array<{ role: string; content: string }>,
-  ): Promise<void> {
+  private async saveMessages(sessionId: string, messages: Array<{ role: string; content: string }>): Promise<void> {
     try {
-      // 遍历消息，逐条保存
-      for (const msg of messages) {
-        // 跳过 system 消息
-        if (msg.role === 'system') {
-          continue;
-        }
-        await saveMessage(sessionId, msg.role, msg.content);
-      }
+      const checkpointSaver = getCheckpointSaver();
+
+      // 将消息转换为 checkpoint 格式
+      const checkpointData = {
+        id: `cp_${Date.now()}`,
+        ts: new Date().toISOString(),
+        channel_values: {
+          messages: messages
+            .filter((msg) => msg.role !== 'system')
+            .map((msg) => ({
+              id: [msg.role],
+              kwargs: { content: msg.content },
+              type: msg.role === 'assistant' ? 'ai' : 'human',
+            })),
+        },
+      };
+
+      await checkpointSaver.put(
+        { configurable: { thread_id: sessionId } },
+        checkpointData,
+        { messageCount: messages.length },
+        {},
+      );
+
       logger.info(`[LangGraphAgent] 消息已保存到数据库: ${sessionId}, 共${messages.length}条`);
     } catch (error) {
       logger.error('[LangGraphAgent] 保存消息失败:', error);
@@ -203,10 +214,7 @@ export class LangGraphAgent {
     // 先保存用户消息到 checkpoint
     await this.saveMessages(sessionId, messages);
 
-    const langchainMessages = [
-      new SystemMessage(systemMsg),
-      ...this.convertToLangChainMessages(messages),
-    ];
+    const langchainMessages = [new SystemMessage(systemMsg), ...this.convertToLangChainMessages(messages)];
 
     try {
       // 调用 LLM
@@ -251,10 +259,7 @@ export class LangGraphAgent {
           await this.saveMessages(sessionId, newMessages);
 
           // 再次调用 LLM
-          const toolMessages = [
-            new SystemMessage(systemMsg),
-            ...this.convertToLangChainMessages(newMessages),
-          ];
+          const toolMessages = [new SystemMessage(systemMsg), ...this.convertToLangChainMessages(newMessages)];
 
           const toolResponse = await this.llm.stream(toolMessages);
           let toolFullContent = '';
@@ -275,10 +280,7 @@ export class LangGraphAgent {
       }
 
       // 保存最终消息
-      await this.saveMessages(sessionId, [
-        ...messages,
-        { role: 'assistant', content: fullContent },
-      ]);
+      await this.saveMessages(sessionId, [...messages, { role: 'assistant', content: fullContent }]);
 
       if (streamCallback) {
         streamCallback('', true, toolCalls);
@@ -322,10 +324,7 @@ export class LangGraphAgent {
       }
 
       // 保存最终消息
-      await this.saveMessages(sessionId, [
-        ...messages,
-        { role: 'assistant', content: fullContent },
-      ]);
+      await this.saveMessages(sessionId, [...messages, { role: 'assistant', content: fullContent }]);
 
       if (streamCallback) {
         streamCallback('', true);

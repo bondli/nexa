@@ -154,9 +154,7 @@ export class HumanInTheLoopManager {
    */
   cleanupSession(sessionId: string): void {
     // 删除相关任务
-    const tasksToDelete = Array.from(this.pendingTasks.entries()).filter(
-      ([, task]) => task.sessionId === sessionId,
-    );
+    const tasksToDelete = Array.from(this.pendingTasks.entries()).filter(([, task]) => task.sessionId === sessionId);
 
     for (const [taskId] of tasksToDelete) {
       this.pendingTasks.delete(taskId);

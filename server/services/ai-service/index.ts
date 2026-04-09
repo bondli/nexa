@@ -1,5 +1,8 @@
 // 配置模块
+import axios from 'axios';
 import { loadLLMConfig, saveLLMConfig, getDefaultBaseUrl } from './config/llm-config';
+
+// 兼容旧 API - generateEmbedding, chat, summarize, setAPIKey, getAPIKey
 export type { LLMConfig } from './config/llm-config';
 
 // Agent 模块
@@ -7,14 +10,8 @@ export { LangGraphAgent, createAgent } from './agent/langgraph-agent';
 export type { AgentConfig, StreamCallback as AgentStreamCallback, ToolCall } from './agent/langgraph-agent';
 
 // Human-in-the-loop 模块
-export {
-  HumanInTheLoopManager,
-  getHumanInTheLoopManager,
-} from './agent/human-in-loop';
+export { HumanInTheLoopManager, getHumanInTheLoopManager } from './agent/human-in-loop';
 export type { HumanInTheLoopState, PendingTask } from './agent/human-in-loop';
-
-// 兼容旧 API - generateEmbedding, chat, summarize, setAPIKey, getAPIKey
-import axios from 'axios';
 
 /**
  * 生成文本嵌入向量 - 使用配置文件中的 API
