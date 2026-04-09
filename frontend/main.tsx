@@ -8,6 +8,7 @@ import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { MainProvider } from '@commons/context';
 import QuickNote from '@components/QuickNote';
+import ScreenshotCapture from '@components/ScreenshotCapture';
 import AppContainer from './App';
 
 import 'antd/dist/reset.css';
@@ -33,10 +34,35 @@ const isQuickNote = (): boolean => {
   return hash === '#/quick-note' || hash.includes('quick-note');
 };
 
+// 判断是否为截图快存窗口
+const isScreenshotCapture = (): boolean => {
+  const hash = window.location.hash;
+  return hash === '#/screenshot-capture' || hash.includes('screenshot-capture');
+};
+
 const root = createRoot(document.getElementById('root'));
 
-// 快速笔记窗口独立渲染
-if (isQuickNote()) {
+// 截图快存窗口独立渲染
+if (isScreenshotCapture()) {
+  root.render(
+    <App>
+      <ConfigProvider
+        locale={zhCN}
+        input={{ autoComplete: 'off' }}
+        theme={{
+          token: {
+            colorPrimary: '#18181b',
+            colorPrimaryActive: 'rgb(24 24 27 / 80%)',
+            colorPrimaryHover: 'rgb(24 24 27 / 80%)',
+            borderRadius: 6,
+          },
+        }}
+      >
+        <ScreenshotCapture />
+      </ConfigProvider>
+    </App>,
+  );
+} else if (isQuickNote()) {
   root.render(
     <App>
       <ConfigProvider

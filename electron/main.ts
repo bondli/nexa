@@ -3,8 +3,13 @@ import { fork, type ChildProcess } from 'child_process';
 import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
 import Store from 'electron-store';
 import logger from 'electron-log';
-import { createTray } from './tray';
+import { createTray, setRecreateWindowCallback } from './tray';
 import { createQuickNoteWindow, setQuickNoteApiStatus, closeQuickNoteWindow } from './quickNote';
+import {
+  createScreenshotCaptureWindow,
+  setScreenshotApiStatus,
+  closeScreenshotCaptureWindow,
+} from './screenshot-capture';
 
 // file position on macOS: ~/Library/Logs/{app name}/main.log
 // file position on windows: C:\Users\Administrator\AppData\Roaming\{app name}\main.log
@@ -41,6 +46,18 @@ const initIpcRenderer = () => {
   ipcMain.on('close-quick-note', () => {
     closeQuickNoteWindow();
   });
+
+  // 关闭截图快存窗口
+  ipcMain.on('close-screenshot-capture', () => {
+    closeScreenshotCaptureWindow();
+  });
+
+  // 从剪贴板读取图片（同步返回）
+  ipcMain.on('read-clipboard-image', (event) => {
+    const { getImageFromClipboard } = require('./screenshot-capture');
+    const base64Image = getImageFromClipboard();
+    event.returnValue = base64Image;
+  });
 };
 
 // 定义ipcRenderer监听事件
@@ -75,6 +92,7 @@ const startServer = (): void => {
 
     apiServerStatus = 'success';
     setQuickNoteApiStatus('success');
+    setScreenshotApiStatus('success');
   });
 
   apiServerChild.on('exit', (code, signal) => {
@@ -162,10 +180,18 @@ const createWindow = () => {
     mainWindow = null;
   });
 
-  // 创建系统托盘，传入快速笔记窗口创建函数
+  // 创建系统托盘，传入快速笔记窗口创建函数和截图快存窗口创建函数，以及关闭所有弹出窗口的函数
   if (mainWindow) {
-    createTray(mainWindow, createQuickNoteWindow);
+    createTray(mainWindow, createQuickNoteWindow, createScreenshotCaptureWindow, () => {
+      closeQuickNoteWindow();
+      closeScreenshotCaptureWindow();
+    });
   }
+
+  // 设置窗口重建回调
+  setRecreateWindowCallback(() => {
+    createWindow();
+  });
 };
 
 /**
@@ -175,9 +201,11 @@ app.whenReady().then(() => {
   logger.info('[Main Process] app is ready');
   if (!app.isPackaged) {
     globalShortcut.register('CommandOrControl+Alt+D', () => {
-      mainWindow.webContents.isDevToolsOpened()
-        ? mainWindow.webContents.closeDevTools()
-        : mainWindow.webContents.openDevTools();
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.isDevToolsOpened()
+          ? mainWindow.webContents.closeDevTools()
+          : mainWindow.webContents.openDevTools();
+      }
     });
   }
 
@@ -185,7 +213,7 @@ app.whenReady().then(() => {
 
   createWindow();
 
-  if (!mainWindow.isFocused()) {
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isFocused()) {
     mainWindow.focus();
   }
 
@@ -195,7 +223,7 @@ app.whenReady().then(() => {
       createWindow();
     }
     // macOS 中点击 Dock 图标时没有已打开的其余应用窗口时，则通常在应用中重建一个窗口。
-    if (mainWindow === null) {
+    if (!mainWindow || mainWindow.isDestroyed()) {
       createWindow();
     }
   });

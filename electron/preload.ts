@@ -34,5 +34,15 @@ contextBridge.exposeInMainWorld('electron', {
     closeQuickNote() {
       ipcRenderer.send('close-quick-note');
     },
+
+    // 关闭截图快存窗口
+    closeScreenshotCapture() {
+      ipcRenderer.send('close-screenshot-capture');
+    },
+
+    // 读取剪贴板图片
+    readClipboardImage() {
+      return ipcRenderer.sendSync('read-clipboard-image');
+    },
   },
 });

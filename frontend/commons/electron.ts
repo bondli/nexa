@@ -58,12 +58,29 @@ export const closeQuickNote = (): void => {
   }
 };
 
+// 关闭截图快存窗口
+export const closeScreenshotCapture = (): void => {
+  if (isInElectron) {
+    ipcRenderer.closeScreenshotCapture?.();
+  }
+};
+
+// 读取剪贴板图片
+export const readClipboardImage = (): string | null => {
+  if (isInElectron) {
+    return ipcRenderer.readClipboardImage?.() || null;
+  }
+  return null;
+};
+
 const ElectronBridge = {
   setStore,
   getStore,
   deleteStore,
   userLog,
   closeQuickNote,
+  closeScreenshotCapture,
+  readClipboardImage,
 };
 
 export default ElectronBridge;

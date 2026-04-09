@@ -2,6 +2,15 @@ import path from 'path';
 import { app, Tray, Menu, nativeImage, BrowserWindow, screen } from 'electron';
 
 let tray: Tray | null = null;
+let mainWindowRef: BrowserWindow | null = null;
+let recreateWindowCallback: (() => void) | null = null;
+
+/**
+ * 设置重新创建主窗口的回调
+ */
+export const setRecreateWindowCallback = (callback: () => void): void => {
+  recreateWindowCallback = callback;
+};
 
 /**
  * 获取托盘实例
@@ -28,8 +37,21 @@ export const getTrayBounds = (): { x: number; y: number } | null => {
  * 创建系统托盘
  * @param mainWindow 主窗口
  * @param onQuickNote 点击快速笔记时的回调函数
+ * @param onScreenshotCapture 点击截图快存时的回调函数
+ * @param closeAllPopups 关闭所有弹出窗口的回调
  */
-export const createTray = (mainWindow: BrowserWindow, onQuickNote?: () => void): Tray => {
+export const createTray = (
+  mainWindow: BrowserWindow,
+  onQuickNote?: () => void,
+  onScreenshotCapture?: () => void,
+  closeAllPopups?: () => void,
+): Tray => {
+  // 如果托盘已存在，先销毁旧的
+  if (tray) {
+    tray.destroy();
+  }
+
+  mainWindowRef = mainWindow;
   // 根据平台选择图标
   const iconPath = app.isPackaged
     ? path.join(process.resourcesPath, 'icons', 'tray.png')
@@ -45,9 +67,26 @@ export const createTray = (mainWindow: BrowserWindow, onQuickNote?: () => void):
     {
       label: '快速笔记',
       click: () => {
+        // 先关闭所有弹出窗口
+        if (closeAllPopups) {
+          closeAllPopups();
+        }
         // 调用快速笔记回调函数
         if (onQuickNote) {
           onQuickNote();
+        }
+      },
+    },
+    {
+      label: '截图快存',
+      click: () => {
+        // 先关闭所有弹出窗口
+        if (closeAllPopups) {
+          closeAllPopups();
+        }
+        // 调用截图快存回调函数
+        if (onScreenshotCapture) {
+          onScreenshotCapture();
         }
       },
     },
@@ -65,12 +104,15 @@ export const createTray = (mainWindow: BrowserWindow, onQuickNote?: () => void):
 
   // 点击托盘图标显示窗口到最前面
   tray.on('click', () => {
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) {
-        mainWindow.restore();
+    if (mainWindowRef && !mainWindowRef.isDestroyed()) {
+      if (mainWindowRef.isMinimized()) {
+        mainWindowRef.restore();
       }
-      mainWindow.show();
-      mainWindow.focus();
+      mainWindowRef.show();
+      mainWindowRef.focus();
+    } else if (recreateWindowCallback) {
+      // 窗口已销毁，重新创建
+      recreateWindowCallback();
     }
   });
 

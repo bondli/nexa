@@ -1,6 +1,6 @@
 import React, { memo, useContext, useState } from 'react';
 import { App, Layout } from 'antd';
-import { WechatFilled, FileTextFilled, FolderOpenFilled } from '@ant-design/icons';
+import { AliwangwangFilled, FileTextFilled, DatabaseFilled, CodeFilled } from '@ant-design/icons';
 import { MainContext } from '@commons/context';
 import { deleteStore } from '@commons/electron';
 import User from '@components/User';
@@ -16,7 +16,7 @@ const MainPage: React.FC = () => {
   const { message } = App.useApp();
 
   const { userInfo, setUserInfo } = useContext(MainContext);
-  const [currentPage, setCurrentPage] = useState<string>('notebook'); // 默认页面
+  const [currentPage, setCurrentPage] = useState<string>('chat'); // 默认页面
 
   const onLogout = () => {
     deleteStore('loginData');
@@ -35,22 +35,28 @@ const MainPage: React.FC = () => {
         <div className={style.list}>
           <div className={style.menu}>
             <div
+              className={`${style.iconItem} ${currentPage === 'chat' ? style.active : ''}`}
+              onClick={() => setCurrentPage('chat')}
+            >
+              <AliwangwangFilled style={{ fontSize: 24 }} />
+            </div>
+            <div
               className={`${style.iconItem} ${currentPage === 'notebook' ? style.active : ''}`}
               onClick={() => setCurrentPage('notebook')}
             >
               <FileTextFilled style={{ fontSize: 24 }} />
             </div>
             <div
-              className={`${style.iconItem} ${currentPage === 'chat' ? style.active : ''}`}
-              onClick={() => setCurrentPage('chat')}
-            >
-              <WechatFilled style={{ fontSize: 24 }} />
-            </div>
-            <div
               className={`${style.iconItem} ${currentPage === 'knowledge' ? style.active : ''}`}
               onClick={() => setCurrentPage('knowledge')}
             >
-              <FolderOpenFilled style={{ fontSize: 24 }} />
+              <DatabaseFilled style={{ fontSize: 24 }} />
+            </div>
+            <div
+              className={`${style.iconItem} ${currentPage === 'openclaw' ? style.active : ''}`}
+              onClick={() => setCurrentPage('openclaw')}
+            >
+              <CodeFilled style={{ fontSize: 24 }} />
             </div>
           </div>
         </div>

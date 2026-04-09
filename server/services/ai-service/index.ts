@@ -139,5 +139,59 @@ export const summarize = async (text: string): Promise<string> => {
   }
 };
 
+/**
+ * 优化 OCR 识别文本 - 修正错别字、整理格式、优化表达
+ * @param text OCR 识别后的原始文本
+ * @returns 优化后的文本
+ */
+export const optimizeText = async (text: string): Promise<string> => {
+  if (!text || !text.trim()) {
+    throw new Error('文本不能为空');
+  }
+
+  const systemPrompt = `你是一个文本优化助手。你的任务是对 OCR 识别或用户输入的文本进行优化：
+
+1. 修正明显的错别字
+2. 整理混乱的格式和换行
+3. 删除无意义的乱码字符
+4. 优化表达，使文字更通顺
+5. 保持原文的核心意思不变
+6. 如果原文是 Markdown 格式，尽量保持 Markdown 格式
+
+请直接返回优化后的文本，不要添加任何解释或前缀。`;
+
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: `请优化以下文本：\n\n${text}` },
+  ];
+
+  const config = loadLLMConfig();
+  const baseUrl = config.baseUrl || getDefaultBaseUrl(config.provider);
+
+  try {
+    const response = await axios.post(
+      `${baseUrl}/chat/completions`,
+      {
+        model: config.model || 'gpt-4',
+        messages,
+        temperature: 0.3, // 低温度，更稳定的输出
+        max_tokens: config.maxTokens || 4000,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${config.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    return response.data.choices[0].message.content;
+  } catch (error) {
+    console.error('文本优化失败:', error);
+    // 优化失败时返回原始文本
+    return text;
+  }
+};
+
 // 重新导出配置函数
 export { loadLLMConfig, saveLLMConfig, getDefaultBaseUrl } from './config/llm-config';

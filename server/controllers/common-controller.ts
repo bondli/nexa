@@ -5,6 +5,8 @@ import multer from 'multer';
 import logger from 'electron-log';
 import { PORT, ALLOWED_IMAGE_EXTENSIONS } from '../config/constant';
 import { success, badRequest, serverError } from '../utils/response';
+import { processScreenshot } from '../services/screenshot/ocr-service';
+import { optimizeText } from '../services/ai-service';
 
 /**
  * 验证图片文件扩展名是否在允许的类型中
@@ -104,17 +106,56 @@ export const uploadImage = (req: RequestWithFile, res: Response, next: NextFunct
 
       if (req.file.path) {
         const fileName = path.basename(req.file.path);
-        success(
-          res,
-          {
-            filePath: `http://localhost:${PORT}/files/${fileName}`,
-          },
-          '图片上传成功',
-        );
+        const url = `http://localhost:${PORT}/files/${fileName}`;
+        success(res, { url, filePath: url }, '图片上传成功');
       }
     } catch (error) {
       logger.error('图片上传处理错误:', error);
       serverError(res, '图片上传处理失败');
     }
   });
+};
+
+/**
+ * 图片 OCR 识别接口
+ * POST /api/common/ocr
+ * Body: { imageUrl: string }
+ */
+export const imageOcr = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { imageUrl } = req.body;
+
+    if (!imageUrl) {
+      badRequest(res, '缺少 imageUrl 参数');
+      return;
+    }
+
+    logger.info('[Common Controller] Processing OCR:', imageUrl);
+
+    // 1. OCR 识别
+    const ocrResult = await processScreenshot(imageUrl);
+
+    // 2. AI 优化
+    let optimizedText = ocrResult.text;
+    try {
+      optimizedText = await optimizeText(ocrResult.text);
+    } catch (aiError) {
+      logger.warn('[Common Controller] AI optimization failed, using raw OCR result:', aiError);
+    }
+
+    logger.info('[Common Controller] OCR processed successfully');
+
+    success(
+      res,
+      {
+        text: optimizedText,
+        rawText: ocrResult.text,
+        confidence: ocrResult.confidence,
+      },
+      'OCR 识别成功',
+    );
+  } catch (error: any) {
+    logger.error('[Common Controller] OCR Error:', error);
+    serverError(res, error.message || 'OCR 识别失败');
+  }
 };

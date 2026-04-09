@@ -1,5 +1,5 @@
 import express from 'express';
-import { uploadImage } from '../controllers/common-controller';
+import { uploadImage, imageOcr } from '../controllers/common-controller';
 import { isInstalled, saveConfig } from '../controllers/install-controller';
 import { createUser, userLogin, updateUser } from '../controllers/user-controller';
 import { createCate, getCateInfo, getCates, updateCate, deleteCate } from '../controllers/cate-controller';
@@ -48,6 +48,7 @@ router.post('/system/saveConfig', saveConfig);
 
 // 通用接口
 router.post('/common/uploadImage', uploadImage);
+router.post('/common/ocr', imageOcr);
 
 // 用户相关
 router.post('/user/register', createUser);
