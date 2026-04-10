@@ -3,6 +3,8 @@
 /release
 .husky
 /.vscode
+/browser-extension/dist
+/browser-extension/node_modules
 
 npm-debug.log*
 yarn-debug.log*

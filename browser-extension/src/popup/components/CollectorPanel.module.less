@@ -1,0 +1,55 @@
+.container {
+  width: 360px;
+  min-height: 200px;
+  max-height: 1000px;
+  padding: 16px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.extractSection {
+  flex-shrink: 0;
+}
+
+.editorSection {
+  flex: 1;
+  min-height: 200px;
+  max-height: 600px;
+  overflow: auto;
+}
+
+.editor {
+  width: 100%;
+  min-height: 200px;
+  padding: 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu', monospace;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.3s;
+
+  &:focus {
+    border-color: #1677ff;
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+  }
+
+  &::placeholder {
+    color: #999;
+  }
+}
+
+.actionSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.categorySelect {
+  width: 100%;
+}
