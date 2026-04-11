@@ -21,44 +21,75 @@ const turndownService = new TurndownService({
 });
 
 /**
- * 从页面提取内容
+ * 特定平台的精确内容选择器（按优先级排列，命中即停止）
+ * 精确匹配比通用排除法更可靠
  */
-export const extractPageContent = async (): Promise<ExtractResult> => {
+const PLATFORM_SELECTORS = [
+  // 微信公众号
+  '#js_content',
+  // 飞书文档
+  '.document-content-wrapper',
+  '.suite-markdown-container',
+  // 语雀
+  '.lake-content',
+  '.ne-viewer-body',
+  // Notion
+  '.notion-page-content',
+  // 掘金
+  '.article-content',
+  '.markdown-body',
+  // CSDN
+  '#article_content',
+  // 知乎
+  '.Post-RichText',
+  '.RichText',
+  // 简书
+  '.show-content-free',
+  '.show-content',
+  // GitHub README / issue
+  '#readme article',
+  '.markdown-body',
+  // 通用语义化标签
+  'article',
+  '[role="main"]',
+  'main',
+  // 通用 class
+  '.post-content',
+  '.entry-content',
+  '.article-body',
+  '.content-body',
+  '.prose',
+  '#content',
+];
+
+/**
+ * 从页面提取内容（直接在当前页面执行）
+ */
+export const extractPageContent = (): ExtractResult => {
   try {
-    // 获取当前活动标签页
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    // 获取页面标题
+    const title =
+      document.title ||
+      document.querySelector('h1')?.textContent ||
+      '未命名';
 
-    if (!tab || !tab.id) {
-      return { success: false, message: '无法获取当前标签页' };
-    }
+    // 获取页面 URL
+    const url = window.location.href;
 
-    // 通过执行脚本获取页面内容
-    const results = await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      func: extractContentFromPage,
-    });
-
-    if (!results || results.length === 0) {
-      return { success: false, message: '无法提取页面内容' };
-    }
-
-    const pageData = results[0].result;
-
-    if (!pageData || !pageData.html) {
-      return { success: false, message: '页面内容为空' };
-    }
+    // 获取主要内容
+    const html = extractMainContent();
 
     // 将 HTML 转换为 Markdown
-    const markdown = turndownService.turndown(pageData.html);
+    const markdown = turndownService.turndown(html);
 
     // 构建带链接的内容
-    const fullContent = `# ${pageData.title}\n\n来源: [${pageData.url}](${pageData.url})\n\n---\n\n${markdown}`;
+    const fullContent = `# ${title}\n\n来源: [${url}](${url})\n\n---\n\n${markdown}`;
 
     return {
       success: true,
       content: fullContent,
-      title: pageData.title,
-      url: pageData.url,
+      title,
+      url,
     };
   } catch (error) {
     console.error('提取页面内容失败:', error);
@@ -67,91 +98,32 @@ export const extractPageContent = async (): Promise<ExtractResult> => {
 };
 
 /**
- * 在页面中执行的提取函数
- */
-function extractContentFromPage(): {
-  title: string;
-  url: string;
-  html: string;
-} {
-  // 获取页面标题
-  const title =
-    document.title ||
-    document.querySelector('h1')?.textContent ||
-    '未命名';
-
-  // 获取页面 URL
-  const url = window.location.href;
-
-  // 获取主要内容
-  const html = extractMainContent();
-
-  return { title, url, html };
-}
-
-/**
  * 提取页面主要内容
+ * 策略：优先匹配平台精确选择器，命中即用；兜底时做基本清理
  */
 function extractMainContent(): string {
-  // 优先查找常见的主要内容容器
-  const selectors = [
-    'article',
-    '[role="main"]',
-    'main',
-    '.content',
-    '.article',
-    '.post-content',
-    '.entry-content',
-    '.markdown-body',
-    '.prose',
-    '#content',
-    '.content-body',
-  ];
-
-  let mainElement: Element | null = null;
-
-  for (const selector of selectors) {
-    const element = document.querySelector(selector);
-    if (element) {
-      mainElement = element;
-      break;
+  // 1. 按优先级尝试精确选择器，命中直接返回
+  for (const selector of PLATFORM_SELECTORS) {
+    const el = document.querySelector(selector);
+    if (el && el.textContent && el.textContent.trim().length > 100) {
+      return cleanElement(el);
     }
   }
 
-  // 如果没有找到主要内容容器，获取 body
-  if (!mainElement) {
-    mainElement = document.body;
-  }
+  // 2. 兜底：取 body，做基本清理
+  return cleanElement(document.body);
+}
 
-  // 清理不必要的内容
-  const cloned = mainElement.cloneNode(true) as Element;
+/**
+ * 克隆元素并移除无意义的噪音节点（仅移除绝对无用的标签）
+ */
+function cleanElement(el: Element): string {
+  const cloned = el.cloneNode(true) as Element;
 
-  // 移除不需要的元素
-  const removeSelectors = [
-    'script',
-    'style',
-    'noscript',
-    'iframe',
-    'nav',
-    'header',
-    'footer',
-    '.nav',
-    '.navigation',
-    '.menu',
-    '.sidebar',
-    '.advertisement',
-    '.ad',
-    '.ads',
-    '.social-share',
-    '.comments',
-    '.related',
-    '[role="navigation"]',
-    '[role="banner"]',
-    '[role="contentinfo"]',
-  ];
-
-  for (const selector of removeSelectors) {
-    cloned.querySelectorAll(selector).forEach((el) => el.remove());
+  // 只移除脚本、样式等绝对无内容价值的标签
+  const noiseSelectors = ['script', 'style', 'noscript', 'iframe', 'svg'];
+  for (const selector of noiseSelectors) {
+    cloned.querySelectorAll(selector).forEach((node) => node.remove());
   }
 
   return cloned.innerHTML;

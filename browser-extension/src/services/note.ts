@@ -37,7 +37,7 @@ export const getCategories = async (): Promise<Category[]> => {
  */
 export interface NoteData {
   title: string;
-  content: string;
+  desc: string;
   url?: string;
   cateId: number;
   [key: string]: unknown;

@@ -1,0 +1,118 @@
+/* Nexa 采集面板样式 */
+
+.nexa-collector-app {
+  all: initial;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.nexa-collector-app * {
+  box-sizing: border-box;
+}
+
+/* 悬浮球 */
+.nexa-floating-ball {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  background: #1677ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.4);
+  z-index: 2147483647;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.nexa-floating-ball:hover {
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 6px 16px rgba(22, 119, 255, 0.5);
+}
+
+.nexa-floating-ball svg {
+  width: 24px;
+  height: 24px;
+  fill: #fff;
+}
+
+/* 采集面板 - 右侧固定，高度随内容自适应，最大 1000px */
+.nexa-collector-panel {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 380px;
+  max-height: 1000px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 2147483647;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.nexa-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%);
+  color: #fff;
+  flex-shrink: 0;
+  border-radius: 10px 10px 0 0;
+}
+
+.nexa-panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.nexa-panel-close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 20px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nexa-panel-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+/* 内容区域 - 可滚动，高度随内容自适应 */
+.nexa-panel-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(1000px - 48px);
+}
+
+/* 自定义滚动条 */
+.nexa-panel-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.nexa-panel-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nexa-panel-content::-webkit-scrollbar-thumb {
+  background: #d9d9d9;
+  border-radius: 2px;
+}
+
+.nexa-panel-content::-webkit-scrollbar-thumb:hover {
+  background: #bfbfbf;
+}

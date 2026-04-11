@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
+// popup + background 构建配置（ES module 格式）
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -15,7 +16,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         popup: resolve(__dirname, 'index.html'),
-        content: resolve(__dirname, 'src/content/content.ts'),
         background: resolve(__dirname, 'src/background/background.ts'),
       },
       output: {
@@ -25,7 +25,6 @@ export default defineConfig({
       },
     },
   },
-  // 复制静态文件到 dist
   publicDir: 'public',
   server: {
     port: 5173,

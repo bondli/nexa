@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && cp -r public/icons dist/",
+    "build": "vite build && vite build --config vite.config.content.ts && cp -r public/icons dist/",
+    "build:content": "vite build --config vite.config.content.ts",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/cssinjs": "^2.1.2",
     "@ant-design/icons": "^6.1.1",
     "antd": "^6.3.5",
     "axios": "^1.6.8",
