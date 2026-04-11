@@ -4,6 +4,25 @@ import { isInstalled, saveConfig } from '../controllers/install-controller';
 import { createUser, userLogin, updateUser } from '../controllers/user-controller';
 import { createCate, getCateInfo, getCates, updateCate, deleteCate } from '../controllers/cate-controller';
 import {
+  createCate as createPictureCate,
+  getCateInfo as getPictureCateInfo,
+  getCates as getPictureCates,
+  updateCate as updatePictureCate,
+  deleteCate as deletePictureCate,
+} from '../controllers/picture-cate-controller';
+import {
+  createPicture,
+  getPictureInfo,
+  getPictures,
+  updatePicture,
+  deletePicture,
+  getTrashPictures,
+  restorePicture,
+  forceDeletePicture,
+  searchPictures,
+  getPictureCounts,
+} from '../controllers/picture-controller';
+import {
   createNote,
   getNoteInfo,
   getNotes,
@@ -62,6 +81,13 @@ router.get('/cate/list', getCates);
 router.post('/cate/update', updateCate);
 router.get('/cate/delete', deleteCate);
 
+// 图片分类
+router.post('/pictureCate/create', createPictureCate);
+router.get('/pictureCate/detail', getPictureCateInfo);
+router.get('/pictureCate/list', getPictureCates);
+router.post('/pictureCate/update', updatePictureCate);
+router.get('/pictureCate/delete', deletePictureCate);
+
 // 笔记相关
 router.post('/note/add', createNote);
 router.get('/note/getList', getNotes);
@@ -88,6 +114,18 @@ router.get('/knowledge/detail', getKnowledgeById);
 router.post('/knowledge/create', createKnowledge);
 router.post('/knowledge/update', updateKnowledge);
 router.post('/knowledge/delete', deleteKnowledge);
+
+// 图片相关
+router.post('/picture/add', createPicture);
+router.get('/picture/getList', getPictures);
+router.get('/picture/getTrash', getTrashPictures);
+router.get('/picture/getCounts', getPictureCounts);
+router.get('/picture/search', searchPictures);
+router.post('/picture/update', updatePicture);
+router.get('/picture/delete', deletePicture);
+router.get('/picture/restore', restorePicture);
+router.get('/picture/forceDelete', forceDeletePicture);
+router.get('/picture/detail', getPictureInfo);
 
 // 会话相关
 router.post('/chat/add', createChat);

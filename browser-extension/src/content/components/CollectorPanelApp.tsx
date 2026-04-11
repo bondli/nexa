@@ -3,6 +3,7 @@ import { Spin } from 'antd';
 import { getLoginData, clearLoginData, UserInfo } from '../../services/utils';
 import LoginForm from './LoginForm';
 import CollectorContent from './CollectorContent';
+import ImageCollector from './ImageCollector';
 
 // 存储 key
 const ALLOWED_DOMAINS_KEY = 'allowedDomains';
@@ -67,6 +68,9 @@ export const CollectorPanelApp: React.FC = () => {
 
   return (
     <div id="nexa-collector-app">
+      {/* 图片收藏功能 - 全局生效 */}
+      {user && <ImageCollector user={user} />}
+
       {/* 悬浮球（面板关闭时显示） */}
       {!isOpen && (
         <div

@@ -1,6 +1,6 @@
 import React, { memo, useContext, useState } from 'react';
 import { App, Layout } from 'antd';
-import { AliwangwangFilled, FileTextFilled, DatabaseFilled, CodeFilled } from '@ant-design/icons';
+import { AliwangwangFilled, FileTextFilled, DatabaseFilled, CodeFilled, PictureFilled } from '@ant-design/icons';
 import { MainContext } from '@commons/context';
 import { deleteStore } from '@commons/electron';
 import User from '@components/User';
@@ -8,6 +8,7 @@ import Logo from '@components/Logo';
 import ChatBox from '@pages/ChatBox';
 import NoteBook from '@pages/NoteBook';
 import Knowledge from '@pages/Knowledge';
+import Picture from '@pages/Picture';
 import style from './index.module.less';
 
 const { Sider, Content } = Layout;
@@ -53,6 +54,12 @@ const MainPage: React.FC = () => {
               <DatabaseFilled style={{ fontSize: 24 }} />
             </div>
             <div
+              className={`${style.iconItem} ${currentPage === 'picture' ? style.active : ''}`}
+              onClick={() => setCurrentPage('picture')}
+            >
+              <PictureFilled style={{ fontSize: 24 }} />
+            </div>
+            <div
               className={`${style.iconItem} ${currentPage === 'openclaw' ? style.active : ''}`}
               onClick={() => setCurrentPage('openclaw')}
             >
@@ -72,6 +79,7 @@ const MainPage: React.FC = () => {
           {currentPage === 'chat' && <ChatBox />}
           {currentPage === 'notebook' && <NoteBook />}
           {currentPage === 'knowledge' && <Knowledge />}
+          {currentPage === 'picture' && <Picture />}
         </Content>
       </Layout>
     </Layout>
