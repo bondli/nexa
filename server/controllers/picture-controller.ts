@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Op } from 'sequelize';
 import logger from 'electron-log';
-import { success, badRequest, notFound, serverError } from '../utils/response';
+import { success, successWithPage, badRequest, notFound, serverError } from '../utils/response';
 import Picture from '../models/Picture';
 import PictureCate from '../models/PictureCate';
 
@@ -181,12 +181,8 @@ export const searchPictures = async (req: Request, res: Response) => {
       offset,
     });
 
-    success(res, {
-      list: rows,
-      total: count,
-      page: Number(page),
-      pageSize: Number(pageSize),
-    });
+    // 对齐 note 搜索返回结构
+    successWithPage(res, rows || [], count || 0);
   } catch (err) {
     logger.error('搜索图片失败:', err);
     serverError(res, '搜索图片失败');

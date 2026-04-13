@@ -11,12 +11,12 @@ export interface Category {
 }
 
 /**
- * 获取分类列表
+ * 获取文章分类列表
  */
 export const getCategories = async (): Promise<Category[]> => {
   try {
     const userId = await getUserId();
-    const response = await request.get<any>('/cate/list', {
+    const response = await request.get<any>('/article_cate/list', {
       headers: { 'X-User-Id': String(userId) },
     });
 
@@ -27,15 +27,15 @@ export const getCategories = async (): Promise<Category[]> => {
 
     return [];
   } catch {
-    console.error('获取分类列表失败');
+    console.error('获取文章分类列表失败');
     return [];
   }
 };
 
 /**
- * 笔记数据接口
+ * 文章数据接口
  */
-export interface NoteData {
+export interface ArticleData {
   title: string;
   desc: string;
   url?: string;
@@ -44,21 +44,21 @@ export interface NoteData {
 }
 
 /**
- * 保存笔记结果
+ * 保存文章结果
  */
-export interface SaveNoteResult {
+export interface SaveArticleResult {
   success: boolean;
   message?: string;
   data?: unknown;
 }
 
 /**
- * 保存笔记
+ * 保存文章
  */
-export const saveNote = async (data: NoteData): Promise<SaveNoteResult> => {
+export const saveArticle = async (data: ArticleData): Promise<SaveArticleResult> => {
   try {
     const userId = await getUserId();
-    const response = await request.post<any>('/note/add', data, {
+    const response = await request.post<any>('/article/add', data, {
       headers: { 'X-User-Id': String(userId) },
     });
 

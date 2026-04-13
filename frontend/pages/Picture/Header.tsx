@@ -6,28 +6,20 @@ import {
   DragOutlined,
   ReloadOutlined,
   UploadOutlined,
-  SearchOutlined,
 } from '@ant-design/icons';
 import { Button, Popover, Modal, Input, App, Space, Upload } from 'antd';
 import type { UploadProps } from 'antd';
 import { API_BASE_URL } from '@commons/constant';
 import { MainContext } from '@commons/context';
 import { PictureContext } from './context';
+import SearchBox from './SearchBox';
 import style from './index.module.less';
 
 const Header: React.FC = () => {
   const { message, modal } = App.useApp();
   const { userInfo } = useContext(MainContext);
-  const {
-    currentCate,
-    setCurrentCate,
-    getCateList,
-    getPictureList,
-    updateCate,
-    deleteCate,
-    createPicture,
-    searchPictureList,
-  } = useContext(PictureContext);
+  const { currentCate, setCurrentCate, getCateList, getPictureList, updateCate, deleteCate, createPicture } =
+    useContext(PictureContext);
 
   const [showActionModal, setShowActionModal] = useState(false);
   const [showEditPanel, setShowEditPanel] = useState(false);
@@ -35,24 +27,14 @@ const Header: React.FC = () => {
   const [showOrderPanel, setShowOrderPanel] = useState(false);
   const [tempCateOrder, setTempCateOrder] = useState(0);
   const [uploading, setUploading] = useState(false);
-  const [searchKey, setSearchKey] = useState('');
 
   const inputRef = useRef(null);
 
   const isVirtual = !currentCate || currentCate.id === 0;
+  const isTrash = currentCate?.id === -1;
 
-  // 搜索
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchKey(e.target.value);
-  };
-
-  const handleSearch = async () => {
-    if (!searchKey.trim()) {
-      getPictureList();
-      return;
-    }
-    await searchPictureList(searchKey.trim());
-  };
+  // 全部图片和回收站不能上传图片
+  const canUpload = !isVirtual && !isTrash;
 
   // 编辑分类名称
   const handleEdit = () => {
@@ -193,6 +175,7 @@ const Header: React.FC = () => {
             message.success(`${info.file.name} 上传成功`);
           } catch (error) {
             message.error('图片记录创建失败');
+            console.log(error);
           }
         } else {
           message.error(response?.message || '上传失败');
@@ -239,21 +222,14 @@ const Header: React.FC = () => {
       </div>
 
       <Space>
-        <Input
-          style={{ width: 200 }}
-          size={`small`}
-          placeholder={`搜索图片名称`}
-          prefix={<SearchOutlined />}
-          allowClear
-          value={searchKey}
-          onChange={handleSearchChange}
-          onPressEnter={handleSearch}
-        />
-        <Upload {...uploadConfig}>
-          <Button type={`primary`} size={`small`} loading={uploading} icon={<UploadOutlined />}>
-            上传图片
-          </Button>
-        </Upload>
+        <SearchBox />
+        {canUpload && (
+          <Upload {...uploadConfig}>
+            <Button type={`primary`} size={`small`} loading={uploading} icon={<UploadOutlined />}>
+              上传图片
+            </Button>
+          </Upload>
+        )}
       </Space>
 
       <Modal title={`修改图片分类`} open={showEditPanel} onOk={handleSaveEdit} onCancel={handleCancelEdit}>

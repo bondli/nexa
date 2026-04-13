@@ -50,6 +50,7 @@ export default defineConfig(({ command, mode }) => {
     resolve: {
       alias: {
         '@': getPath('frontend'),
+        "@blocks": getPath('frontend/blocks'),
         '@commons': getPath('frontend/commons'),
         '@components': getPath('frontend/components'),
         '@modules': getPath('frontend/modules'),

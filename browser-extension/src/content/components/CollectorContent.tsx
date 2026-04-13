@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Input, Button, Select, Typography, App as AntdApp } from 'antd';
 import { ScissorOutlined, SaveOutlined, LogoutOutlined } from '@ant-design/icons';
 import { UserInfo } from '../../services/utils';
-import { getCategories, saveNote, NoteData, Category } from '../../services/note';
+import { getCategories, saveArticle, ArticleData, Category } from '../../services/article';
 import { extractPageContent } from '../../services/contentExtractor';
 
 const { TextArea } = Input;
@@ -64,13 +64,13 @@ const CollectorContent: React.FC<CollectorContentProps> = ({ user, onLogout, onC
 
     setSaving(true);
     try {
-      const noteData: NoteData = {
+      const noteData: ArticleData = {
         title: title || '未命名',
-        desc: url ? `${content}\n\n---\n\n原文链接：[${url}](${url})` : content,
+        desc: content,
         url,
         cateId: selectedCategory,
       };
-      const result = await saveNote(noteData);
+      const result = await saveArticle(noteData);
       if (result.success) {
         message.success('保存成功');
         onClose();
@@ -143,7 +143,7 @@ const CollectorContent: React.FC<CollectorContentProps> = ({ user, onLogout, onC
           {/* 分类选择 */}
           <div style={{ marginBottom: '12px' }}>
             <Text style={{ fontSize: '12px', color: '#8c8c8c', display: 'block', marginBottom: '6px' }}>
-              笔记分类
+              文章分类
             </Text>
             <Select
               value={selectedCategory}
@@ -166,7 +166,7 @@ const CollectorContent: React.FC<CollectorContentProps> = ({ user, onLogout, onC
             block
             size="large"
           >
-            {saving ? '保存中...' : '保存到笔记'}
+            {saving ? '保存中...' : '保存到Nexa'}
           </Button>
         </>
       )}

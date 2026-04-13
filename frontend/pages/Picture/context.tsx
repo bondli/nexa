@@ -44,6 +44,7 @@ interface PictureContextType {
   createPicture: (data: { path: string; name: string; description?: string; categoryId?: number }) => Promise<void>;
   deletePicture: (id: number) => Promise<void>;
   updatePicture: (id: number, description: string) => Promise<void>;
+  movePicture: (id: number, categoryId: number) => Promise<void>;
   restorePicture: (id: number) => Promise<void>;
   forceDeletePicture: (id: number) => Promise<void>;
   picturesLoading: boolean;
@@ -93,7 +94,7 @@ export const PictureProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const searchPictureList = async (keyword: string) => {
     setPicturesLoading(true);
     const response = await request.get(`/picture/search?keyword=${encodeURIComponent(keyword)}`);
-    setPictureList(response.data?.list || []);
+    setPictureList(response.data || []);
     setPicturesLoading(false);
   };
 
@@ -128,6 +129,13 @@ export const PictureProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const updatePicture = async (id: number, description: string) => {
     await request.post('/picture/update', { id, description });
     await getPictureList();
+  };
+
+  // 移动图片到其他分类
+  const movePicture = async (id: number, categoryId: number) => {
+    await request.post('/picture/update', { id, categoryId });
+    await getPictureList();
+    await getCateList();
   };
 
   // 软删除图片（移入回收站）
@@ -177,6 +185,7 @@ export const PictureProvider: React.FC<{ children: React.ReactNode }> = ({ child
         deletePicture,
         updatePicture,
         restorePicture,
+        movePicture,
         forceDeletePicture,
         picturesLoading,
       }}

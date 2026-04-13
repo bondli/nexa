@@ -1,6 +1,13 @@
 import React, { memo, useContext, useState } from 'react';
 import { App, Layout } from 'antd';
-import { AliwangwangFilled, FileTextFilled, DatabaseFilled, CodeFilled, PictureFilled } from '@ant-design/icons';
+import {
+  AliwangwangOutlined,
+  SnippetsOutlined,
+  HddOutlined,
+  UserSwitchOutlined,
+  FileImageOutlined,
+  FilePdfOutlined,
+} from '@ant-design/icons';
 import { MainContext } from '@commons/context';
 import { deleteStore } from '@commons/electron';
 import User from '@components/User';
@@ -9,6 +16,7 @@ import ChatBox from '@pages/ChatBox';
 import NoteBook from '@pages/NoteBook';
 import Knowledge from '@pages/Knowledge';
 import Picture from '@pages/Picture';
+import Article from '@pages/Article';
 import style from './index.module.less';
 
 const { Sider, Content } = Layout;
@@ -39,31 +47,37 @@ const MainPage: React.FC = () => {
               className={`${style.iconItem} ${currentPage === 'chat' ? style.active : ''}`}
               onClick={() => setCurrentPage('chat')}
             >
-              <AliwangwangFilled style={{ fontSize: 24 }} />
+              <AliwangwangOutlined style={{ fontSize: 24 }} />
             </div>
             <div
               className={`${style.iconItem} ${currentPage === 'notebook' ? style.active : ''}`}
               onClick={() => setCurrentPage('notebook')}
             >
-              <FileTextFilled style={{ fontSize: 24 }} />
+              <SnippetsOutlined style={{ fontSize: 24 }} />
             </div>
             <div
-              className={`${style.iconItem} ${currentPage === 'knowledge' ? style.active : ''}`}
-              onClick={() => setCurrentPage('knowledge')}
+              className={`${style.iconItem} ${currentPage === 'article' ? style.active : ''}`}
+              onClick={() => setCurrentPage('article')}
             >
-              <DatabaseFilled style={{ fontSize: 24 }} />
+              <FilePdfOutlined style={{ fontSize: 24 }} />
             </div>
             <div
               className={`${style.iconItem} ${currentPage === 'picture' ? style.active : ''}`}
               onClick={() => setCurrentPage('picture')}
             >
-              <PictureFilled style={{ fontSize: 24 }} />
+              <FileImageOutlined style={{ fontSize: 24 }} />
+            </div>
+            <div
+              className={`${style.iconItem} ${currentPage === 'knowledge' ? style.active : ''}`}
+              onClick={() => setCurrentPage('knowledge')}
+            >
+              <HddOutlined style={{ fontSize: 24 }} />
             </div>
             <div
               className={`${style.iconItem} ${currentPage === 'openclaw' ? style.active : ''}`}
               onClick={() => setCurrentPage('openclaw')}
             >
-              <CodeFilled style={{ fontSize: 24 }} />
+              <UserSwitchOutlined style={{ fontSize: 24 }} />
             </div>
           </div>
         </div>
@@ -78,6 +92,7 @@ const MainPage: React.FC = () => {
         <Content className={style.content}>
           {currentPage === 'chat' && <ChatBox />}
           {currentPage === 'notebook' && <NoteBook />}
+          {currentPage === 'article' && <Article />}
           {currentPage === 'knowledge' && <Knowledge />}
           {currentPage === 'picture' && <Picture />}
         </Content>

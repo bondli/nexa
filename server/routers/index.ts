@@ -58,6 +58,24 @@ import {
   getMessages,
   chatToLLM,
 } from '../controllers/chat-controller';
+import {
+  createArticle,
+  getArticleInfo,
+  getArticles,
+  updateArticle,
+  deleteArticle,
+  recoverArticle,
+  removeArticle,
+  searchArticles,
+  getArticleCounts,
+  createArticleCate,
+  getArticleCates,
+  updateArticleCate,
+  deleteArticleCate,
+  getTempArticles,
+  deleteTempArticle,
+  importTempArticle,
+} from '../controllers/article-controller';
 
 const router = express.Router();
 
@@ -135,5 +153,27 @@ router.post('/chat/update', updateChat);
 router.post('/chat/delete', deleteChat);
 router.get('/chat/msglist', getMessages);
 router.post('/chat/withllm', chatToLLM);
+
+// 文章相关
+router.post('/article/add', createArticle);
+router.get('/article/getList', getArticles);
+router.post('/article/searchList', searchArticles);
+router.get('/article/counts', getArticleCounts);
+router.post('/article/update', updateArticle);
+router.get('/article/detail', getArticleInfo);
+router.get('/article/delete', deleteArticle);
+router.get('/article/recover', recoverArticle);
+router.get('/article/remove', removeArticle);
+
+// 文章分类
+router.post('/article_cate/create', createArticleCate);
+router.get('/article_cate/list', getArticleCates);
+router.post('/article_cate/update', updateArticleCate);
+router.get('/article_cate/delete', deleteArticleCate);
+
+// 临时文章
+router.get('/temp_article/list', getTempArticles);
+router.get('/temp_article/delete', deleteTempArticle);
+router.post('/temp_article/import', importTempArticle);
 
 export default router;

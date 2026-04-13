@@ -7,8 +7,8 @@ import 'dayjs/locale/zh-cn';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { MainProvider } from '@commons/context';
-import QuickNote from '@components/QuickNote';
-import ScreenshotCapture from '@components/ScreenshotCapture';
+import QuickNote from '@blocks/QuickNote';
+import CaptureSave from '@blocks/CaptureSave';
 import AppContainer from './App';
 
 import 'antd/dist/reset.css';
@@ -58,7 +58,7 @@ if (isScreenshotCapture()) {
           },
         }}
       >
-        <ScreenshotCapture />
+        <CaptureSave />
       </ConfigProvider>
     </App>,
   );

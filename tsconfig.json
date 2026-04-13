@@ -22,6 +22,7 @@
     "paths": {
       "@/*": ["./frontend/*"],
       "@public/*": ["./public/*"],
+      "@blocks/*": ["./frontend/blocks/*"],
       "@commons/*": ["./frontend/commons/*"],
       "@components/*": ["./frontend/components/*"],
       "@modules/*": ["./frontend/modules/*"],

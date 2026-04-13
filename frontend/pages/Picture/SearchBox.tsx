@@ -3,59 +3,63 @@ import { Input, App } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import request from '@commons/request';
 import { userLog } from '@commons/electron';
-import { NoteContext } from './context';
-import { DEFAULT_CATE } from './constant';
+import { PictureContext } from './context';
 
 const SearchBox: React.FC = () => {
   const { message, notification } = App.useApp();
-  const { currentCate, setCurrentCate, selectedNote, setNoteList } = useContext(NoteContext);
+  const { currentCate, setPictureList } = useContext(PictureContext);
 
   const [searchKey, setSearchKey] = useState('');
   const inputSearchRef = useRef(null);
 
   // 搜索框输入
-  const handleSearchChange = (e) => {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchKey(e.target.value);
   };
 
   // 执行搜索
   const goSearch = async () => {
-    // 强制切换到All的目录下
-    setCurrentCate(DEFAULT_CATE);
+    if (!searchKey.trim()) {
+      // 清空搜索时重新获取列表（由外部监听 currentCate 变化处理）
+      setSearchKey('');
+      return;
+    }
 
-    userLog('Search Note keyword: ', searchKey);
+    userLog('Search Picture keyword: ', searchKey);
     message.loading('搜索中...', 2);
-    // 延迟2s，解决切换到All分类带来的副作用
+
+    // 延迟解决切换分类带来的副作用
     setTimeout(async () => {
-      const response = await request.post(`/note/searchList?cateId=${currentCate.id}`, {
-        searchKey,
-      });
+      const response = await request.get(`/picture/search?keyword=${encodeURIComponent(searchKey.trim())}`);
       if (response.code === 0) {
         const { data, count } = response;
+        // 设置搜索结果到列表
+        setPictureList(data || []);
+        // 显示搜索结果通知
         if (count > 0) {
           notification.success({
-            description: `搜索到”${searchKey}”的结果共 ${count} 条`,
+            message: `搜索到"${searchKey}"的结果共 ${count} 条`,
           });
         } else {
           notification.info({
-            description: `没有搜索到”${searchKey}”的结果`,
+            message: `没有搜索到"${searchKey}"的结果`,
           });
         }
-        setNoteList(data || []);
       }
     }, 2500);
   };
 
+  // 分类变化时清空搜索
   useEffect(() => {
     setSearchKey('');
-  }, [currentCate.id, selectedNote?.id]);
+  }, [currentCate?.id]);
 
   return (
     <div>
       <Input
-        style={{ width: 300 }}
+        style={{ width: 200 }}
         size={`small`}
-        placeholder={`请输入关键字进行查找`}
+        placeholder={`搜索图片名称`}
         prefix={<SearchOutlined />}
         allowClear
         onChange={handleSearchChange}
