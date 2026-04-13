@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.journeyapps.barcodescanner.DecoratedBarcodeView
+        android:id="@+id/zxing_barcode_scanner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/status_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="请将条码放入扫描框内"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:background="#80000000"
+        android:padding="8dp"
+        android:layout_alignParentTop="true" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="32dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_margin="32dp"
+            android:background="@drawable/circle_button_background"
+            android:src="@drawable/ic_back"
+            android:contentDescription="返回" />
+
+        <ImageButton
+            android:id="@+id/pick_image_button"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_margin="32dp"
+            android:background="@drawable/circle_button_background"
+            android:src="@drawable/ic_gallery"
+            android:contentDescription="从相册选择" />
+
+        <ImageButton
+            android:id="@+id/torch_button"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_margin="32dp"
+            android:background="@drawable/circle_button_background"
+            android:src="@drawable/ic_flashlight"
+            android:contentDescription="打开手电筒" />
+
+    </LinearLayout>
+
+</RelativeLayout>

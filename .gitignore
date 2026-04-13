@@ -15,3 +15,24 @@ yarn-error.log*
 .env
 /vector-store
 *.traineddata
+
+# Android 相关
+*.iml
+/.gradle
+/.kotlin
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+/client-app/node_modules
+/client-app/android/.idea/
+/client-app/android/.gradle/
+/client-app/android/.kotlin/
+/client-app/android/app/debug/
+/client-app/android/app/release/
+/client-app/android/app/build/
+/client-app/android/build/
+/client-app/android/gradle/
+/client-app/android/gradlew
+/client-app/android/gradlew.bat

@@ -1,0 +1,23 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.CashierApp" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- 设置状态栏背景色 -->
+        <item name="colorPrimaryDark">@color/white</item>
+        <!-- 设置窗口背景色为白色 -->
+        <item name="android:windowBackground">@color/white</item>
+        <!-- 设置导航栏背景色为白色（API 21及以上） -->
+        <item name="android:navigationBarColor">@color/white</item>
+        <!-- 设置导航栏图标和文字为深色（API 26及以上） -->
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+    </style>
+    
+    <style name="Theme.CashierApp.Scanner" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- 设置状态栏背景色为半透明黑色 -->
+        <item name="android:statusBarColor">@color/semi_transparent_black</item>
+        <!-- 设置导航栏背景色为半透明黑色 -->
+        <item name="android:navigationBarColor">@color/semi_transparent_black</item>
+        <!-- 设置状态栏和导航栏图标为浅色 -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+    </style>
+</resources>
