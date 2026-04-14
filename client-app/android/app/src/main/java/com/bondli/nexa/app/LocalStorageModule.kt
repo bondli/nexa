@@ -1,4 +1,4 @@
-package com.bondli.cashier.app
+package com.bondli.nexa.app
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -15,7 +15,7 @@ import com.facebook.react.bridge.Callback
 class LocalStorageModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     companion object {
         private const val TAG = "LocalStorageModule"
-        private const val SHARED_PREFS_NAME = "CashierAppLocalStorage"
+        private const val SHARED_PREFS_NAME = "NexaAppLocalStorage"
     }
 
     private val sharedPreferences: SharedPreferences = reactContext.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)

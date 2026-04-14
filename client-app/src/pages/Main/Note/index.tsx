@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
 
 import { ActivityIndicator, Toast } from '@ant-design/react-native';
+import { format as timeAgoFormat } from 'timeago.js';
 
 import NoteService from '@services/NoteService';
 import type { Note } from '@services/NoteService';
@@ -18,14 +19,14 @@ import styles from './styles';
 const PAGE_SIZE = 20;
 
 const options = [
-  { label: '今天', value: 'today' },
-  { label: '昨天', value: 'yesterday' },
-  { label: '近一周', value: 'last7day' },
-  { label: '近一月', value: 'last30day' },
+  { label: '所有笔记', value: 'all' },
+  { label: '今天到期', value: 'today' },
+  { label: '已完成', value: 'done' },
+  { label: '回收站', value: 'trash' },
 ];
 
 const NotePage = () => {
-  const [NoteTime, setNoteTime] = useState<string>('today');
+  const [NoteType, setNoteType] = useState<string>('all');
   const [NoteList, setNoteList] = useState<Note[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -44,7 +45,7 @@ const NotePage = () => {
   // 当选中的时间变化时候，重新加载数据
   useEffect(() => {
     loadNoteList(1, true);
-  }, [NoteTime]);
+  }, [NoteType]);
 
   // 加载笔记列表
   const loadNoteList = async (pageNum: number = 1, isRefresh: boolean = false) => {
@@ -56,7 +57,7 @@ const NotePage = () => {
       }
 
       // 使用统一的方法处理分页和搜索
-      const result = await NoteService.getNoteList(pageNum, PAGE_SIZE, NoteTime || undefined);
+      const result = await NoteService.getNoteList(pageNum, PAGE_SIZE, NoteType || undefined);
 
       if (pageNum === 1) {
         setNoteList(result.data);
@@ -78,8 +79,8 @@ const NotePage = () => {
   };
 
   // 选中笔记时间
-  const handleNoteTimeChange = (value: string) => {
-    setNoteTime(value);
+  const handleNoteTypeChange = (value: string) => {
+    setNoteType(value);
   };
 
   // 下拉刷新
@@ -111,16 +112,20 @@ const NotePage = () => {
   const renderNoteItem = ({ item }: { item: Note }) => (
     <ListItem
       title={
-        <Text style={{ fontSize: 16, color: '#333'}}>{item.title}</Text>
+        <Text style={{ fontSize: 16, color: '#333'}}>
+          {item.title ? item.title.substring(0, 18) + (item.title.length > 18 ? '...' : '') : ''}
+        </Text>
       }
       subtitle={
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ fontSize: 12, color: '#999' }}>{item.desc}</Text>
+          <Text style={{ fontSize: 12, color: '#999' }}>
+            {item.desc ? item.desc.substring(0, 20) + (item.desc.length > 20 ? '...' : '') : ''}
+          </Text>
         </View>
       }
       extra={
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ fontSize: 12, color: '#666' }}>{item.createdAt}</Text>
+          <Text style={{ fontSize: 12, color: '#666' }}>{timeAgoFormat(new Date(item.createdAt))}</Text>
         </View>
       }
       onPress={() => handleNotePress(item)}
@@ -140,7 +145,7 @@ const NotePage = () => {
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
-        <ButtonGroup options={options} onChange={handleNoteTimeChange} />
+        <ButtonGroup options={options} onChange={handleNoteTypeChange} />
       </View>
       
       {loading && page === 1 ? (
@@ -152,7 +157,7 @@ const NotePage = () => {
       ) : (
         <FlatList
           data={NoteList}
-          keyExtractor={(item, index) => `${item.id}-${index}`}
+          keyExtractor={(item: Note, index: number) => `${item.id}-${index}`}
           renderItem={renderNoteItem}
           onRefresh={handleRefresh}
           refreshing={refreshing}

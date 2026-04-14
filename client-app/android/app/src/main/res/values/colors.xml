@@ -8,7 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <!-- 启动器背景色 -->
-    <color name="ic_launcher_background">#000000</color>
+    <color name="ic_launcher_background">#FF0000</color>
     <!-- 半透明黑色（50%透明度） -->
     <color name="semi_transparent_black">#80000000</color>
     <!-- ZXing colors -->

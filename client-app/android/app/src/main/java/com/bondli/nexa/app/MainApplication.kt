@@ -1,4 +1,4 @@
-package com.bondli.cashier.app
+package com.bondli.nexa.app
 
 import android.app.Application
 import com.facebook.react.ReactApplication
@@ -6,24 +6,52 @@ import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
 import com.facebook.react.shell.MainReactPackage
 import com.facebook.soloader.SoLoader
-import android.content.pm.ApplicationInfo
-import com.facebook.react.defaults.DefaultReactNativeHost
 import android.util.Log
-import android.content.pm.PackageManager
 import com.facebook.react.bridge.ReactApplicationContext
-import com.bondli.cashier.app.LocalStorageModule
+import com.bondli.nexa.app.LocalStorageModule
 
 
 class MainApplication : Application(), ReactApplication {
     companion object {
         private const val TAG = "MainApplication"
+        // Metro 开发服务器默认地址（Android 模拟器访问宿主机）
+        private const val DEFAULT_DEV_SERVER_URL = "http://10.0.2.2:8081"
+
+        // 获取开发服务器 URL，支持自定义配置
+        fun getDevServerUrl(): String {
+            return try {
+                // 尝试从 BuildConfig 获取自定义 URL
+                val customUrl = BuildConfig.REACT_NATIVE_DEV_SERVER_URL
+                if (customUrl.isNotEmpty() && customUrl != "10.0.2.2:8081") {
+                    "http://$customUrl"
+                } else {
+                    DEFAULT_DEV_SERVER_URL
+                }
+            } catch (e: Exception) {
+                DEFAULT_DEV_SERVER_URL
+            }
+        }
     }
-    
-    private val mReactNativeHost: ReactNativeHost = object : DefaultReactNativeHost(this) {
+
+    private val mReactNativeHost: ReactNativeHost = object : ReactNativeHost(this) {
         override fun getUseDeveloperSupport(): Boolean {
-            // 强制禁用开发者支持，始终使用bundle文件
-            Log.d(TAG, "getUseDeveloperSupport: 强制禁用开发者支持，使用bundle文件")
-            return false
+            // debug 构建时启用开发者支持，从 Metro 服务器加载 JS
+            // release 构建返回 false，使用本地 bundle
+            val isDebug = BuildConfig.DEBUG
+            Log.d(TAG, "getUseDeveloperSupport: isDebug=$isDebug")
+            return isDebug
+        }
+
+        override fun getJSBundleFile(): String? {
+            // debug 模式返回 null，让 React Native 从开发服务器加载
+            // release 模式返回本地 bundle 路径
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "getJSBundleFile: debug 模式，从 Metro 服务器加载，URL: ${getDevServerUrl()}")
+                return null
+            }
+            val bundleName = "index.android.bundle"
+            Log.d(TAG, "getJSBundleFile: release 模式，使用本地bundle - $bundleName")
+            return "assets/$bundleName"
         }
 
         override fun getPackages(): List<ReactPackage> =
@@ -65,20 +93,6 @@ class MainApplication : Application(), ReactApplication {
             )
 
         override fun getJSMainModuleName(): String = "index"
-
-        override fun getBundleAssetName(): String? {
-            // 始终使用本地bundle文件
-            val bundleName = "index.android.bundle"
-            Log.d(TAG, "getBundleAssetName: 使用本地bundle文件 - $bundleName")
-            return bundleName
-        }
-        
-        
-        
-        // 添加这个方法来启用全屏模式，让RN页面从状态栏顶端开始渲染
-        // override fun isConcurrentRootEnabled(): Boolean {
-        //     return true
-        // }
     }
 
     override val reactNativeHost: ReactNativeHost = mReactNativeHost
@@ -86,6 +100,6 @@ class MainApplication : Application(), ReactApplication {
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "onCreate: Application starting")
-        SoLoader.init(this, false) // 关闭crashlytics
+        SoLoader.init(this, false)
     }
 }

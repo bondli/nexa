@@ -25,7 +25,9 @@ yarn-error.log*
 .externalNativeBuild
 .cxx
 local.properties
+/client-app/config.json
 /client-app/node_modules
+/client-app/dist/
 /client-app/android/.idea/
 /client-app/android/.gradle/
 /client-app/android/.kotlin/
@@ -33,6 +35,3 @@ local.properties
 /client-app/android/app/release/
 /client-app/android/app/build/
 /client-app/android/build/
-/client-app/android/gradle/
-/client-app/android/gradlew
-/client-app/android/gradlew.bat

@@ -1,11 +1,6 @@
-export const DB_CONFIG = {
-  host: 'sh-cdb-rpcxf0dm.sql.tencentcdb.com',
-  port: 26884,
-  username: 'root',
-  password: 'cx0917CXC',
-  // database: 'store_pos_backup_250930',
-  database: 'chat_app',
-};
+import config from '../../config.json';
+
+export const DB_CONFIG = config;
 
 export type TAB_KEY = 'Note' | 'Article' | 'Profile';
 

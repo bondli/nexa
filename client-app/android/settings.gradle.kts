@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CashierApp"
+rootProject.name = "NexaApp"
 include(":app")

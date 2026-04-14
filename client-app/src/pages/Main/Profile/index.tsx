@@ -5,6 +5,7 @@ import { Toast, ActivityIndicator, List, WhiteSpace, Icon } from '@ant-design/re
 
 import { MainContext } from '@commons/context';
 import { setStorage, removeStorage } from '@commons/utils';
+import UserService from '@services/UserService';
 
 import ListItem from '@/components/ListItem';
 
@@ -13,30 +14,42 @@ import styles from './styles';
 const ProfilePage = () => {
   const { userInfo, setUserInfo } = useContext(MainContext);
   const [loading, setLoading] = useState<boolean>(true);
-  const [dataList, setDataList] = useState<any[]>([]);
-  const [personalDataList, setPersonalDataList] = useState<any[]>([]);
-  const [storeData, setStoreData] = useState<any>({
-    totalItems: 0,
-    totalMembers: 0,
-    totalOrders: 0,
+  const [systemData, setSystemData] = useState<any>({
+    totalNotes: 0,
+    totalArticles: 0,
+    totalPictures: 0,
   });
 
 
   useEffect(() => {
     // todo something
     console.log('Profile Page inited');
+    fetchSystemData();
   }, []);
 
   // 退出登录
   const logout = () => {
     setStorage('userInfo', null);
     removeStorage('userInfo');
-    removeStorage('salerList');
 
     setUserInfo({
       id: 0,
       name: '',
     });
+  };
+
+  // 发请求取应用数据
+  const fetchSystemData = async () => {
+    setLoading(true);
+    try {
+      const data = await UserService.getSystemData();
+      setSystemData(data);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+      Toast.fail('获取应用数据失败');
+    } finally { 
+      setLoading(false);
+    }
   };
 
   if (loading) {
@@ -56,9 +69,6 @@ const ProfilePage = () => {
           title={
             <Text style={{ fontSize: 16, color: '#333'}}>{userInfo.name}</Text>
           }
-          subtitle={
-            <Text style={{ fontSize: 14, color: '#999'}}>{userInfo.name === 'admin' ? '管理员' : '导购员'}</Text>
-          }
           extra={
             <View style={styles.logoutContainer}>
               <TouchableOpacity onPress={logout}><Text style={styles.logoutText}>退出</Text></TouchableOpacity>
@@ -69,58 +79,17 @@ const ProfilePage = () => {
 
       <WhiteSpace size={`lg`} />
 
-      <List renderHeader={'店铺数据'} style={styles.dataContainer}>
-        <List.Item extra={<Text style={{ color: `#f50` }}>{storeData.totalItems || 0}</Text>} arrow={`empty`}>
-          库存总数
+      <List renderHeader={'应用数据'} style={styles.dataContainer}>
+        <List.Item extra={<Text style={{ color: `#f50` }}>{systemData.totalNotes || 0}</Text>} arrow={`empty`}>
+          笔记总数
         </List.Item>
-        <List.Item extra={<Text style={{ color: `#f50` }}>{storeData.totalMembers || 0}</Text>} arrow={`empty`}>
-          会员总数
+        <List.Item extra={<Text style={{ color: `#f50` }}>{systemData.totalArticles || 0}</Text>} arrow={`empty`}>
+          文章总数
         </List.Item>
-        <List.Item extra={<Text style={{ color: `#f50` }}>{storeData.totalOrders || 0}</Text>} arrow={`empty`}>
-          订单总数
+        <List.Item extra={<Text style={{ color: `#f50` }}>{systemData.totalPictures || 0}</Text>} arrow={`empty`}>
+          图片总数
         </List.Item>
       </List>
-
-      <WhiteSpace size={`lg`} />
-
-      <List renderHeader={'店铺营业额'} style={styles.dataContainer}>
-        {
-          dataList.map((data) => {
-            return (
-              <List.Item
-                key={data.month}
-                extra={<View><Text style={{ color: '#f50' }}>{data.amount}</Text></View>}
-                multipleLine
-              >
-                {data.month}
-                <List.Item.Brief style={{ fontSize: 12, color: '#999' }}>{`订单数: ${data.orderCount} / 商品数: ${data.itemCount}`}</List.Item.Brief>
-              </List.Item>
-            );
-          })
-        }
-      </List>
-
-      <WhiteSpace size={`lg`} />
-
-      <List renderHeader={'个人营业额'} style={styles.dataContainer}>
-        {
-          personalDataList.map((data) => {
-            return (
-              <List.Item
-                key={data.month}
-                extra={<View><Text style={{ color: '#f50' }}>{data.amount}</Text></View>}
-                multipleLine
-              >
-                {data.month}
-                <List.Item.Brief style={{ fontSize: 12, color: '#999' }}>{`订单数: ${data.orderCount} / 商品数: ${data.itemCount}`}</List.Item.Brief>
-              </List.Item>
-            );
-          })
-        }
-      </List>
-
-      <WhiteSpace size={`lg`} />
-      <WhiteSpace size={`lg`} />
 
     </ScrollView>
   );

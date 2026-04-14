@@ -24,7 +24,7 @@ const Detail = (props: DetailProps) => {
       const detail = await NoteService.getNoteDetail(NoteId);
       setNoteDetail(detail.detailInfo);
     } catch (error) {
-      Toast.fail('获取订单详情失败');
+      Toast.fail('获取笔记详情失败');
       console.error('Error fetching Note detail:', error);
     } finally {
       setDetailLoading(false);
@@ -59,17 +59,20 @@ const Detail = (props: DetailProps) => {
 
   return (
     <View style={styles.detailContainer}>
-      <List renderHeader={'订单详情'}>
-        <List.Item extra={NoteDetail.id} arrow={`empty`}>
+      <List renderHeader={'笔记详情'}>
+        <List.Item extra={`${NoteDetail.id}`} arrow={`empty`}>
           id
         </List.Item>
         <List.Item extra={NoteDetail.createdAt} arrow={`empty`}>
           时间
         </List.Item>
-        <List.Item extra={NoteDetail.desc || '---'} arrow={`empty`}>
-          备注
+        <List.Item extra={NoteDetail.desc ? '如下' : '--'} arrow={`empty`}>
+          详情
         </List.Item>
       </List>
+      <View style={styles.detailContent}>
+        <Text>{NoteDetail.desc}</Text>
+      </View>
     </View>
   );
 };

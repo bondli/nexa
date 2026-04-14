@@ -16,8 +16,8 @@ export const styles = StyleSheet.create({
     borderColor: '#e0e0e0',
   },
   selectedButton: {
-    backgroundColor: '#456efd',
-    borderColor: '#456efd',
+    backgroundColor: '#18181b',
+    borderColor: '#18181b',
   },
   text: {
     color: '#333',

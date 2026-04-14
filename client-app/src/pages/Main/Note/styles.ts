@@ -35,6 +35,10 @@ const styles = StyleSheet.create({
   detailContainer: {
     backgroundColor: '#fff',
   },
+  detailContent: {
+    padding: 16,
+    fontSize: 12
+  },
 });
 
 export default styles;

@@ -1,4 +1,4 @@
-package com.bondli.cashier.app
+package com.bondli.nexa.app
 
 import android.util.Log
 import com.facebook.react.bridge.*

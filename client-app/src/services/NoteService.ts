@@ -15,7 +15,7 @@ export interface Note {
   id: number;
   title: string;
   desc: string;
-  scateId: number;
+  cateId: number;
   userId: number;
   status: string;
   deadline: Date | null;
@@ -25,15 +25,34 @@ export interface Note {
 };
 
 class NoteService {
-  static async getNoteList(page: number = 1, pageSize: number = 20, NoteTime?: string): Promise<{ data: Note[], total: number }> {
+  static async getNoteList(page: number = 1, pageSize: number = 20, cateId?: string): Promise<{ data: Note[], total: number }> {
     try {
       const offset = (page - 1) * pageSize;
       
       // 构建查询条件
-      const whereClause = `WHERE 1=1`;
+      let whereClause = `WHERE 1=1`;
+      if (cateId) {
+        // 如果cateId是all/done/today/trash的时候
+        if (['all', 'done', 'today', 'trash'].includes(cateId)) {
+          if (cateId === 'all') {
+            whereClause += ` AND status = 'undo'`;
+          } else if (cateId === 'done') {
+            whereClause += ` AND status = 'done'`;
+          } else if (cateId === 'today') {
+            const today = dayjs().startOf('day').toISOString();
+            const tomorrow = dayjs().endOf('day').toISOString();
+            whereClause += ` AND deadline >= '${today}' AND deadline <= '${tomorrow}' AND status = 'undo'`;
+          } else if (cateId === 'trash') {
+            whereClause += ` AND status = 'deleted'`;
+          }
+        } else {
+          // 否则就是普通的分类ID
+          whereClause += ` status = 'undo' AND cateId = \`${cateId}\``;
+        }
+      }
       
       
-      const query = `SELECT * FROM \`Note\` ${whereClause} Note BY createdAt DESC LIMIT ${pageSize} OFFSET ${offset}`;
+      const query = `SELECT * FROM \`Note\` ${whereClause} Order BY createdAt DESC LIMIT ${pageSize} OFFSET ${offset}`;
       const countQuery = `SELECT COUNT(*) as total FROM \`Note\` ${whereClause}`;
       
       const result = await DatabaseService.executeQuery(query);
@@ -66,7 +85,7 @@ class NoteService {
         result[0].createdAt = dayjs(result[0].createdAt).format('YYYY-MM-DD HH:mm:ss');
         NoteDetailInfo = result[0] as Note;
       } else {
-        throw { code: 404, message: '没有找到订单' };
+        throw { code: 404, message: '没有找到笔记' };
       }
       return {
         detailInfo: NoteDetailInfo,

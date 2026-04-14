@@ -33,7 +33,7 @@ const UserPage = () => {
       const finallyUser = {
         id: user.id,
         name: user.name,
-    };
+      };
 
       // 保存到本地存储
       setStorage('userInfo', finallyUser);
@@ -41,10 +41,6 @@ const UserPage = () => {
       
       // 显示成功消息
       Toast.success('登录成功');
-
-      // 获取用户列表，写到缓存中
-      const userList = await UserService.getUserList();
-      setStorage('salerList', userList);
     } catch (error: any) {
       console.error('Login failed:', error);
       Toast.fail(error.message || '登录失败，请重试');

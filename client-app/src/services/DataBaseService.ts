@@ -28,7 +28,7 @@ class DatabaseService {
         return true;
       }
 
-      // console.log(`Attempting to connect to database at ${config.host}:${config.port}/${config.database} with user ${config.username}`);
+      console.log(`Attempting to connect to database at ${config.host}:${config.port}/${config.database} with user ${config.username}`);
       
       const result = await MySQLManager.connect(
         config.host,
@@ -38,7 +38,7 @@ class DatabaseService {
         config.password
       );
       
-      // console.log('Database connected:', result);
+      console.log('Database connected:', result);
       this.isConnected = true;
       return true;
     } catch (error: any) {

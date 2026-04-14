@@ -64,38 +64,16 @@ npm install
 
 ### 启动 Metro 服务
 ```bash
-npx run start
+npm run dev:android
 ```
+
+需要先启动模拟器，然后端口被占用了需要先kill掉（lsof -i :8081 --> kill -9 [PID]）
 
 ### 构建 Android Release 版本
 ```bash
-cd android && ./gradlew assembleRelease
+cd android && ./build-release.sh
 ```
 
-## 调试配置
-
-### React Native 调试
-1. 在模拟器或设备上摇晃设备，打开调试菜单
-2. 选择 "Debug" 开启远程 JS 调试
-3. 在 Chrome 中打开 `http://localhost:8081/debugger-ui/`
-
-### Android 原生调试
-1. 在 Android Studio 中打开 `android` 目录
-2. 设置断点并运行调试模式
-
-## 打包发布
-
-### Android 打包
-1. 生成签名密钥：
-   ```bash
-   keytool -genkeypair -v -storetype PKCS12 -keystore my-upload-key.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000
-   ```
-2. 将密钥文件放在 `android/app` 目录下
-3. 编辑 `android/gradle.properties` 添加密钥配置
-4. 构建 Release 版本：
-   ```bash
-   cd android && ./gradlew assembleRelease
-   ```
 
 ## 原生模块使用说明
 

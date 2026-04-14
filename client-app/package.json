@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "start": "react-native start",
+    "dev:android": "react-native start & cd android && ./gradlew assembleDebug && cd .. && adb install android/app/build/outputs/apk/debug/app-debug.apk",
     "bundle:android": "mkdir -p dist && npx react-native bundle --platform android --dev false --entry-file index.ts --bundle-output ./dist/index.android.bundle --assets-dest ./dist --minify true",
     "copy:android": "node ./scripts/copy-android-bundle.js",
     "build:android": "npm run bundle:android && npm run copy:android"
@@ -17,7 +18,8 @@
     "react": "18.2.0",
     "react-native": "0.75.3",
     "react-native-gesture-handler": "^2.28.0",
-    "react-native-reanimated": "3.15.4"
+    "react-native-reanimated": "3.15.4",
+    "timeago.js": "^4.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",

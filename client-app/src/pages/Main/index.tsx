@@ -9,6 +9,7 @@ import { PAGE_MAP, type TAB_KEY } from '@commons/constants';
 import NavBar from '@components/NavBar';
 
 import NotePage from './Note';
+import ArticlePage from './Article';
 import ProfilePage from './Profile';
 
 import styles from './styles';
@@ -40,6 +41,15 @@ const MainPage = () => {
           onPress={() => switchTab('Note')}
         >
           <NotePage />
+        </TabBar.Item>
+
+        <TabBar.Item
+          title={PAGE_MAP.Article.title}
+          icon={<Icon name={PAGE_MAP.Article.icon as any} />}
+          selected={currentPage === 'Article'}
+          onPress={() => switchTab('Article')}
+        >
+          <ArticlePage />
         </TabBar.Item>
 
         <TabBar.Item

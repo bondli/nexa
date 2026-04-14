@@ -23,7 +23,7 @@ const defaultContext: MainContextType = {
     name: '',
   },
   setUserInfo: () => {},
-  currentPage: 'Order',
+  currentPage: 'Note',
   setCurrentPage: () => {},
   dbService: DatabaseService,
   isDBConnected: false,
@@ -36,7 +36,7 @@ export const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children
     id: 0,
     name: '',
   });
-  const [currentPage, setCurrentPage] = useState('Order');
+  const [currentPage, setCurrentPage] = useState('Note');
   const [isDBConnected, setIsDBConnected] = useState(false);
 
   const initDatabase = async () => {

@@ -7,6 +7,12 @@ export interface User {
   role: string;
 };
 
+export interface SummaryData {
+  totalNotes: number;
+  totalArticles: number;
+  totalPictures: number;
+}
+
 class UserService {
   static async userLogin(username: string, password: string): Promise<User> {
     try {
@@ -24,13 +30,25 @@ class UserService {
     }
   }
 
-  static async getUserList(): Promise<User[]> {
+  // 获取应用数据
+  static async getSystemData(): Promise<SummaryData> {
     try {
-      const query = 'SELECT id, name FROM user';
-      const result = await DatabaseService.executeQuery(query);
-      return result as User[];
+      const query1 = 'SELECT COUNT(*) as totalNotes FROM `Note` where status = \'undo\'';
+      const result1 = await DatabaseService.executeQuery(query1);
+
+      const query2 = 'SELECT COUNT(*) as totalArticles FROM `Article` where status = \'normal\'';
+      const result2 = await DatabaseService.executeQuery(query2);
+
+      const query3 = 'SELECT COUNT(*) as totalPictures FROM `Picture` where status = \'normal\'';
+      const result3 = await DatabaseService.executeQuery(query3);
+
+      return {
+        totalNotes: result1[0].totalNotes,
+        totalArticles: result2[0].totalArticles,
+        totalPictures: result3[0].totalPictures,
+      };
     } catch (error) {
-      console.error('Error fetching user:', error);
+      console.error('Error fetching System Data:', error);
       throw error;
     }
   }
