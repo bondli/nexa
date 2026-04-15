@@ -1,7 +1,6 @@
 import React, { memo, useContext } from 'react';
 import { List, Empty } from 'antd';
 import { GithubFilled, LinkOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
 import { format as timeAgoFormat } from 'timeago.js';
 import { ArticleContext } from './context';
 import Actions from './Actions';
@@ -47,17 +46,7 @@ const Articles: React.FC = () => {
 
   // 渲染标题
   const renderTitle = (data: any) => {
-    if (isTempCategory) {
-      // 临时文章只显示 URL
-      const urlText = data.url.length > 50 ? data.url.substring(0, 50) + '...' : data.url;
-      return (
-        <div className={style.listTitle} onClick={(e) => openUrl(e, data.url)}>
-          <span style={{ color: '#1890ff', cursor: 'pointer' }}>{urlText}</span>
-        </div>
-      );
-    }
-
-    // 普通文章显示标题和 URL 图标
+    // 文章显示标题和 URL 图标
     const { title, url } = data;
     const titleTxt = title.length > 40 ? title.substring(0, 40) + '...' : title;
 
@@ -73,11 +62,7 @@ const Articles: React.FC = () => {
   const renderDesc = (data: any) => {
     if (isTempCategory) {
       // 临时文章显示加入时间
-      return (
-        <div className={style.listDesc}>
-          加入时间：{data.createdAt ? dayjs(data.createdAt).format('YYYY/MM/DD HH:mm') : '-'}
-        </div>
-      );
+      return <div className={style.listDesc}>{data.url}</div>;
     }
 
     let displayDesc = !data.desc ? '该文章暂时没有详细信息' : data.desc.replace(/(<([^>]+)>)/gi, '');
@@ -114,14 +99,10 @@ const Articles: React.FC = () => {
           <List.Item
             extra={
               <div className={style.listExtra}>
-                <span className={style.extraText}>
-                  {isTempCategory ? '' : `created: ${timeAgoFormat(item.createdAt)}`}
-                </span>
-                {!isTempCategory && (
-                  <div className={style.extraActions}>
-                    <Actions selectedArticle={item} onUpdated={handleStatusUpdate} />
-                  </div>
-                )}
+                <span className={style.extraText}>{`created: ${timeAgoFormat(item.createdAt)}`}</span>
+                <div className={style.extraActions}>
+                  <Actions selectedArticle={item} onUpdated={handleStatusUpdate} />
+                </div>
               </div>
             }
           >

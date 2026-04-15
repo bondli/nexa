@@ -72,7 +72,10 @@ export const getCates = async (req: Request, res: Response) => {
   try {
     const cates = await PictureCate.findAll({
       where: { userId },
-      order: [['orders', 'ASC']],
+      order: [
+        ['orders', 'ASC'],
+        ['createdAt', 'DESC'],
+      ],
     });
 
     success(res, cates);

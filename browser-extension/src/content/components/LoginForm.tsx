@@ -32,14 +32,23 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div style={{ padding: '24px 20px' }}>
+    <>
+      <style>{`
+        .nexa-login-form {
+          display: block !important;
+        }
+        .nexa-login-form .ant-form-item {
+          display: block !important;
+        }
+      `}</style>
+      <div style={{ padding: '24px 20px' }}>
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
         <BookOutlined style={{ fontSize: '36px', color: '#1677ff' }} />
         <Title level={5} style={{ margin: '10px 0 4px', color: '#1a1a1a' }}>登录到 Nexa</Title>
         <Text type="secondary" style={{ fontSize: '13px' }}>采集并保存网页内容</Text>
       </div>
 
-      <Form form={form} onFinish={handleLogin} layout="vertical" size="large">
+      <Form form={form} onFinish={handleLogin} layout="vertical" size="large" className="nexa-login-form">
         <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
           <Input prefix={<UserOutlined style={{ color: '#bfbfbf' }} />} placeholder="用户名" />
         </Form.Item>
@@ -55,6 +64,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
         </Form.Item>
       </Form>
     </div>
+    </>
   );
 };
 

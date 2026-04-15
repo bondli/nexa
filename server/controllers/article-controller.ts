@@ -98,6 +98,7 @@ export const getArticles = async (req: Request, res: Response) => {
       // 转换格式以保持一致
       const transformedRows = (rows || []).map((item) => ({
         id: item.id,
+        title: item.title,
         url: item.url,
         createdAt: item.createdAt,
       }));
@@ -466,7 +467,7 @@ export const importTempArticle = async (req: Request, res: Response) => {
   const userId = Number(req.headers['x-user-id']) || 0;
 
   try {
-    const { url } = req.body;
+    const { title, url } = req.body;
 
     if (!url) {
       badRequest(res, 'URL is required');
@@ -474,6 +475,7 @@ export const importTempArticle = async (req: Request, res: Response) => {
     }
 
     const result = await TempArticle.create({
+      title: title || '',
       url,
       userId,
     });

@@ -25,6 +25,7 @@ export type Article = {
 // 临时文章
 export type TempArticle = {
   id: number;
+  title?: string;
   url: string;
   createdAt?: string;
 };

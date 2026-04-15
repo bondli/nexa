@@ -89,6 +89,13 @@ export default NoteCard;
 
 ---
 
+### 4. React-native组件规范
+
+- 对齐react组件的规范
+- 样式必须单独成一个 styles.ts 文件，禁止将样式写到组件内
+
+---
+
 ## 四、样式规范（强制）
 
 ### 1. 样式必须独立文件（强制）

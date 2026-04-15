@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, Linking } from 'react-native';
 
 import { ActivityIndicator, Toast } from '@ant-design/react-native';
 import { format as timeAgoFormat } from 'timeago.js';
@@ -35,6 +35,9 @@ const ArticlePage = () => {
 
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [operator, setOperator] = useState<string>('');
+
+  // 判断是否为临时文章模式
+  const isTempCategory = ArticleType === 'temp';
 
   useEffect(() => {
     // todo something
@@ -96,8 +99,13 @@ const ArticlePage = () => {
   };
 
   // 查看笔记详情
-  const handleArticlePress = (Article: Article) => {
-    setSelectedArticle(Article);
+  const handleArticlePress = (article: Article) => {
+    // 临时文章点击在浏览器中打开
+    if (isTempCategory && article.url) {
+      Linking.openURL(article.url);
+      return;
+    }
+    setSelectedArticle(article);
     setOperator('detail');
   };
 
@@ -108,28 +116,55 @@ const ArticlePage = () => {
   };
 
   // 渲染笔记列表中一条笔记信息
-  const renderArticleItem = ({ item }: { item: Article }) => (
-    <ListItem
-      title={
-        <Text style={{ fontSize: 16, color: '#333'}}>
-          {item.title ? item.title.substring(0, 18) + (item.title.length > 18 ? '...' : '') : ''}
-        </Text>
-      }
-      subtitle={
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ fontSize: 12, color: '#999' }}>
-            {item.desc ? item.desc.substring(0, 20) + (item.desc.length > 20 ? '...' : '') : ''}
+  const renderArticleItem = ({ item }: { item: Article }) => {
+    // 临时文章展示逻辑
+    if (isTempCategory) {
+      return (
+        <ListItem
+          title={
+            <View>
+              {item.title ? (
+                <Text style={{ fontSize: 16, color: '#333', fontWeight: '500' }}>
+                  {item.title.substring(0, 20) + (item.title.length > 20 ? '...' : '')}
+                </Text>
+              ) : null}
+              <Text style={{ fontSize: 13, color: '#1890ff', marginTop: 4 }}>
+                {item.url ? item.url.substring(0, 30) + (item.url.length > 30 ? '...' : '') : ''}
+              </Text>
+            </View>
+          }
+          extra={
+            <Text style={{ fontSize: 12, color: '#666' }}>{timeAgoFormat(new Date(item.createdAt))}</Text>
+          }
+          onPress={() => handleArticlePress(item)}
+        />
+      );
+    }
+
+    // 普通文章展示逻辑
+    return (
+      <ListItem
+        title={
+          <Text style={{ fontSize: 16, color: '#333'}}>
+            {item.title ? item.title.substring(0, 18) + (item.title.length > 18 ? '...' : '') : ''}
           </Text>
-        </View>
-      }
-      extra={
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ fontSize: 12, color: '#666' }}>{timeAgoFormat(new Date(item.createdAt))}</Text>
-        </View>
-      }
-      onPress={() => handleArticlePress(item)}
-    />
-  );
+        }
+        subtitle={
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ fontSize: 12, color: '#999' }}>
+              {item.desc ? item.desc.substring(0, 20) + (item.desc.length > 20 ? '...' : '') : ''}
+            </Text>
+          </View>
+        }
+        extra={
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ fontSize: 12, color: '#666' }}>{timeAgoFormat(new Date(item.createdAt))}</Text>
+          </View>
+        }
+        onPress={() => handleArticlePress(item)}
+      />
+    );
+  };
 
   // 渲染文章列表底部加载更多组件
   const renderArticleListFooter = () => {

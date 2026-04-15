@@ -6,6 +6,7 @@ import sequelize from '../config/database';
  */
 interface TempArticleAttributes {
   id: number;
+  title: string;
   url: string;
   userId: number;
   createdAt: Date;
@@ -29,6 +30,11 @@ const TempArticle = sequelize.define<TempArticleInstance, TempArticleCreationAtt
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
+    },
+    title: {
+      comment: '文章标题',
+      type: DataTypes.STRING(500),
+      allowNull: true,
     },
     url: {
       comment: '文章链接',

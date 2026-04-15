@@ -93,6 +93,26 @@ class ArticleService {
     }
   }
 
+  /**
+   * 分享文章到临时文章
+   * @param title 文章标题
+   * @param url 文章链接
+   * @param userId 用户ID
+   */
+  static async shareToTempArticle(title: string, url: string, userId: number): Promise<void> {
+    try {
+      // 对 title 进行转义处理，防止 SQL 注入
+      const escapedTitle = title.replace(/'/g, "''");
+      const escapedUrl = url.replace(/'/g, "''");
+
+      const query = `INSERT INTO \`TempArticle\` (title, url, userId) VALUES ('${escapedTitle}', '${escapedUrl}', ${userId})`;
+      await DatabaseService.executeUpdate(query);
+    } catch (error) {
+      console.error('Error sharing to temp article:', error);
+      throw error;
+    }
+  }
+
 }
 
 export default ArticleService;

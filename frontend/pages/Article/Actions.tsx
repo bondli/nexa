@@ -12,12 +12,27 @@ type ActionsProps = {
 };
 
 const Actions: React.FC<ActionsProps> = (props) => {
-  const { cateList, isTrashCategory } = useContext(ArticleContext);
+  const { cateList, isTrashCategory, isTempCategory } = useContext(ArticleContext);
   const { message } = App.useApp();
   const { selectedArticle, onUpdated } = props;
 
   const [showMovePanel, setShowMovePanel] = useState(false);
   const [moveToCateId, setMoveToCateId] = useState(0);
+
+  // 临时文章删除（软删除）
+  const deleteTempArticle = () => {
+    userLog('Delete Temp Article: ', selectedArticle.id);
+    request
+      .get(`/temp_article/delete?id=${selectedArticle.id}`)
+      .then(() => {
+        message.success('该临时文章已删除');
+        onUpdated();
+      })
+      .catch((err) => {
+        userLog('Delete Temp Article Error: ', err);
+        message.error(`删除临时文章失败：${err.message}`);
+      });
+  };
 
   // 点击移动
   const handleMove = () => {
@@ -113,7 +128,15 @@ const Actions: React.FC<ActionsProps> = (props) => {
   const getMenus = (): MenuProps['items'] => {
     const menus = [];
 
-    if (isTrashCategory) {
+    if (isTempCategory) {
+      // 临时文章：只显示删除
+      menus.push({
+        key: 'delete',
+        icon: <DeleteOutlined />,
+        label: '删除',
+        onClick: deleteTempArticle,
+      });
+    } else if (isTrashCategory) {
       // 回收站：显示恢复和彻底删除
       menus.push({
         key: 'recover',

@@ -8,6 +8,11 @@ type UserInfo = {
   name: string;
 };
 
+type ShareParams = {
+  title?: string;
+  url?: string;
+};
+
 type MainContextType = {
   userInfo: UserInfo;
   setUserInfo: React.Dispatch<React.SetStateAction<UserInfo>>;
@@ -15,6 +20,8 @@ type MainContextType = {
   setCurrentPage: React.Dispatch<React.SetStateAction<string>>;
   dbService: typeof DatabaseService;
   isDBConnected: boolean;
+  shareParams: ShareParams | null;
+  setShareParams: React.Dispatch<React.SetStateAction<ShareParams | null>>;
 };
 
 const defaultContext: MainContextType = {
@@ -27,6 +34,8 @@ const defaultContext: MainContextType = {
   setCurrentPage: () => {},
   dbService: DatabaseService,
   isDBConnected: false,
+  shareParams: null,
+  setShareParams: () => {},
 };
 
 export const MainContext = createContext<MainContextType>(defaultContext);
@@ -38,6 +47,7 @@ export const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
   const [currentPage, setCurrentPage] = useState('Note');
   const [isDBConnected, setIsDBConnected] = useState(false);
+  const [shareParams, setShareParams] = useState<ShareParams | null>(null);
 
   const initDatabase = async () => {
     try {
@@ -78,6 +88,8 @@ export const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCurrentPage,
         dbService: DatabaseService,
         isDBConnected,
+        shareParams,
+        setShareParams,
       }}
     >
       {children}
