@@ -12,7 +12,7 @@ interface SharePageProps {
   onClose: () => void;
 }
 
-const SharePage: React.FC<SharePageProps> = ({ navigationParams, onClose }) => {
+const Share: React.FC<SharePageProps> = ({ navigationParams, onClose }) => {
   const { title, url } = navigationParams;
   const { userInfo } = useContext(MainContext);
   const [saving, setSaving] = useState(false);
@@ -86,4 +86,4 @@ const SharePage: React.FC<SharePageProps> = ({ navigationParams, onClose }) => {
 
 
 
-export default SharePage;
+export default Share;

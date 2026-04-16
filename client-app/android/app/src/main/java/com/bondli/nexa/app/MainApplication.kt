@@ -35,16 +35,12 @@ class MainApplication : Application(), ReactApplication {
 
     private val mReactNativeHost: ReactNativeHost = object : ReactNativeHost(this) {
         override fun getUseDeveloperSupport(): Boolean {
-            // debug 构建时启用开发者支持，从 Metro 服务器加载 JS
-            // release 构建返回 false，使用本地 bundle
             val isDebug = BuildConfig.DEBUG
             Log.d(TAG, "getUseDeveloperSupport: isDebug=$isDebug")
             return isDebug
         }
 
         override fun getJSBundleFile(): String? {
-            // debug 模式返回 null，让 React Native 从开发服务器加载
-            // release 模式返回本地 bundle 路径
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "getJSBundleFile: debug 模式，从 Metro 服务器加载，URL: ${getDevServerUrl()}")
                 return null
@@ -60,7 +56,7 @@ class MainApplication : Application(), ReactApplication {
                 object : ReactPackage {
                     override fun createNativeModules(reactContext: ReactApplicationContext): List<com.facebook.react.bridge.NativeModule> {
                         val modules = mutableListOf<com.facebook.react.bridge.NativeModule>()
-                        
+
                         try {
                             modules.add(LocalStorageModule(reactContext))
                             Log.d(TAG, "LocalStorageModule initialized successfully")
@@ -74,7 +70,7 @@ class MainApplication : Application(), ReactApplication {
                         } catch (e: Exception) {
                             Log.e(TAG, "Failed to initialize MySQLModule", e)
                         }
-                        
+
                         Log.d(TAG, "Total modules initialized: ${modules.size}")
                         return modules
                     }

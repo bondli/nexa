@@ -138,14 +138,60 @@ function launchApp(deviceId) {
   }
 }
 
+// 获取应用的 PID
+function getAppPid(deviceId, packageName) {
+  try {
+    const output = execSync(`adb -s ${deviceId} shell pidof ${packageName}`, { encoding: 'utf-8' });
+    const pid = output.trim();
+    return pid || null;
+  } catch (e) {
+    return null;
+  }
+}
+
 // 启动日志输出
 function startLogcat(deviceId) {
   console.log('\n=== 开始输出日志 ===');
   console.log('💡 按 Ctrl+C 停止日志输出\n');
 
-  // 使用更宽泛的日志过滤，捕获所有 Android 日志
-  const logcat = spawn('adb', ['-s', deviceId, 'logcat', '-v', 'time'], {
+  const packageName = bundleId;
+  let pid = getAppPid(deviceId, packageName);
+
+  if (!pid) {
+    console.log(`⚠️ 应用 ${packageName} 尚未运行`);
+    console.log('💡 请启动应用，脚本会自动检测并开始监控日志\n');
+    
+    // 等待应用启动，轮询获取 PID
+    const checkInterval = setInterval(() => {
+      pid = getAppPid(deviceId, packageName);
+      if (pid) {
+        clearInterval(checkInterval);
+        console.log(`✅ 检测到应用启动，PID: ${pid}`);
+        startLogcatWithPid(deviceId, pid);
+      }
+    }, 1000);
+    
+    return null;
+  } else {
+    console.log(`✅ 应用 PID: ${pid}`);
+    return startLogcatWithPid(deviceId, pid);
+  }
+}
+
+// 使用 PID 启动日志监控
+function startLogcatWithPid(deviceId, pid) {
+  // 先清空日志缓冲区，避免历史日志干扰
+  execSync(`adb -s ${deviceId} logcat -c`);
+  console.log('🧹 已清空历史日志\n');
+  
+  // 只保留需要的日志，排除系统 UI 日志
+  // grep -v 排除不需要的 tag
+  const cmd = `adb -s ${deviceId} logcat -v time --pid=${pid} | grep -v -E 'HwViewRootImpl|ViewRootImpl|InputEvent|Choreographer|BufferQueue|ViewManagerPropertyUpdater|DynamicRefreshRateHelper'`;
+  console.log(`🔍 执行命令: ${cmd}\n`);
+
+  const logcat = spawn(cmd, {
     stdio: 'inherit',
+    shell: true,
   });
 
   logcat.on('error', (error) => {
@@ -206,7 +252,9 @@ async function runDebugRelease() {
   return new Promise((resolve) => {
     const shutdown = () => {
       console.log('\n🛑 停止日志输出...');
-      logcat.kill();
+      if (logcat) {
+        logcat.kill();
+      }
       process.exit(0);
     };
 
