@@ -6,6 +6,7 @@ plugins {
 android {
     namespace = "com.bondli.nexa.app"
     compileSdk = 36
+    ndkVersion = "28.1.13356709"
 
     // 启用 BuildConfig 生成
     buildFeatures {
@@ -45,12 +46,21 @@ android {
         release {
             isMinifyEnabled = false  // 暂时禁用代码混淆
             isShrinkResources = false  // 暂时禁用资源压缩
+            isDebuggable = true  // 允许调试，查看日志
+            // 禁用 V2 签名，使用 V1 签名提高兼容性
+            project.ext.set("android.useAndroidXAppSigningV2", false)
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
             // 使用 release 签名配置
             signingConfig = signingConfigs.getByName("release")
+            // 确保 release 构建打包 JS bundle
+            project.ext.set("reactNativeBundleInRelease", true)
+            // 为 release 版本也添加 NDK abiFilters
+            ndk {
+                abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
+            }
         }
         debug {
             isMinifyEnabled = false
@@ -64,11 +74,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     // 注释掉ABI分割配置，避免构建特定架构的APK
     /*
@@ -96,8 +106,12 @@ android {
             excludes += "META-INF/*.kotlin_module"
         }
         jniLibs {
-            pickFirsts += "**/libcrypto.so"
-            pickFirsts += "**/libssl.so"
+            // 保留所有 native 库，避免 Release 包缺少 SSL 库
+            pickFirsts += listOf(
+                "**/libcrypto.so",
+                "**/libssl.so",
+                "**/libc++_shared.so"
+            )
         }
     }
 }
@@ -108,13 +122,10 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.react.android)
     implementation(libs.hermes.android)
-    
-    // ZXing barcode scanner
-    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
-    implementation("com.google.zxing:core:3.5.1")
-    // 使用Android兼容的MySQL驱动 - 更低版本以提高兼容性
+
+    // MySQL 驱动 - 使用旧版包名以兼容现有代码
     implementation("mysql:mysql-connector-java:5.1.49")
-    
-    // 添加Android兼容性库
-    implementation("androidx.annotation:annotation:1.7.0")
+
+    // AndroidX 兼容性库 - 更新到最新版本
+    implementation("androidx.annotation:annotation:1.8.0")
 }

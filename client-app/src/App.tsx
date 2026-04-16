@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext, useRef } from 'react';
 import { View, DevSettings, Linking } from 'react-native';
-import { Provider, ActivityIndicator, Modal } from '@ant-design/react-native';
+import { Provider, ActivityIndicator, Modal, Toast } from '@ant-design/react-native';
 
 import { getStorage } from '@commons/utils';
 
@@ -118,6 +118,9 @@ const AppContent = () => {
 };
 
 const App = () => {
+  // 全局配置 Toast 默认显示 1 秒
+  Toast.config({ duration: 1 });
+
   return (
     <Provider
       theme={{

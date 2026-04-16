@@ -67,14 +67,7 @@ class MainApplication : Application(), ReactApplication {
                         } catch (e: Exception) {
                             Log.e(TAG, "Failed to initialize LocalStorageModule", e)
                         }
-                        
-                        try {
-                            modules.add(ScannerModule(reactContext))
-                            Log.d(TAG, "ScannerModule initialized successfully")
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Failed to initialize ScannerModule", e)
-                        }
-                        
+
                         try {
                             modules.add(MySQLModule(reactContext))
                             Log.d(TAG, "MySQLModule initialized successfully")

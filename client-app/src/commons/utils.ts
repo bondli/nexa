@@ -1,5 +1,4 @@
 import LocalStorageManager from '@modules/LocalStorageManager';
-import ScannerManager from '@modules/ScannerManager';
 
 const setStorage = (key: string, value: any) => {
   const storeValue = typeof value === 'object' ? JSON.stringify(value) : value;
@@ -21,21 +20,8 @@ const removeStorage = (key: string) => {
   LocalStorageManager.removeItem(key);
 };
 
-const gotoScanner = async (onSuccess: (result: any) => void, onFail: (error: string) => void) => {
-  try {
-    console.log('Starting scan...');
-    const result = await ScannerManager.scanQRCode();
-    console.log('Scan result:', result);
-    onSuccess(result);
-  } catch (error: any) {
-    console.log('Scan failed:', error);
-    onFail(error?.message || 'Scan failed');
-  }
-};
-
 export {
   setStorage,
   getStorage,
   removeStorage,
-  gotoScanner,
-}
+};

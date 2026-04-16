@@ -4,11 +4,9 @@
   "version": "0.1.0",
   "main": "index.ts",
   "scripts": {
-    "start": "react-native start",
-    "dev:android": "react-native start & cd android && ./gradlew assembleDebug && cd .. && adb install android/app/build/outputs/apk/debug/app-debug.apk",
-    "bundle:android": "mkdir -p dist && npx react-native bundle --platform android --dev false --entry-file index.ts --bundle-output ./dist/index.android.bundle --assets-dest ./dist --minify true",
-    "copy:android": "node ./scripts/copy-android-bundle.js",
-    "build:android": "npm run bundle:android && npm run copy:android"
+    "dev:android": "node ./scripts/android/dev.js",
+    "release:android": "node ./scripts/android/release.js",
+    "debug:android": "node ./scripts/android/debug-release.js"
   },
   "dependencies": {
     "@ant-design/icons-react-native": "^2.3.2",
