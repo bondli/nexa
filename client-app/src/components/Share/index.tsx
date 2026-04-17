@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TextInput } from 'react-native';
 import { Button, Toast } from '@ant-design/react-native';
 
 import { MainContext } from '@commons/context';
@@ -15,6 +15,7 @@ interface SharePageProps {
 const Share: React.FC<SharePageProps> = ({ navigationParams, onClose }) => {
   const { title, url } = navigationParams;
   const { userInfo } = useContext(MainContext);
+  const [editTitle, setEditTitle] = useState(title || '');
   const [saving, setSaving] = useState(false);
 
   // 处理保存按钮点击
@@ -31,7 +32,7 @@ const Share: React.FC<SharePageProps> = ({ navigationParams, onClose }) => {
 
     setSaving(true);
     try {
-      await ArticleService.shareToTempArticle(title || '', url, userInfo.id);
+      await ArticleService.shareToTempArticle(editTitle, url, userInfo.id);
       Toast.success('保存成功');
       onClose();
     } catch (error) {
@@ -49,12 +50,18 @@ const Share: React.FC<SharePageProps> = ({ navigationParams, onClose }) => {
       </View>
 
       <View style={styles.content}>
-        {title ? (
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>标题</Text>
-            <Text style={styles.value} numberOfLines={2}>{title}</Text>
-          </View>
-        ) : null}
+        <View style={styles.infoItem}>
+          <Text style={styles.label}>标题（可编辑）</Text>
+          <TextInput
+            style={styles.titleInput}
+            value={editTitle}
+            onChangeText={setEditTitle}
+            placeholder="请输入标题"
+            placeholderTextColor="#aaa"
+            multiline={true}
+            numberOfLines={2}
+          />
+        </View>
 
         <View style={styles.infoItem}>
           <Text style={styles.label}>链接</Text>

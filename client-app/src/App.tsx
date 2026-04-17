@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext, useRef } from 'react';
-import { View, DevSettings } from 'react-native';
+import { View, DevSettings, DeviceEventEmitter } from 'react-native';
 import { Provider, ActivityIndicator, Modal, Toast } from '@ant-design/react-native';
 
 import { checkUserInfo, checkPendingShareUrl } from '@commons/utils';
@@ -58,6 +58,18 @@ const AppContent = () => {
   const handleCloseShare = () => {
     setShareParams(null);
   };
+
+  // 监听热启动事件：App 在后台被微信唤起时，Native 通过 DeviceEventEmitter 通知 RN
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('onPendingShareUrl', async () => {
+      console.log('Received onPendingShareUrl event from Native (hot start)');
+      const data = await checkPendingShareUrl();
+      if (data?.url) {
+        setShareParams(data);
+      }
+    });
+    return () => subscription.remove();
+  }, []);
 
   if (loading || !isDBConnected) {
     return (

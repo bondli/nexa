@@ -39,6 +39,9 @@ android {
             storePassword = project.findProperty("MYAPP_RELEASE_STORE_PASSWORD") as String?
             keyAlias = project.findProperty("MYAPP_RELEASE_KEY_ALIAS") as String?
             keyPassword = project.findProperty("MYAPP_RELEASE_KEY_PASSWORD") as String?
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
         }
     }
 
@@ -46,9 +49,7 @@ android {
         release {
             isMinifyEnabled = false  // 暂时禁用代码混淆
             isShrinkResources = false  // 暂时禁用资源压缩
-            isDebuggable = true  // 允许调试，查看日志
-            // 禁用 V2 签名，使用 V1 签名提高兼容性
-            project.ext.set("android.useAndroidXAppSigningV2", false)
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -65,7 +66,6 @@ android {
         debug {
             isMinifyEnabled = false
             // debug 构建不打包 JS Bundle，依赖 Metro 开发服务器
-            // 这行配置确保 debug 构建不会将 bundle 打包到 assets
             project.ext.set("reactNativeBundleInDebug", false)
             // 为debug版本禁用ABI分割，以便在所有架构的模拟器上运行
             ndk {
@@ -80,21 +80,13 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    // 注释掉ABI分割配置，避免构建特定架构的APK
-    /*
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("armeabi-v7a", "arm64-v8a")
-            isUniversalApk = false
-        }
+    // assets 中的 JS bundle 不压缩，Hermes 需要直接 mmap 读取
+    aaptOptions {
+        noCompress("js", "bundle")
     }
-    */
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
-            // 排除可能导致冲突的文件
             excludes += "META-INF/DEPENDENCIES"
             excludes += "META-INF/LICENSE"
             excludes += "META-INF/LICENSE.txt"

@@ -31,6 +31,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
+  titleInput: {
+    fontSize: 16,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 6,
+    padding: 8,
+    minHeight: 44,
+    backgroundColor: '#fafafa',
+    textAlignVertical: 'top',
+  },
   url: {
     fontSize: 14,
     color: '#1890ff',

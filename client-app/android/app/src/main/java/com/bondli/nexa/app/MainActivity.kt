@@ -5,10 +5,13 @@ import android.os.Bundle
 import android.content.Intent
 import android.util.Log
 import android.net.Uri
+import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.facebook.react.bridge.Arguments
 
 class MainActivity : ReactActivity() {
     private val TAG = "NexaApp"
     private val PENDING_URL_KEY = "pending_share_url"
+    private var hasPendingShare = false  // 热启动标记：onNewIntent 收到分享后置 true，onResume 时发事件
 
     init {
         Log.d(TAG, "MainActivity init block")
@@ -27,12 +30,39 @@ class MainActivity : ReactActivity() {
         Log.d(TAG, "onCreate END")
     }
 
-    // 处理通过 URL Scheme 唤起应用时的 Intent
+    // 处理通过 URL Scheme 唤起应用时的 Intent（热启动场景：App 在后台时微信唤起）
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         Log.d(TAG, "onNewIntent called")
         setIntent(intent)
         handleIntent(intent)
+        // 标记有新分享，等 onResume 时发事件（onResume 时 RN JS 线程已完全就绪）
+        hasPendingShare = true
+    }
+
+    // onResume 时检查热启动标记，若有则向 RN 发送事件
+    override fun onResume() {
+        super.onResume()
+        if (hasPendingShare) {
+            hasPendingShare = false
+            Log.d(TAG, "onResume: sending pending share event to RN")
+            sendShareUrlEvent()
+        }
+    }
+
+    // 向 RN 层发送事件，通知有待处理的分享 URL（热启动场景使用）
+    private fun sendShareUrlEvent() {
+        val reactInstanceManager = (application as? MainApplication)
+            ?.reactNativeHost?.reactInstanceManager
+        val reactContext = reactInstanceManager?.currentReactContext
+        if (reactContext != null) {
+            reactContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("onPendingShareUrl", null)
+            Log.d(TAG, "Sent onPendingShareUrl event to RN")
+        } else {
+            Log.w(TAG, "ReactContext is null, cannot send event")
+        }
     }
 
     private fun handleIntent(intent: Intent?) {

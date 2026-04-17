@@ -45,9 +45,8 @@ class MainApplication : Application(), ReactApplication {
                 Log.d(TAG, "getJSBundleFile: debug 模式，从 Metro 服务器加载，URL: ${getDevServerUrl()}")
                 return null
             }
-            val bundleName = "index.android.bundle"
-            Log.d(TAG, "getJSBundleFile: release 模式，使用本地bundle - $bundleName")
-            return "assets/$bundleName"
+            Log.d(TAG, "getJSBundleFile: release 模式，使用本地bundle")
+            return null  // 返回 null 让 RN 自动从 assets://index.android.bundle 加载
         }
 
         override fun getPackages(): List<ReactPackage> =
