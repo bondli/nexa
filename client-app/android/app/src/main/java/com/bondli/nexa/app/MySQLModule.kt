@@ -49,7 +49,7 @@ class MySQLModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaM
                 }
                 
                 // 构建连接 URL - 简化配置，减少可能的冲突
-                val url = "jdbc:mysql://$host:$port/$database?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true&useUnicode=true&characterEncoding=utf8"
+                val url = "jdbc:mysql://$host:$port/$database?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true&useUnicode=true&characterEncoding=UTF-8"
                 Log.d(TAG, "Connection URL: $url")
                 
                 // 设置连接属性 - 简化配置

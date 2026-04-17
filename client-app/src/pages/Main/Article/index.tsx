@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, FlatList, Linking } from 'react-native';
+import { View, Text, FlatList, Linking, TouchableOpacity } from 'react-native';
 
 import { ActivityIndicator, Toast } from '@ant-design/react-native';
 import { format as timeAgoFormat } from 'timeago.js';
@@ -13,19 +13,20 @@ import ButtonGroup from '@/components/ButtonGroup';
 import Popup from '@/components/Popup';
 
 import Detail from './Detail';
+import CreateArticleForm from './CreateArticleForm';
 
 import styles from './styles';
 
 const PAGE_SIZE = 20;
 
 const options = [
-  { label: '所有文章', value: 'all' },
   { label: '临时文章', value: 'temp' },
+  { label: '所有文章', value: 'all' },
   { label: '回收站', value: 'trash' },
 ];
 
 const ArticlePage = () => {
-  const [ArticleType, setArticleType] = useState<string>('all');
+  const [ArticleType, setArticleType] = useState<string>('temp');
   const [ArticleList, setArticleList] = useState<Article[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -35,6 +36,9 @@ const ArticlePage = () => {
 
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [operator, setOperator] = useState<string>('');
+
+  // 创建文章弹层状态
+  const [createArticleVisible, setCreateArticleVisible] = useState<boolean>(false);
 
   // 判断是否为临时文章模式
   const isTempCategory = ArticleType === 'temp';
@@ -113,6 +117,23 @@ const ArticlePage = () => {
   const closeModal = () => {
     setSelectedArticle(null);
     setOperator('');
+  };
+
+  // 打开创建文章弹层
+  const handleOpenCreateArticle = () => {
+    setCreateArticleVisible(true);
+  };
+
+  // 关闭创建文章弹层
+  const handleCloseCreateArticle = () => {
+    setCreateArticleVisible(false);
+  };
+
+  // 创建文章成功回调
+  const handleCreateArticleSuccess = () => {
+    setCreateArticleVisible(false);
+    // 刷新列表
+    loadArticleList(1, true);
   };
 
   // 渲染笔记列表中一条笔记信息
@@ -208,6 +229,19 @@ const ArticlePage = () => {
         content={selectedArticle ? <Detail articleId={selectedArticle?.id} /> : null}
         showCloseBtn={true}
       />
+
+      {/* 创建文章弹层 */}
+      <Popup
+        visible={createArticleVisible}
+        onClose={handleCloseCreateArticle}
+        content={<CreateArticleForm onSuccess={handleCreateArticleSuccess} onCancel={handleCloseCreateArticle} />}
+        showCloseBtn={false}
+      />
+
+      {/* 浮动按钮 */}
+      <TouchableOpacity style={styles.fab} onPress={handleOpenCreateArticle} activeOpacity={0.8}>
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
 
     </View>
   );

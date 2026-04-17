@@ -96,6 +96,45 @@ class NoteService {
     }
   }
 
+  /**
+   * 创建新笔记
+   * @param title 笔记标题
+   * @param desc 笔记描述
+   * @param cateId 分类ID
+   * @param userId 用户ID，默认1
+   */
+  static async createNote(title: string, desc: string, cateId: number, userId: number = 1): Promise<void> {
+    try {
+      // 对输入进行转义处理，防止 SQL 注入
+      const escapedTitle = title.replace(/'/g, "''");
+      const escapedDesc = desc.replace(/'/g, "''");
+
+      const query = `INSERT INTO \`Note\` (title, \`desc\`, cateId, userId, status, priority, createdAt, updatedAt) VALUES ('${escapedTitle}', '${escapedDesc}', ${cateId}, ${userId}, 'undo', 0, now(), now())`;
+      await DatabaseService.executeUpdate(query);
+    } catch (error) {
+      console.error('Error creating note:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取分类列表
+   */
+  static async getCategories(): Promise<Array<{ label: string; value: number }>> {
+    try {
+      const query = `SELECT id, name FROM \`Cate\` ORDER BY id`;
+      const result = await DatabaseService.executeQuery(query);
+
+      return result.map((item: any) => ({
+        label: item.name,
+        value: item.id,
+      }));
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      throw error;
+    }
+  }
+
 }
 
 export default NoteService;

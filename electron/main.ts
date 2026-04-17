@@ -1,6 +1,6 @@
 import path from 'path';
 import { fork, type ChildProcess } from 'child_process';
-import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
+import { app, BrowserWindow, ipcMain, globalShortcut, shell } from 'electron';
 import Store from 'electron-store';
 import logger from 'electron-log';
 import { createTray, setRecreateWindowCallback } from './tray';
@@ -50,6 +50,11 @@ const initIpcRenderer = () => {
   // 关闭截图快存窗口
   ipcMain.on('close-screenshot-capture', () => {
     closeScreenshotCaptureWindow();
+  });
+
+  // 用系统默认浏览器打开外部链接
+  ipcMain.on('open-external-url', (_, url) => {
+    shell.openExternal(url);
   });
 
   // 从剪贴板读取图片（同步返回）

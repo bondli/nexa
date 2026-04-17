@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 
 import { ActivityIndicator, Toast } from '@ant-design/react-native';
 import { format as timeAgoFormat } from 'timeago.js';
@@ -13,6 +13,7 @@ import ButtonGroup from '@/components/ButtonGroup';
 import Popup from '@/components/Popup';
 
 import Detail from './Detail';
+import CreateNoteForm from './CreateNoteForm';
 
 import styles from './styles';
 
@@ -36,6 +37,9 @@ const NotePage = () => {
 
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [operator, setOperator] = useState<string>('');
+
+  // 创建笔记弹层状态
+  const [createNoteVisible, setCreateNoteVisible] = useState<boolean>(false);
 
   useEffect(() => {
     // todo something
@@ -108,6 +112,23 @@ const NotePage = () => {
     setOperator('');
   };
 
+  // 打开创建笔记弹层
+  const handleOpenCreateNote = () => {
+    setCreateNoteVisible(true);
+  };
+
+  // 关闭创建笔记弹层
+  const handleCloseCreateNote = () => {
+    setCreateNoteVisible(false);
+  };
+
+  // 创建笔记成功回调
+  const handleCreateNoteSuccess = () => {
+    setCreateNoteVisible(false);
+    // 刷新列表
+    loadNoteList(1, true);
+  };
+
   // 渲染笔记列表中一条笔记信息
   const renderNoteItem = ({ item }: { item: Note }) => (
     <ListItem
@@ -174,6 +195,19 @@ const NotePage = () => {
         content={selectedNote ? <Detail noteId={selectedNote?.id} /> : null}
         showCloseBtn={true}
       />
+
+      {/* 创建笔记弹层 */}
+      <Popup
+        visible={createNoteVisible}
+        onClose={handleCloseCreateNote}
+        content={<CreateNoteForm onSuccess={handleCreateNoteSuccess} onCancel={handleCloseCreateNote} />}
+        showCloseBtn={false}
+      />
+
+      {/* 浮动按钮 */}
+      <TouchableOpacity style={styles.fab} onPress={handleOpenCreateNote} activeOpacity={0.8}>
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
 
     </View>
   );

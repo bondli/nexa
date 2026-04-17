@@ -1,5 +1,5 @@
 import React, { memo, useState, useContext } from 'react';
-import { DeleteOutlined, UndoOutlined, DragOutlined, SettingOutlined } from '@ant-design/icons';
+import { DeleteOutlined, UndoOutlined, DragOutlined, SettingOutlined, CopyOutlined } from '@ant-design/icons';
 import { Dropdown, Modal, App, Select } from 'antd';
 import type { MenuProps } from 'antd';
 import request from '@commons/request';
@@ -18,6 +18,23 @@ const Actions: React.FC<ActionsProps> = (props) => {
 
   const [showMovePanel, setShowMovePanel] = useState(false);
   const [moveToCateId, setMoveToCateId] = useState(0);
+
+  // 临时文章复制链接
+  const copyTempArticleLink = () => {
+    const url = selectedArticle?.url;
+    if (!url) {
+      message.warning('该文章没有链接');
+      return;
+    }
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        message.success('链接已复制到剪贴板');
+      })
+      .catch(() => {
+        message.error('复制失败，请手动复制');
+      });
+  };
 
   // 临时文章删除（软删除）
   const deleteTempArticle = () => {
@@ -129,11 +146,17 @@ const Actions: React.FC<ActionsProps> = (props) => {
     const menus = [];
 
     if (isTempCategory) {
-      // 临时文章：只显示删除
+      // 临时文章：显示复制链接和删除
+      menus.push({
+        key: 'copyLink',
+        icon: <CopyOutlined />,
+        label: '复制链接',
+        onClick: copyTempArticleLink,
+      });
       menus.push({
         key: 'delete',
         icon: <DeleteOutlined />,
-        label: '删除',
+        label: '彻底删除',
         onClick: deleteTempArticle,
       });
     } else if (isTrashCategory) {

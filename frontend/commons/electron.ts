@@ -73,6 +73,15 @@ export const readClipboardImage = (): string | null => {
   return null;
 };
 
+// 用系统默认浏览器打开外部链接
+export const openExternalUrl = (url: string): void => {
+  if (isInElectron) {
+    ipcRenderer.openExternalUrl?.(url);
+  } else {
+    window.open(url, '_blank');
+  }
+};
+
 const ElectronBridge = {
   setStore,
   getStore,
@@ -81,6 +90,7 @@ const ElectronBridge = {
   closeQuickNote,
   closeScreenshotCapture,
   readClipboardImage,
+  openExternalUrl,
 };
 
 export default ElectronBridge;

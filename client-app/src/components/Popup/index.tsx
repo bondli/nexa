@@ -28,13 +28,12 @@ const Popup = (props: PopupProps) => {
   const closeDetailModal = useCallback(() => {
     // todo something
     onClose && onClose();
-  }, []);
+  }, [onClose]);
 
   return (
     <Modal
       visible={!!visible}
       popup={true}
-      modalType={`portal`}
       onClose={closeDetailModal}
       animationType={`slide-up`}
       maskClosable={true}

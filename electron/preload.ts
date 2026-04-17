@@ -44,5 +44,10 @@ contextBridge.exposeInMainWorld('electron', {
     readClipboardImage() {
       return ipcRenderer.sendSync('read-clipboard-image');
     },
+
+    // 用系统默认浏览器打开外部链接
+    openExternalUrl(url: string) {
+      ipcRenderer.send('open-external-url', url);
+    },
   },
 });

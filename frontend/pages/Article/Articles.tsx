@@ -2,6 +2,7 @@ import React, { memo, useContext } from 'react';
 import { List, Empty } from 'antd';
 import { GithubFilled, LinkOutlined } from '@ant-design/icons';
 import { format as timeAgoFormat } from 'timeago.js';
+import { openExternalUrl } from '@commons/electron';
 import { ArticleContext } from './context';
 import Actions from './Actions';
 import style from './index.module.less';
@@ -21,20 +22,20 @@ const Articles: React.FC = () => {
   // 点击查看详情
   const gotoDetail = (data: any) => {
     if (isTempCategory) {
-      // 临时文章点击 URL 跳转浏览器
+      // 临时文章点击 URL 跳转系统浏览器
       if (data.url) {
-        window.open(data.url, '_blank');
+        openExternalUrl(data.url);
       }
     } else {
       setSelectedArticle(data);
     }
   };
 
-  // 打开 URL（在浏览器中打开）
+  // 打开 URL（在系统浏览器中打开）
   const openUrl = (e: React.MouseEvent, url: string) => {
     e.stopPropagation();
     if (url) {
-      window.open(url, '_blank');
+      openExternalUrl(url);
     }
   };
 

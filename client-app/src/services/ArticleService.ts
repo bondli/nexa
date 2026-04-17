@@ -105,7 +105,7 @@ class ArticleService {
       const escapedTitle = title.replace(/'/g, "''");
       const escapedUrl = url.replace(/'/g, "''");
 
-      const query = `INSERT INTO \`TempArticle\` (title, url, userId) VALUES ('${escapedTitle}', '${escapedUrl}', ${userId})`;
+      const query = `INSERT INTO \`TempArticle\` (title, url, userId, createdAt, updatedAt) VALUES ('${escapedTitle}', '${escapedUrl}', ${userId}, now(), now())`;
       await DatabaseService.executeUpdate(query);
     } catch (error) {
       console.error('Error sharing to temp article:', error);
