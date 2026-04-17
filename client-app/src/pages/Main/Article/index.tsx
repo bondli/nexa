@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, FlatList, Linking, TouchableOpacity } from 'react-native';
 
-import { ActivityIndicator, Toast } from '@ant-design/react-native';
+import { ActivityIndicator, Toast, Icon } from '@ant-design/react-native';
 import { format as timeAgoFormat } from 'timeago.js';
 
 import ArticleService from '@services/ArticleService';
@@ -240,7 +240,7 @@ const ArticlePage = () => {
 
       {/* 浮动按钮 */}
       <TouchableOpacity style={styles.fab} onPress={handleOpenCreateArticle} activeOpacity={0.8}>
-        <Text style={styles.fabText}>+</Text>
+        <Icon name="file-add" color="#fff" size={24} />
       </TouchableOpacity>
 
     </View>

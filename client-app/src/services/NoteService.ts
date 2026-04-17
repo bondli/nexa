@@ -111,6 +111,8 @@ class NoteService {
 
       const query = `INSERT INTO \`Note\` (title, \`desc\`, cateId, userId, status, priority, createdAt, updatedAt) VALUES ('${escapedTitle}', '${escapedDesc}', ${cateId}, ${userId}, 'undo', 0, now(), now())`;
       await DatabaseService.executeUpdate(query);
+      // 对应的分类笔记数量需要+1
+      await DatabaseService.executeUpdate(`UPDATE \`Cate\` SET counts = counts + 1 WHERE id = ${cateId}`);
     } catch (error) {
       console.error('Error creating note:', error);
       throw error;

@@ -9,6 +9,8 @@
         <item name="android:navigationBarColor">@color/white</item>
         <!-- 设置导航栏图标和文字为深色（API 26及以上） -->
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+        <!-- 设置状态栏图标和文字为深色（黑色），适配白色背景（API 23及以上） -->
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
     </style>
 
 </resources>

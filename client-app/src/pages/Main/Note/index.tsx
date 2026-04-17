@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 
-import { ActivityIndicator, Toast } from '@ant-design/react-native';
+import { ActivityIndicator, Toast, Icon } from '@ant-design/react-native';
 import { format as timeAgoFormat } from 'timeago.js';
 
 import NoteService from '@services/NoteService';
@@ -206,7 +206,7 @@ const NotePage = () => {
 
       {/* 浮动按钮 */}
       <TouchableOpacity style={styles.fab} onPress={handleOpenCreateNote} activeOpacity={0.8}>
-        <Text style={styles.fabText}>+</Text>
+        <Icon name="file-add" color="#fff" size={24} />
       </TouchableOpacity>
 
     </View>

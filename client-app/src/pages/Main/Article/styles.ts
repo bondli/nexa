@@ -57,12 +57,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  fabText: {
-    color: '#fff',
-    fontSize: 28,
-    fontWeight: '300',
-    lineHeight: 32,
-  },
 });
 
 export default styles;
