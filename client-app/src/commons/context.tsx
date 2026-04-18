@@ -30,7 +30,7 @@ const defaultContext: MainContextType = {
     name: '',
   },
   setUserInfo: () => {},
-  currentPage: 'Note',
+  currentPage: 'Collect',
   setCurrentPage: () => {},
   dbService: DatabaseService,
   isDBConnected: false,
@@ -45,7 +45,7 @@ export const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children
     id: 0,
     name: '',
   });
-  const [currentPage, setCurrentPage] = useState('Note');
+  const [currentPage, setCurrentPage] = useState('Collect');
   const [isDBConnected, setIsDBConnected] = useState(false);
   const [shareParams, setShareParams] = useState<ShareParams | null>(null);
 

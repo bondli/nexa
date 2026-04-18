@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { View, Text, FlatList, Linking, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, Linking } from 'react-native';
 
-import { ActivityIndicator, Toast, Icon } from '@ant-design/react-native';
+import { ActivityIndicator, Toast } from '@ant-design/react-native';
 import { format as timeAgoFormat } from 'timeago.js';
 
 import ArticleService from '@services/ArticleService';
@@ -13,7 +13,6 @@ import ButtonGroup from '@/components/ButtonGroup';
 import Popup from '@/components/Popup';
 
 import Detail from './Detail';
-import CreateArticleForm from './CreateArticleForm';
 
 import styles from './styles';
 
@@ -36,9 +35,6 @@ const ArticlePage = () => {
 
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [operator, setOperator] = useState<string>('');
-
-  // 创建文章弹层状态
-  const [createArticleVisible, setCreateArticleVisible] = useState<boolean>(false);
 
   // 判断是否为临时文章模式
   const isTempCategory = ArticleType === 'temp';
@@ -84,7 +80,7 @@ const ArticlePage = () => {
     }
   };
 
-  // 选中笔记时间
+  // 选中文章类型
   const handleArticleTypeChange = (value: string) => {
     setArticleType(value);
   };
@@ -117,23 +113,6 @@ const ArticlePage = () => {
   const closeModal = () => {
     setSelectedArticle(null);
     setOperator('');
-  };
-
-  // 打开创建文章弹层
-  const handleOpenCreateArticle = () => {
-    setCreateArticleVisible(true);
-  };
-
-  // 关闭创建文章弹层
-  const handleCloseCreateArticle = () => {
-    setCreateArticleVisible(false);
-  };
-
-  // 创建文章成功回调
-  const handleCreateArticleSuccess = () => {
-    setCreateArticleVisible(false);
-    // 刷新列表
-    loadArticleList(1, true);
   };
 
   // 渲染笔记列表中一条笔记信息
@@ -229,19 +208,6 @@ const ArticlePage = () => {
         content={selectedArticle ? <Detail articleId={selectedArticle?.id} /> : null}
         showCloseBtn={true}
       />
-
-      {/* 创建文章弹层 */}
-      <Popup
-        visible={createArticleVisible}
-        onClose={handleCloseCreateArticle}
-        content={<CreateArticleForm onSuccess={handleCreateArticleSuccess} onCancel={handleCloseCreateArticle} />}
-        showCloseBtn={false}
-      />
-
-      {/* 浮动按钮 */}
-      <TouchableOpacity style={styles.fab} onPress={handleOpenCreateArticle} activeOpacity={0.8}>
-        <Icon name="file-add" color="#fff" size={24} />
-      </TouchableOpacity>
 
     </View>
   );

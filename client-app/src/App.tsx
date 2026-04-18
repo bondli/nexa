@@ -3,8 +3,7 @@ import { View, DevSettings, DeviceEventEmitter } from 'react-native';
 import { Provider, ActivityIndicator, Modal, Toast } from '@ant-design/react-native';
 
 import { checkUserInfo, checkPendingShareUrl } from '@commons/utils';
-import Popup from '@/components/Popup';
-import Share from '@/components/Share';
+import ArticleService from '@services/ArticleService';
 
 import MainPage from '@pages/Main';
 import UserPage from '@pages/User';
@@ -16,6 +15,7 @@ const AppContent = () => {
   const { userInfo, setUserInfo, isDBConnected, shareParams, setShareParams } = useContext(MainContext);
   const [loading, setLoading] = useState(true);
   const isDBConnectedRef = useRef(isDBConnected);
+  const shareParamsRef = useRef(shareParams);
 
   // 更新ref的值当isDBConnected变化时
   useEffect(() => {
@@ -54,10 +54,39 @@ const AppContent = () => {
     };
   }, []);
 
-  // 处理关闭分享页面
-  const handleCloseShare = () => {
-    setShareParams(null);
-  };
+  // shareParams 有值时弹出 prompt 让用户输入标题保存
+  useEffect(() => {
+    if (!shareParams?.url) return;
+    shareParamsRef.current = shareParams;
+    // 延迟弹出，确保 Provider/渲染树完全挂载后再显示 Modal
+    const timer = setTimeout(() => {
+      console.log('showPrompt shareParams:', shareParamsRef.current);
+      Modal.prompt(
+        '保存文章',
+        `请输入文章标题\n${shareParamsRef.current?.url}`,
+        async (inputTitle: string) => {
+          const current = shareParamsRef.current;
+          if (!current?.url) return;
+          try {
+            await ArticleService.shareToTempArticle(
+              (inputTitle || '').trim() || current.url,
+              current.url,
+              userInfo?.id ?? 1,
+            );
+            Toast.success('保存成功');
+          } catch (error) {
+            console.error('保存临时文章失败:', error);
+            Toast.fail('保存失败，请重试');
+          } finally {
+            setShareParams(null);
+          }
+        },
+        'default',
+        shareParamsRef.current?.title || '',
+      );
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [shareParams?.url]);
 
   // 监听热启动事件：App 在后台被微信唤起时，Native 通过 DeviceEventEmitter 通知 RN
   useEffect(() => {
@@ -82,12 +111,6 @@ const AppContent = () => {
   return (
     <View style={{ flex: 1 }}>
       {userInfo?.id ? <MainPage /> : <UserPage />}
-      <Popup
-        visible={!!shareParams?.url}
-        onClose={handleCloseShare}
-        content={shareParams?.url ? <Share navigationParams={shareParams} onClose={handleCloseShare} /> : null}
-        showCloseBtn={true}
-      />
     </View>
   );
 };

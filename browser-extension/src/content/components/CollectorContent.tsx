@@ -148,7 +148,7 @@ const CollectorContent: React.FC<CollectorContentProps> = ({ user, onLogout, onC
             <Select
               value={selectedCategory}
               onChange={setSelectedCategory}
-              placeholder="请选择笔记分类"
+              placeholder="请选择文章分类"
               loading={catLoading}
               style={{ width: '100%' }}
               options={categories.map(c => ({ label: c.name, value: c.id }))}

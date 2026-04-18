@@ -8,6 +8,7 @@ import { PAGE_MAP, type TAB_KEY } from '@commons/constants';
 
 import NavBar from '@components/NavBar';
 
+import CollectPage from './Collect';
 import NotePage from './Note';
 import ArticlePage from './Article';
 import ProfilePage from './Profile';
@@ -34,6 +35,15 @@ const MainPage = () => {
         tintColor="#456efd"
         barTintColor="#FFFFFF"
       >
+        <TabBar.Item
+          title={PAGE_MAP.Collect.title}
+          icon={<Icon name={PAGE_MAP.Collect.icon as any} />}
+          selected={currentPage === 'Collect'}
+          onPress={() => switchTab('Collect')}
+        >
+          <CollectPage />
+        </TabBar.Item>
+
         <TabBar.Item
           title={PAGE_MAP.Note.title}
           icon={<Icon name={PAGE_MAP.Note.icon as any} />}
