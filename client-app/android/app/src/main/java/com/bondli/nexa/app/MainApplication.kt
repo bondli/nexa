@@ -9,6 +9,7 @@ import com.facebook.soloader.SoLoader
 import android.util.Log
 import com.facebook.react.bridge.ReactApplicationContext
 import com.bondli.nexa.app.LocalStorageModule
+import com.bondli.nexa.app.ShareModule
 
 
 class MainApplication : Application(), ReactApplication {
@@ -61,6 +62,13 @@ class MainApplication : Application(), ReactApplication {
                             Log.d(TAG, "LocalStorageModule initialized successfully")
                         } catch (e: Exception) {
                             Log.e(TAG, "Failed to initialize LocalStorageModule", e)
+                        }
+
+                        try {
+                            modules.add(ShareModule(reactContext))
+                            Log.d(TAG, "ShareModule initialized successfully")
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Failed to initialize ShareModule", e)
                         }
 
                         try {

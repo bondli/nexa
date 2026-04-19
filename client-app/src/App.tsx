@@ -2,7 +2,7 @@ import { useEffect, useState, useContext, useRef } from 'react';
 import { View, DevSettings, DeviceEventEmitter } from 'react-native';
 import { Provider, ActivityIndicator, Modal, Toast } from '@ant-design/react-native';
 
-import { checkUserInfo, checkPendingShareUrl } from '@commons/utils';
+import { checkUserInfo, getInitialShareParams, parseShareUrl } from '@commons/utils';
 import ArticleService from '@services/ArticleService';
 
 import MainPage from '@pages/Main';
@@ -16,17 +16,30 @@ const AppContent = () => {
   const [loading, setLoading] = useState(true);
   const isDBConnectedRef = useRef(isDBConnected);
   const shareParamsRef = useRef(shareParams);
+  // 标记是否已完成冷启动的分享URL检查（界面渲染完成后检查一次）
+  const coldStartCheckedRef = useRef(false);
 
   // 更新ref的值当isDBConnected变化时
   useEffect(() => {
     isDBConnectedRef.current = isDBConnected;
     if (isDBConnected) {
       setLoading(false);
-      checkPendingShareUrl().then((data) => {
-        data?.url && setShareParams(data);
-      });
     }
   }, [isDBConnected]);
+
+  // 冷启动：loading 变为 false（界面已渲染）后，从 ShareModule 内存取分享 URL
+  // 此时 Provider 渲染树已就绪，Modal.prompt 可正常弹出
+  useEffect(() => {
+    if (loading || coldStartCheckedRef.current) return;
+    coldStartCheckedRef.current = true;
+    console.log('App ready, checking initial share URL (cold start)');
+    getInitialShareParams().then((data) => {
+      if (data?.url) {
+        console.log('Found initial share params:', data);
+        setShareParams(data);
+      }
+    });
+  }, [loading]);
 
   useEffect(() => {
     console.log('RN App mounted');
@@ -48,7 +61,6 @@ const AppContent = () => {
       }
     }, 5000);
 
-    // 清理函数
     return () => {
       clearTimeout(timeoutId);
     };
@@ -88,11 +100,12 @@ const AppContent = () => {
     return () => clearTimeout(timer);
   }, [shareParams?.url]);
 
-  // 监听热启动事件：App 在后台被微信唤起时，Native 通过 DeviceEventEmitter 通知 RN
+  // 热启动：Native 通过事件直接携带 URL payload，RN 从参数解析，无需再读存储
   useEffect(() => {
-    const subscription = DeviceEventEmitter.addListener('onPendingShareUrl', async () => {
-      console.log('Received onPendingShareUrl event from Native (hot start)');
-      const data = await checkPendingShareUrl();
+    const subscription = DeviceEventEmitter.addListener('onShareUrl', (params: { url?: string }) => {
+      console.log('Received onShareUrl event from Native (hot start), params:', params);
+      if (!params?.url) return;
+      const data = parseShareUrl(params.url);
       if (data?.url) {
         setShareParams(data);
       }

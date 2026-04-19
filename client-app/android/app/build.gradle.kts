@@ -67,9 +67,9 @@ android {
             isMinifyEnabled = false
             // debug 构建不打包 JS Bundle，依赖 Metro 开发服务器
             project.ext.set("reactNativeBundleInDebug", false)
-            // 为debug版本禁用ABI分割，以便在所有架构的模拟器上运行
+            // 只打 arm64，减小 APK 体积方便模拟器安装（模拟器为 arm64 架构）
             ndk {
-                abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
+                abiFilters.addAll(listOf("arm64-v8a"))
             }
         }
     }
