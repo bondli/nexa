@@ -138,8 +138,17 @@ export const uploadDocs = (req: RequestWithFile, res: Response): void => {
 export const createDocs = async (req: Request, res: Response) => {
   const userId = Number(req.headers['x-user-id']) || 0;
   try {
-    const { name, desc, size, type, path: filePath, knowledgeId } = req.body;
-    const result = await Docs.create({ name, desc, size, type, userId, path: filePath, knowledgeId });
+    const { name, desc, size, type, path: filePath, knowledgeId, cloudUrl } = req.body;
+    const result = await Docs.create({
+      name,
+      desc,
+      size,
+      type,
+      userId,
+      path: filePath,
+      knowledgeId,
+      cloudUrl: cloudUrl || null,
+    });
     // 更新知识库中的文档数量
     await Knowledge.update({ counts: Sequelize.literal('counts + 1') }, { where: { id: knowledgeId } });
     // 生成嵌入向量
@@ -152,6 +161,7 @@ export const createDocs = async (req: Request, res: Response) => {
     } catch (embeddingError) {
       logger.error('生成嵌入向量失败:', embeddingError);
     }
+
     success(res, result.toJSON());
   } catch (error) {
     console.error('Error creating Docs:', error);

@@ -1,12 +1,13 @@
 import path from 'path';
 import fs from 'fs';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import multer from 'multer';
 import logger from 'electron-log';
-import { PORT, ALLOWED_IMAGE_EXTENSIONS } from '../config/constant';
+import { PORT, ALLOWED_IMAGE_EXTENSIONS, ALLOWED_FILE_EXTENSIONS } from '../config/constant';
 import { success, badRequest, serverError } from '../utils/response';
 import { processScreenshot } from '../services/screenshot/ocr-service';
 import { optimizeText } from '../services/ai-service';
+import { syncFileToCloud } from '../services/cloud-sync-service';
 
 /**
  * 验证图片文件扩展名是否在允许的类型中
@@ -14,6 +15,27 @@ import { optimizeText } from '../services/ai-service';
 const isAllowedImageType = (filename: string): boolean => {
   const ext = path.extname(filename).toLowerCase();
   return ALLOWED_IMAGE_EXTENSIONS.includes(ext);
+};
+
+/**
+ * 验证文件扩展名是否在允许的类型中
+ */
+const isAllowedFileType = (filename: string): boolean => {
+  const ext = path.extname(filename).toLowerCase();
+  return ALLOWED_FILE_EXTENSIONS.includes(ext);
+};
+
+/**
+ * 判断文件类型
+ */
+const getFileType = (filename: string): 'image' | 'document' | null => {
+  if (isAllowedImageType(filename)) {
+    return 'image';
+  }
+  if (isAllowedFileType(filename)) {
+    return 'document';
+  }
+  return null;
 };
 
 /**
@@ -49,8 +71,8 @@ const generateSafeFilename = (originalName: string): string => {
   return `${nameWithoutExt}-${timestamp}${ext}`;
 };
 
-// 配置图片存储位置
-const imageStorage = multer.diskStorage({
+// 配置存储位置
+const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     try {
       const filesDir = getFilesDirectory();
@@ -73,7 +95,7 @@ const imageStorage = multer.diskStorage({
 });
 
 const imageUpload = multer({
-  storage: imageStorage,
+  storage: fileStorage,
   fileFilter: (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     if (!isAllowedImageType(file.originalname)) {
       const allowedTypes = ALLOWED_IMAGE_EXTENSIONS.join('、');
@@ -86,32 +108,89 @@ const imageUpload = multer({
   },
 }).single('file');
 
+const documentUpload = multer({
+  storage: fileStorage,
+  fileFilter: (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+    if (!isAllowedFileType(file.originalname)) {
+      const allowedTypes = ALLOWED_FILE_EXTENSIONS.join('、');
+      return cb(new Error(`只允许上传 ${allowedTypes} 文件`));
+    }
+    cb(null, true);
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
+}).single('file');
+
 interface RequestWithFile extends Request {
   file?: Express.Multer.File;
 }
 
-// 上传图片
-export const uploadImage = (req: RequestWithFile, res: Response, next: NextFunction): void => {
-  imageUpload(req as any, res as any, async (err: any) => {
+/**
+ * 统一的文件上传接口
+ * 上传文件到本地后同步到云端，返回完整信息
+ * 返回字段：name, size, type, path, cloudUrl
+ */
+export const uploadFile = (req: RequestWithFile, res: Response): void => {
+  const fileType = req.query.fileType as string || 'auto';
+
+  // 根据 fileType 参数决定使用哪个上传中间件
+  const useImageUpload = fileType === 'image' || (fileType === 'auto' && isAllowedImageType(req.body.originalName || ''));
+  const uploadMiddleware = useImageUpload ? imageUpload : documentUpload;
+
+  uploadMiddleware(req as any, res as any, async (err: any) => {
     if (err instanceof multer.MulterError) {
-      return badRequest(res, `图片上传失败: ${err.message}`);
+      return badRequest(res, `文件上传失败: ${err.message}`);
     } else if (err) {
       return badRequest(res, err.message);
     }
 
     try {
       if (!req.file) {
-        return badRequest(res, '没有上传图片');
+        return badRequest(res, '没有上传文件');
       }
 
-      if (req.file.path) {
-        const fileName = path.basename(req.file.path);
-        const url = `http://localhost:${PORT}/files/${fileName}`;
-        success(res, { url, filePath: url }, '图片上传成功');
+      const originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+      const fileName = path.basename(req.file.path);
+      const localUrl = `http://localhost:${PORT}/files/${fileName}`;
+      const fileRelativePath = req.file.path;
+      const fileSize = req.file.size;
+      const fileExt = path.extname(originalName).toLowerCase();
+
+      // 自动识别文件类型
+      let detectedFileType: 'image' | 'document';
+      if (fileType === 'image') {
+        detectedFileType = 'image';
+      } else if (fileType === 'document') {
+        detectedFileType = 'document';
+      } else {
+        const detected = getFileType(req.file.originalname);
+        detectedFileType = detected || 'document';
       }
+
+      // 同步到云端（同步等待结果，失败会写入队列）
+      const fileTypeForSync = detectedFileType === 'image' ? 'picture' : 'document';
+      const cloudUrl = await syncFileToCloud({
+        fileType: fileTypeForSync,
+        localPath: fileRelativePath,
+        originalName,
+      });
+
+      // 返回完整信息
+      success(
+        res,
+        {
+          name: originalName,
+          size: fileSize,
+          type: fileExt,
+          path: fileRelativePath,
+          cloudUrl,
+        },
+        '文件上传成功',
+      );
     } catch (error) {
-      logger.error('图片上传处理错误:', error);
-      serverError(res, '图片上传处理失败');
+      logger.error('文件上传处理错误:', error);
+      serverError(res, '文件上传处理失败');
     }
   });
 };

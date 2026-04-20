@@ -137,7 +137,7 @@ const Header: React.FC = () => {
     name: 'file',
     multiple: true,
     accept: '.jpg,.jpeg,.png,.gif,.webp,.bmp,.svg',
-    action: `${API_BASE_URL}common/uploadImage`,
+    action: `${API_BASE_URL}common/uploadFile?fileType=image`,
     headers: {
       'X-User-Id': `${userInfo?.id || ''}`,
       'X-From': 'Nexa-App-Client',
@@ -164,13 +164,16 @@ const Header: React.FC = () => {
         const response = info.file.response;
         if (response && response.code === 0) {
           try {
-            const urlPath = response.data?.url || response.data?.filePath || '';
-            // 提取相对路径（去掉 host 部分）
-            const relativePath = urlPath.replace(/^https?:\/\/[^/]+\//, '');
+            // 上传接口返回: { name, size, type, path, cloudUrl }
+            const { path, cloudUrl } = response.data || {};
+            if (!path) {
+              throw new Error('上传返回路径为空');
+            }
             await createPicture({
-              path: relativePath,
+              path,
               name: info.file.name,
               categoryId: isVirtual ? undefined : currentCate?.id,
+              cloudUrl: cloudUrl || undefined,
             });
             message.success(`${info.file.name} 上传成功`);
           } catch (error) {

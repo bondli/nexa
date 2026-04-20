@@ -42,14 +42,19 @@ const PictureList: React.FC = () => {
   const handlePreview = (picture: Picture) => {
     if (isTrash) return;
     setSelectedPicture(picture);
-    const fullPath = `${API_BASE_URL}${picture.path}`;
+    const fullPath = getImageUrl(picture);
     setPreviewImage(fullPath);
     setPreviewVisible(true);
   };
 
-  // 获取图片完整路径
-  const getImageUrl = (path: string) => {
-    return `${API_BASE_URL}${path}`;
+  // 获取图片完整路径，优先使用云端链接
+  const getImageUrl = (picture: Picture) => {
+    // 优先使用云端链接
+    if (picture.cloudUrl) {
+      return picture.cloudUrl;
+    }
+    // 降级使用本地链接
+    return `${API_BASE_URL}${picture.path}`;
   };
 
   // 触底加载更多
@@ -112,7 +117,7 @@ const PictureList: React.FC = () => {
             hoverable={!isTrash}
             cover={
               <div className={style.imageWrapper} onClick={() => handlePreview(picture)}>
-                <img src={getImageUrl(picture.path)} alt={picture.name} loading="lazy" />
+                <img src={getImageUrl(picture)} alt={picture.name} loading="lazy" />
               </div>
             }
           >

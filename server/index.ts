@@ -8,6 +8,7 @@ import { getConfigPath } from './config/setting';
 import { testConnection, syncDatabase } from './config/database';
 import { initVectorDB } from './config/vectorDB';
 import router from './routers/index';
+import { initSyncQueue, startSyncScheduler } from './services/cloud-sync-service';
 
 // 引入所有模型，确保数据库同步时能创建所有表
 import './models/User';
@@ -16,6 +17,7 @@ import './models/Cate';
 import './models/Knowledge';
 import './models/Docs';
 import './models/Chat';
+import './models/Picture';
 
 const app = express();
 
@@ -59,8 +61,12 @@ const getFilesDirectory = (): string => {
   return filesDir;
 };
 
-// 提供files目录下的静态文件服务
-app.use('/files', express.static(getFilesDirectory()));
+// 提供files目录下的静态文件服务，添加缓存头
+app.use('/files', express.static(getFilesDirectory(), {
+  maxAge: '1y', // 缓存1年
+  etag: true,
+  lastModified: true,
+}));
 
 app.use(router);
 
@@ -79,6 +85,11 @@ app.all('*', (req, res, next) => {
     } else {
       logger.info('[API Server] 数据库未配置，跳过数据库连接');
     }
+
+    // 初始化云端同步队列
+    initSyncQueue();
+    // 启动同步调度器（每5分钟扫描一次）
+    startSyncScheduler();
 
     // 启动服务器
     app.listen(PORT, () => {

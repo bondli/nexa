@@ -12,12 +12,13 @@ interface PictureAttributes {
   categoryId: number | null;
   userId: number;
   status: 'normal' | 'deleted';
+  cloudUrl: string | null;
 }
 
 /**
  * Picture 创建时的可选属性
  */
-interface PictureCreationAttributes extends Optional<PictureAttributes, 'id' | 'description' | 'categoryId' | 'status'> {}
+interface PictureCreationAttributes extends Optional<PictureAttributes, 'id' | 'description' | 'categoryId' | 'status' | 'cloudUrl'> {}
 
 /**
  * Picture 图片模型实例接口
@@ -62,6 +63,11 @@ const Picture = sequelize.define<PictureInstance, PictureCreationAttributes>(
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: 'normal',
+    },
+    cloudUrl: {
+      comment: '云端链接',
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {

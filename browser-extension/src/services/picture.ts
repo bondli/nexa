@@ -38,11 +38,13 @@ export const getPictureCates = async (): Promise<PictureCate[]> => {
 export interface UploadImageResult {
   success: boolean;
   path?: string;
+  cloudUrl?: string | null;
   message?: string;
 }
 
 /**
- * 上传图片文件
+ * 上传图片文件（使用统一上传接口）
+ * 返回: { name, size, type, path, cloudUrl }
  */
 export const uploadImage = async (blob: Blob, fileName: string): Promise<UploadImageResult> => {
   try {
@@ -50,7 +52,8 @@ export const uploadImage = async (blob: Blob, fileName: string): Promise<UploadI
     const formData = new FormData();
     formData.append('file', blob, fileName);
 
-    const response = await request.post<any>('/common/uploadImage', formData, {
+    // 使用统一上传接口
+    const response = await request.post<any>('/common/uploadFile?fileType=image', formData, {
       headers: {
         'X-User-Id': String(userId),
       },
@@ -58,16 +61,13 @@ export const uploadImage = async (blob: Blob, fileName: string): Promise<UploadI
 
     const resData = response.data;
     if (resData.data) {
-      // 上传接口返回 { url: "http://host/files/xxx.jpg", filePath: "..." }
-      // path 只取 pathname 部分，去掉域名和端口
-      const fullUrl: string = resData.data.url || resData.data.filePath || resData.data;
-      let path = fullUrl;
-      try {
-        path = new URL(fullUrl).pathname.replace(/^\//, '');
-      } catch {
-        // fullUrl 本身就是相对路径，直接使用
-      }
-      return { success: true, path };
+      // 统一接口返回 { name, size, type, path, cloudUrl }
+      const { path, cloudUrl } = resData.data || {};
+      return {
+        success: true,
+        path,
+        cloudUrl,
+      };
     }
 
     return { success: false, message: '图片上传失败' };
@@ -84,6 +84,7 @@ export interface SavePictureData {
   name: string;
   description?: string | null;
   categoryId?: number | null;
+  cloudUrl?: string;
 }
 
 /**

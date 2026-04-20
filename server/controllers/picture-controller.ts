@@ -12,7 +12,7 @@ export const createPicture = async (req: Request, res: Response) => {
   const userId = Number(req.headers['x-user-id']) || 0;
 
   try {
-    const { path, name, description, categoryId } = req.body;
+    const { path, name, description, categoryId, cloudUrl } = req.body;
 
     if (!path || !name) {
       return badRequest(res, '图片路径和名称不能为空');
@@ -25,6 +25,7 @@ export const createPicture = async (req: Request, res: Response) => {
       categoryId: categoryId || null,
       userId,
       status: 'normal',
+      cloudUrl: cloudUrl || null,
     });
 
     // 如果有关联分类，更新分类计数

@@ -17,6 +17,7 @@ interface DataType {
   size?: number;
   type?: string;
   path?: string;
+  cloudUrl?: string | null;
   createdAt: string;
 }
 

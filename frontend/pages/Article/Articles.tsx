@@ -1,5 +1,5 @@
 import React, { memo, useContext, useEffect, useRef, useCallback } from 'react';
-import { List, Empty, Spin } from 'antd';
+import { List, Empty } from 'antd';
 import { GithubFilled, LinkOutlined } from '@ant-design/icons';
 import { format as timeAgoFormat } from 'timeago.js';
 import { openExternalUrl } from '@commons/electron';

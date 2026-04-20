@@ -19,6 +19,7 @@ export interface Picture {
   categoryId: number | null;
   userId: number;
   status: 'normal' | 'deleted';
+  cloudUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -41,7 +42,13 @@ interface PictureContextType {
   createCate: (name: string, icon?: string) => Promise<void>;
   updateCate: (id: number, name: string) => Promise<void>;
   deleteCate: (id: number) => Promise<void>;
-  createPicture: (data: { path: string; name: string; description?: string; categoryId?: number }) => Promise<void>;
+  createPicture: (data: {
+    path: string;
+    name: string;
+    description?: string;
+    categoryId?: number;
+    cloudUrl?: string;
+  }) => Promise<void>;
   deletePicture: (id: number) => Promise<void>;
   updatePicture: (id: number, description: string) => Promise<void>;
   movePicture: (id: number, categoryId: number) => Promise<void>;
@@ -178,7 +185,13 @@ export const PictureProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   // 创建图片
-  const createPicture = async (data: { path: string; name: string; description?: string; categoryId?: number }) => {
+  const createPicture = async (data: {
+    path: string;
+    name: string;
+    description?: string;
+    categoryId?: number;
+    cloudUrl?: string;
+  }) => {
     await request.post('/picture/add', data);
     await getPictureList();
     await getCateList();

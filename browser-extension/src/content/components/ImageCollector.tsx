@@ -49,6 +49,7 @@ const ImageCollector: React.FC<ImageCollectorProps> = () => {
         name: currentImgAlt,
         description: description || null,
         categoryId: selectedCateId || null,
+        cloudUrl: uploadResult.cloudUrl || undefined,
       });
 
       if (!saveResult.success) {

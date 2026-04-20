@@ -113,7 +113,7 @@ const Header: React.FC = () => {
     name: 'file',
     multiple: true,
     accept: '.md,.txt',
-    action: `${API_BASE_URL}docs/upload`,
+    action: `${API_BASE_URL}common/uploadFile?fileType=document`,
     headers: {
       'X-User-Id': `${userInfo?.id || ''}`,
       'X-From': 'Nexa-App-Client',
