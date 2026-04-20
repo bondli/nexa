@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useCallback } from 'react';
 import request from '@commons/request';
 
 export interface PictureCate {
@@ -33,8 +33,8 @@ interface PictureContextType {
   selectedPicture: Picture | null;
   setSelectedPicture: React.Dispatch<React.SetStateAction<Picture | null>>;
   getCateList: () => Promise<void>;
-  getPictureList: () => Promise<void>;
-  getTrashList: () => Promise<void>;
+  getPictureList: (isLoadMore?: boolean) => Promise<void>;
+  getTrashList: (isLoadMore?: boolean) => Promise<void>;
   searchPictureList: (keyword: string) => Promise<void>;
   getPictureCounts: () => Promise<void>;
   pictureCounts: { all: number; trash: number };
@@ -48,6 +48,8 @@ interface PictureContextType {
   restorePicture: (id: number) => Promise<void>;
   forceDeletePicture: (id: number) => Promise<void>;
   picturesLoading: boolean;
+  picturesHasMore: boolean;
+  picturesTotal: number;
 }
 
 export const PictureContext = createContext<PictureContextType | undefined>(undefined);
@@ -59,6 +61,12 @@ export const PictureProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [selectedPicture, setSelectedPicture] = useState<Picture | null>(null);
   const [picturesLoading, setPicturesLoading] = useState(true);
   const [pictureCounts, setPictureCounts] = useState<{ all: number; trash: number }>({ all: 0, trash: 0 });
+  const [picturesOffset, setPicturesOffset] = useState(0);
+  const [picturesHasMore, setPicturesHasMore] = useState(true);
+  const [picturesTotal, setPicturesTotal] = useState(0);
+  const PICTURE_LIMIT = 20;
+
+  // const isTrash = currentCate?.id === -1;
 
   // 获取图片统计数量
   const getPictureCounts = async () => {
@@ -72,23 +80,75 @@ export const PictureProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setCateList(response.data || []);
   };
 
-  // 获取图片列表
-  const getPictureList = async () => {
-    setPicturesLoading(true);
-    const categoryId = currentCate?.id;
-    const url = categoryId ? `/picture/getList?categoryId=${categoryId}` : '/picture/getList';
-    const response = await request.get(url);
-    setPictureList(response.data?.list || []);
-    setPicturesLoading(false);
-  };
+  // 获取图片列表（支持分页）
+  const getPictureList = useCallback(
+    async (isLoadMore = false) => {
+      if (!isLoadMore) {
+        setPicturesLoading(true);
+        setPicturesOffset(0);
+      } else if (picturesLoading) {
+        return;
+      }
 
-  // 获取回收站图片列表
-  const getTrashList = async () => {
-    setPicturesLoading(true);
-    const response = await request.get('/picture/getTrash');
-    setPictureList(response.data?.list || []);
-    setPicturesLoading(false);
-  };
+      const currentOffset = isLoadMore ? picturesOffset : 0;
+
+      try {
+        const categoryId = currentCate?.id;
+        const url = categoryId
+          ? `/picture/getList?categoryId=${categoryId}&limit=${PICTURE_LIMIT}&offset=${currentOffset}`
+          : `/picture/getList?limit=${PICTURE_LIMIT}&offset=${currentOffset}`;
+        const response = await request.get(url);
+        const newList = response.data?.list || [];
+        const total = response.data?.total || 0;
+
+        if (isLoadMore) {
+          setPictureList((prev) => [...prev, ...newList]);
+        } else {
+          setPictureList(newList);
+        }
+
+        setPicturesTotal(total);
+        setPicturesHasMore(currentOffset + newList.length < total);
+        setPicturesOffset(currentOffset + newList.length);
+      } finally {
+        setPicturesLoading(false);
+      }
+    },
+    [currentCate?.id, picturesOffset, picturesLoading],
+  );
+
+  // 获取回收站图片列表（支持分页）
+  const getTrashList = useCallback(
+    async (isLoadMore = false) => {
+      if (!isLoadMore) {
+        setPicturesLoading(true);
+        setPicturesOffset(0);
+      } else if (picturesLoading) {
+        return;
+      }
+
+      const currentOffset = isLoadMore ? picturesOffset : 0;
+
+      try {
+        const response = await request.get(`/picture/getTrash?limit=${PICTURE_LIMIT}&offset=${currentOffset}`);
+        const newList = response.data?.list || [];
+        const total = response.data?.total || 0;
+
+        if (isLoadMore) {
+          setPictureList((prev) => [...prev, ...newList]);
+        } else {
+          setPictureList(newList);
+        }
+
+        setPicturesTotal(total);
+        setPicturesHasMore(currentOffset + newList.length < total);
+        setPicturesOffset(currentOffset + newList.length);
+      } finally {
+        setPicturesLoading(false);
+      }
+    },
+    [picturesOffset, picturesLoading],
+  );
 
   // 搜索图片
   const searchPictureList = async (keyword: string) => {
@@ -188,6 +248,8 @@ export const PictureProvider: React.FC<{ children: React.ReactNode }> = ({ child
         movePicture,
         forceDeletePicture,
         picturesLoading,
+        picturesHasMore,
+        picturesTotal,
       }}
     >
       {children}

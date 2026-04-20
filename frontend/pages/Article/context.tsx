@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useCallback } from 'react';
 import request from '@commons/request';
 import { DEFAULT_CATE, VIRTUAL_CATES, ArticleCate, Article, TempArticle } from './constant';
 
@@ -12,7 +12,7 @@ type ArticleContextType = {
   selectedArticle: Article | null;
   setSelectedArticle: React.Dispatch<React.SetStateAction<Article | null>>;
   articleCounts: { [key: string]: number };
-  getArticleList: () => void;
+  getArticleList: (isLoadMore?: boolean) => Promise<void>;
   getArticleDetail: (id: number) => Promise<Article | null>;
   createArticle: (data: { title: string; desc?: string; url: string; cateId: number }) => Promise<Article | null>;
   updateArticle: (data: {
@@ -36,7 +36,7 @@ type ArticleContextType = {
     orders?: number;
   }) => Promise<ArticleCate | null>;
   deleteArticleCate: (id: number) => Promise<boolean>;
-  getTempArticleList: () => void;
+  getTempArticleList: (isLoadMore?: boolean) => Promise<void>;
   deleteTempArticle: (id: number) => Promise<boolean>;
   searchArticles: (searchKey: string) => void;
   getArticleCounts: () => void;
@@ -50,6 +50,8 @@ type ArticleContextType = {
   articleLoading: boolean;
   isTempCategory: boolean;
   isTrashCategory: boolean;
+  articleHasMore: boolean;
+  tempArticlePage: number;
 };
 
 export const ArticleContext = createContext<ArticleContextType | undefined>(undefined);
@@ -65,32 +67,54 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [articleLoading, setArticleLoading] = useState(true);
+  const [articleHasMore, setArticleHasMore] = useState(true);
+  const [tempArticlePage, setTempArticlePage] = useState(1);
 
   // 判断是否是临时文章分类
   const isTempCategory = currentCate.id === 'temp';
   // 判断是否是回收站分类
   const isTrashCategory = currentCate.id === 'trash';
 
-  // 获取文章列表
-  const getArticleList = async (page = 1) => {
-    setArticleLoading(true);
-    try {
-      const response = await request.get('/article/getList', {
-        params: {
-          cateId: currentCate.id,
-          page,
-          pageSize,
-        },
-      });
-      setArticleList(response.data || []);
-      setTotal(response.count || 0);
-      setCurrentPage(page);
-    } catch (error) {
-      console.error('获取文章列表失败:', error);
-    } finally {
-      setArticleLoading(false);
-    }
-  };
+  // 获取文章列表（支持分页加载更多）
+  const getArticleList = useCallback(
+    async (isLoadMore = false) => {
+      const targetPage = isLoadMore ? currentPage + 1 : 1;
+
+      if (!isLoadMore) {
+        setArticleLoading(true);
+      } else if (articleLoading) {
+        return;
+      }
+
+      try {
+        const response = await request.get('/article/getList', {
+          params: {
+            cateId: currentCate.id,
+            page: targetPage,
+            pageSize,
+          },
+        });
+        // response 本身就是 { code, data, count }
+        const newList = response.data || [];
+        const responseTotal = response.count || 0;
+
+        if (isLoadMore) {
+          setArticleList((prev) => [...prev, ...newList]);
+        } else {
+          setArticleList(newList);
+        }
+
+        setTotal(responseTotal);
+        setCurrentPage(targetPage);
+        setArticleHasMore(targetPage * pageSize < responseTotal);
+      } catch (error) {
+        console.error('获取文章列表失败:', error);
+      } finally {
+        setArticleLoading(false);
+      }
+    },
+    [currentCate.id, currentPage, pageSize, articleLoading],
+  );
 
   // 获取文章详情
   const getArticleDetail = async (id: number): Promise<Article | null> => {
@@ -135,7 +159,7 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }): Promise<Article | null> => {
     try {
       const response = await request.post('/article/update', data);
-      await getArticleList(currentPage);
+      await getArticleList(false);
       await getArticleCounts();
       return response.data || null;
     } catch (error) {
@@ -150,7 +174,7 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
       await request.get('/article/delete', {
         params: { id },
       });
-      await getArticleList(currentPage);
+      await getArticleList(false);
       await getArticleCounts();
       return true;
     } catch (error) {
@@ -165,7 +189,7 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
       await request.get('/article/recover', {
         params: { id, cateId },
       });
-      await getArticleList(currentPage);
+      await getArticleList(false);
       await getArticleCounts();
       return true;
     } catch (error) {
@@ -180,7 +204,7 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
       await request.get('/article/remove', {
         params: { id },
       });
-      await getArticleList(currentPage);
+      await getArticleList(false);
       await getArticleCounts();
       return true;
     } catch (error) {
@@ -250,24 +274,44 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  // 获取临时文章列表
-  const getTempArticleList = async () => {
-    setArticleLoading(true);
-    try {
-      const response = await request.get('/temp_article/list', {
-        params: {
-          page: 1,
-          pageSize,
-        },
-      });
-      setArticleList(response.data || []);
-      setTotal(response.count || 0);
-    } catch (error) {
-      console.error('获取临时文章列表失败:', error);
-    } finally {
-      setArticleLoading(false);
-    }
-  };
+  // 获取临时文章列表（支持分页加载更多）
+  const getTempArticleList = useCallback(
+    async (isLoadMore = false) => {
+      const targetPage = isLoadMore ? tempArticlePage + 1 : 1;
+
+      if (!isLoadMore) {
+        setArticleLoading(true);
+      } else if (articleLoading) {
+        return;
+      }
+
+      try {
+        const response = await request.get('/temp_article/list', {
+          params: {
+            page: targetPage,
+            pageSize,
+          },
+        });
+        const newList = response.data || [];
+        const responseTotal = response.count || 0;
+
+        if (isLoadMore) {
+          setArticleList((prev) => [...prev, ...newList]);
+        } else {
+          setArticleList(newList);
+        }
+
+        setTotal(responseTotal);
+        setTempArticlePage(targetPage);
+        setArticleHasMore(targetPage * pageSize < responseTotal);
+      } catch (error) {
+        console.error('获取临时文章列表失败:', error);
+      } finally {
+        setArticleLoading(false);
+      }
+    },
+    [tempArticlePage, pageSize, articleLoading],
+  );
 
   // 删除临时文章
   const deleteTempArticle = async (id: number): Promise<boolean> => {
@@ -348,6 +392,8 @@ export const ArticleProvider: React.FC<{ children: React.ReactNode }> = ({ child
         articleLoading,
         isTempCategory,
         isTrashCategory,
+        articleHasMore,
+        tempArticlePage,
       }}
     >
       {children}

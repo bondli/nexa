@@ -1,4 +1,4 @@
-import React, { memo, useContext } from 'react';
+import React, { memo, useContext, useEffect, useRef, useCallback } from 'react';
 import { List, Empty } from 'antd';
 import { GithubFilled } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -8,36 +8,39 @@ import Actions from './Actions';
 import style from './index.module.less';
 
 const Notes: React.FC = () => {
-  const { noteList, setSelectedNote, getCateList, getNoteCounts, getNoteList, notesLoading } = useContext(NoteContext);
+  const { noteList, setSelectedNote, getCateList, getNoteCounts, getNoteList, notesLoading, notesHasMore, notesTotal } =
+    useContext(NoteContext);
+
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // 点击查看详情
-  const gotoDetail = (data) => {
+  const gotoDetail = (data: any) => {
     setSelectedNote(data);
   };
 
   // 笔记头像
-  const renderAvatar = (data) => {
-    const color = {
+  const renderAvatar = (data: any) => {
+    const color: { [key: number]: string } = {
       1: 'red',
       2: '#faad14',
       3: '#1677ff',
       4: 'gray',
     };
     const { priority, status } = data;
-    // 如果状态是done显示绿色，deleted显示灰色，其他按照优先级的颜色来
     let finalColor = '';
     if (status === 'done') {
       finalColor = 'green';
     } else if (status === 'deleted') {
       finalColor = 'gray';
     } else {
-      finalColor = color[priority];
+      finalColor = color[priority] || 'gray';
     }
     return <GithubFilled style={{ fontSize: 28, color: finalColor }} />;
   };
 
   // 笔记标题
-  const renderTitle = (data) => {
+  const renderTitle = (data: any) => {
     const { title, deadline } = data;
     const titleTxt = title.length > 40 ? title.substring(0, 40) + '...' : title;
     let titleContainer = <span>{titleTxt}</span>;
@@ -58,8 +61,7 @@ const Notes: React.FC = () => {
   };
 
   // 笔记描述
-  const renderDesc = (data) => {
-    // 去掉html的标签，展示纯文本
+  const renderDesc = (data: any) => {
     let displayDesc = !data.desc
       ? '该笔记暂时没有详细信息，等你来添加详细的信息'
       : data.desc.replace(/(<([^>]+)>)/gi, '');
@@ -79,6 +81,44 @@ const Notes: React.FC = () => {
     getCateList();
   };
 
+  // 触底加载更多
+  const handleLoadMore = useCallback(() => {
+    if (notesHasMore && !notesLoading) {
+      getNoteList(true);
+    }
+  }, [notesHasMore, notesLoading, getNoteList]);
+
+  // 使用 Intersection Observer 监听触底
+  useEffect(() => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && notesHasMore && !notesLoading) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    if (loadMoreRef.current) {
+      observerRef.current.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [notesHasMore, notesLoading, handleLoadMore]);
+
+  // 加载中且列表为空时不渲染任何内容
+  if (!noteList?.length && notesLoading) {
+    return null;
+  }
+
   if (!noteList?.length) {
     return (
       <div className={style.listContainer} style={{ paddingTop: 100 }}>
@@ -90,7 +130,7 @@ const Notes: React.FC = () => {
   return (
     <div className={style.listContainer}>
       <List
-        loading={notesLoading}
+        loading={false}
         itemLayout={`horizontal`}
         dataSource={noteList}
         renderItem={(item) => (
@@ -108,6 +148,12 @@ const Notes: React.FC = () => {
           </List.Item>
         )}
       />
+      {/* 加载更多触发区域 */}
+      <div ref={loadMoreRef} style={{ textAlign: 'center', padding: '16px 0' }}>
+        {!notesHasMore && noteList.length > 0 && (
+          <span style={{ color: '#999' }}>没有更多数据了（共 {notesTotal} 条）</span>
+        )}
+      </div>
     </div>
   );
 };

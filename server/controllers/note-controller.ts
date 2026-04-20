@@ -20,6 +20,11 @@ export const createNote = async (req: Request, res: Response) => {
   try {
     const { title, desc, cateId, deadline, priority } = req.body;
 
+    if (!title || !cateId) {
+      badRequest(res, 'Title, cateId are required');
+      return;
+    }
+
     // 使用事务确保数据一致性并提升性能
     const result = await Note.sequelize!.transaction(async (t) => {
       // 创建Note记录
@@ -64,7 +69,10 @@ export const getNoteInfo = async (req: Request, res: Response) => {
 export const getNotes = async (req: Request, res: Response) => {
   const userId = Number(req.headers['x-user-id']) || 0;
   try {
-    const { cateId } = req.query;
+    const { cateId, limit = 20, offset: queryOffset } = req.query;
+    const limitNum = Number(limit);
+    const offsetNum = queryOffset ? Number(queryOffset) : (Number(queryOffset) || 0);
+
     const where = {
       userId,
     };
@@ -99,6 +107,8 @@ export const getNotes = async (req: Request, res: Response) => {
     const { count, rows } = await Note.findAndCountAll({
       where,
       order: [['updatedAt', 'DESC']],
+      limit: limitNum,
+      offset: offsetNum,
     });
     successWithPage(res, rows || [], count || 0);
   } catch (error) {

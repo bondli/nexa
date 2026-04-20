@@ -1,5 +1,5 @@
-import React, { memo, useContext } from 'react';
-import { List, Empty } from 'antd';
+import React, { memo, useContext, useEffect, useRef, useCallback } from 'react';
+import { List, Empty, Spin } from 'antd';
 import { GithubFilled, LinkOutlined } from '@ant-design/icons';
 import { format as timeAgoFormat } from 'timeago.js';
 import { openExternalUrl } from '@commons/electron';
@@ -14,10 +14,16 @@ const Articles: React.FC = () => {
     getArticleCateList,
     getArticleCounts,
     getArticleList,
+    getTempArticleList,
     articleLoading,
     isTempCategory,
     isTrashCategory,
+    articleHasMore,
+    total,
   } = useContext(ArticleContext);
+
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // 点击查看详情
   const gotoDetail = (data: any) => {
@@ -79,6 +85,48 @@ const Articles: React.FC = () => {
     getArticleCateList();
   };
 
+  // 触底加载更多
+  const handleLoadMore = useCallback(() => {
+    if (articleHasMore && !articleLoading) {
+      if (isTempCategory) {
+        getTempArticleList(true);
+      } else {
+        getArticleList(true);
+      }
+    }
+  }, [articleHasMore, articleLoading, isTempCategory, getArticleList, getTempArticleList]);
+
+  // 使用 Intersection Observer 监听触底
+  useEffect(() => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && articleHasMore && !articleLoading) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    if (loadMoreRef.current) {
+      observerRef.current.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [articleHasMore, articleLoading, handleLoadMore]);
+
+  // 加载中且列表为空时不渲染任何内容
+  if (!articleList?.length && articleLoading) {
+    return null;
+  }
+
   if (!articleList?.length) {
     return (
       <div className={style.listContainer} style={{ paddingTop: 100 }}>
@@ -93,7 +141,7 @@ const Articles: React.FC = () => {
   return (
     <div className={style.listContainer}>
       <List
-        loading={articleLoading}
+        loading={false}
         itemLayout={`horizontal`}
         dataSource={articleList}
         renderItem={(item: any) => (
@@ -111,6 +159,12 @@ const Articles: React.FC = () => {
           </List.Item>
         )}
       />
+      {/* 加载更多触发区域 */}
+      <div ref={loadMoreRef} style={{ textAlign: 'center', padding: '16px 0' }}>
+        {!articleHasMore && articleList.length > 0 && (
+          <span style={{ color: '#999' }}>没有更多数据了（共 {total} 条）</span>
+        )}
+      </div>
     </div>
   );
 };
