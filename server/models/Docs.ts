@@ -17,6 +17,7 @@ interface DocsAttributes {
   type: string | null;
   indexedAt: Date | null;
   cloudUrl: string | null;
+  content: string | null;
 }
 
 /**
@@ -24,7 +25,7 @@ interface DocsAttributes {
  */
 interface DocsCreationAttributes extends Optional<
   DocsAttributes,
-  'id' | 'desc' | 'noteId' | 'status' | 'size' | 'type' | 'indexedAt' | 'cloudUrl'
+  'id' | 'desc' | 'noteId' | 'status' | 'size' | 'type' | 'indexedAt' | 'cloudUrl' | 'content'
 > {}
 
 /**
@@ -94,6 +95,11 @@ const Docs = sequelize.define<DocsInstance, DocsCreationAttributes>(
     cloudUrl: {
       comment: '云端链接',
       type: DataTypes.STRING,
+      allowNull: true,
+    },
+    content: {
+      comment: '文档文本内容（用于 RAG）',
+      type: DataTypes.TEXT,
       allowNull: true,
     },
   },

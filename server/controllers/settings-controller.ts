@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { setAPIKey, getAPIKey } from '../services/ai-service';
-import { getCollectionCount, clearCollection } from '../services/vector-store-service';
-import { success, badRequest, serverError } from '../utils/response';
+import { getCollectionCount } from '../services/vector-store-service';
+import { success, badRequest } from '../utils/response';
 
 /**
  * 获取当前设置
@@ -52,19 +52,6 @@ export const getVectorDBStatus = async (req: Request, res: Response, next: NextF
       count,
       status: count > 0 ? 'active' : 'empty',
     });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * 清空向量数据库
- */
-export const clearVectorDB = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    await clearCollection();
-
-    success(res, null, '向量数据库已清空');
   } catch (error) {
     next(error);
   }

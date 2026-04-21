@@ -1,16 +1,8 @@
 import { Request, Response } from 'express';
 import Sequelize, { Op } from 'sequelize';
 import logger from 'electron-log';
-import { generateEmbedding } from '../services/ai-service';
-import {
-  addDocumentEmbedding,
-  updateDocumentEmbedding,
-  deleteDocumentEmbedding,
-} from '../services/vector-store-service';
 import Note from '../models/Note';
 import Cate from '../models/Cate';
-import Knowledge from '../models/Knowledge';
-import Docs from '../models/Docs';
 import { success, successWithPage, badRequest, notFound, serverError } from '../utils/response';
 
 // 新增一条代办Note
@@ -147,18 +139,6 @@ export const updateNote = async (req: Request, res: Response) => {
             },
           );
       }
-      // todo:如果内容或标题有变化，而且之前已经加入到知识库中，则需要更新嵌入向量
-      // if (title || desc) {
-      //   try {
-      //     const embedding = await generateEmbedding(`${result.title}\n${result.desc}`);
-      //     await updateDocumentEmbedding(result.id, embedding, {
-      //       title: result.title,
-      //       desc: result.desc || '',
-      //     });
-      //   } catch (embeddingError) {
-      //     logger.error('更新嵌入向量失败:', embeddingError);
-      //   }
-      // }
       success(res, result.toJSON());
     } else {
       notFound(res, 'Note not found');
@@ -355,15 +335,6 @@ export const removeNote = async (req: Request, res: Response) => {
     const result = await Note.findByPk(Number(id));
     if (result) {
       await result.destroy();
-      // 删除嵌入向量
-      try {
-        // todo:先查询该笔记有没有被向量化到知识库中
-
-        await deleteDocumentEmbedding(Number(id));
-      } catch (embeddingError) {
-        logger.error('删除嵌入向量失败:', embeddingError);
-      }
-
       success(res, result.toJSON());
     } else {
       notFound(res, 'Note not found');
@@ -371,49 +342,5 @@ export const removeNote = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error('Error deletedFromTrash:', error);
     serverError(res, 'Error deleting Note');
-  }
-};
-
-// 将笔记添加到知识库（进行向量化处理）
-export const addNoteToKnowledge = async (req: Request, res: Response) => {
-  try {
-    const { id, knowledgeId } = req.query;
-    const result = await Note.findByPk(Number(id));
-    if (result) {
-      // todo: 先判断是否已经向量化过了
-      const embedding = await generateEmbedding(result.title + '\n' + result.desc);
-      if (embedding) {
-        await addDocumentEmbedding(Number(id), embedding, {
-          title: result.title,
-          desc: result.desc || '',
-        });
-        // 知识库文档量+1
-        await Knowledge.update(
-          { counts: Sequelize.literal('counts + 1') },
-          {
-            where: { id: Number(knowledgeId) },
-          },
-        );
-        // 知识库对应的文档表新增一条记录
-        await Docs.create({
-          knowledgeId: Number(knowledgeId),
-          noteId: Number(id),
-          name: result.title,
-          desc: result.desc,
-          path: '',
-          userId: result.userId,
-          type: 'note',
-          indexedAt: new Date(),
-        });
-        success(res, null, 'Note added to knowledge');
-      } else {
-        serverError(res, '生成向量失败');
-      }
-    } else {
-      notFound(res, 'Note not found');
-    }
-  } catch (error) {
-    logger.error('Error on adding Note to knowledge:', error);
-    serverError(res, 'Error adding Note to knowledge');
   }
 };

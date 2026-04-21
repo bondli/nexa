@@ -1,31 +1,105 @@
-import { getVectorDBClient, getCollectionName } from '../config/vectorDB';
+import { getVectorDBClient } from '../config/vectorDB';
+import logger from 'electron-log';
+
+// 向量维度（与 embedding 模型一致，需与 embedding 服务的向量维度匹配）
+// doubao-embedding-vision 是 2048 维
+const VECTOR_SIZE = 2048;
 
 /**
- * 向量存储服务
- * 提供向量数据库的增删查操作
+ * 获取知识库对应的 collection 名称
  */
+export const getCollectionName = (knowledgeId: number): string => {
+  return `knowledge_${knowledgeId}`;
+};
+
+/**
+ * 创建知识库的 collection
+ */
+export const createCollection = async (knowledgeId: number): Promise<void> => {
+  try {
+    const client = getVectorDBClient();
+    const collectionName = getCollectionName(knowledgeId);
+
+    // 直接尝试获取 collection 信息，如果不存在会抛错
+    try {
+      await client.getCollection(collectionName);
+      logger.info(`Collection ${collectionName} 已存在，跳过创建`);
+      return;
+    } catch (e: any) {
+      // 404 说明不存在，继续创建
+      if (e.status === 404 || (e.status === 400 && e.data?.status?.error?.includes('not found'))) {
+        // 继续创建
+      } else {
+        // 其他错误，尝试创建
+      }
+    }
+
+    // 创建 collection
+    logger.info(`创建 Collection: ${collectionName}, 向量维度: ${VECTOR_SIZE}`);
+    await client.createCollection(collectionName, {
+      vectors: {
+        size: VECTOR_SIZE,
+        distance: 'Cosine',
+      },
+    });
+
+    logger.info(`创建 Collection 成功: ${collectionName}, 向量维度: ${VECTOR_SIZE}`);
+  } catch (error) {
+    logger.error('创建 Collection 失败:', error);
+    throw error;
+  }
+};
+
+/**
+ * 删除知识库的 collection
+ */
+export const deleteCollection = async (knowledgeId: number): Promise<void> => {
+  try {
+    const client = getVectorDBClient();
+    const collectionName = getCollectionName(knowledgeId);
+
+    await client.deleteCollection(collectionName);
+    logger.info(`删除 Collection 成功: ${collectionName}`);
+  } catch (error) {
+    logger.error('删除 Collection 失败:', error);
+    throw error;
+  }
+};
 
 /**
  * 添加文档嵌入
  */
 export const addDocumentEmbedding = async (
-  noteId: number,
+  documentId: number,
+  knowledgeId: number,
   embedding: number[],
   metadata: Record<string, any>,
 ): Promise<void> => {
   try {
     const client = getVectorDBClient();
-    const collection = await client.getOrCreateCollection({
-      name: getCollectionName(),
+    const collectionName = getCollectionName(knowledgeId);
+
+    logger.info(`准备添加文档嵌入: collection=${collectionName}, docId=doc_${documentId}, vectorDim=${embedding.length}`);
+
+    await client.upsert(collectionName, {
+      wait: true,
+      points: [
+        {
+          id: documentId,
+          vector: embedding,
+          payload: {
+            ...metadata,
+            documentId,
+            knowledgeId,
+          },
+        },
+      ],
     });
 
-    await collection.add({
-      ids: [`note_${noteId}`],
-      embeddings: [embedding],
-      metadatas: [{ ...metadata, noteId }],
-    });
-  } catch (error) {
-    console.error('添加文档嵌入失败:', error);
+    logger.info(`添加文档嵌入成功: doc_${documentId}`);
+  } catch (error: any) {
+    const errorDetail = error.response?.data || error;
+    logger.error('添加文档嵌入失败:', JSON.stringify(errorDetail, null, 2));
     throw error;
   }
 };
@@ -34,29 +108,40 @@ export const addDocumentEmbedding = async (
  * 更新文档嵌入
  */
 export const updateDocumentEmbedding = async (
-  noteId: number,
+  documentId: number,
+  knowledgeId: number,
   embedding: number[],
   metadata: Record<string, any>,
 ): Promise<void> => {
   try {
     const client = getVectorDBClient();
-    const collection = await client.getOrCreateCollection({
-      name: getCollectionName(),
+    const collectionName = getCollectionName(knowledgeId);
+
+    // 先删除旧的
+    await client.delete(collectionName, {
+      wait: true,
+      points: [documentId],
     });
 
-    // 删除旧嵌入
-    await collection.delete({
-      ids: [`note_${noteId}`],
+    // 再添加新的
+    await client.upsert(collectionName, {
+      wait: true,
+      points: [
+        {
+          id: documentId,
+          vector: embedding,
+          payload: {
+            ...metadata,
+            documentId,
+            knowledgeId,
+          },
+        },
+      ],
     });
 
-    // 添加新嵌入
-    await collection.add({
-      ids: [`note_${noteId}`],
-      embeddings: [embedding],
-      metadatas: [{ ...metadata, noteId }],
-    });
+    logger.info(`更新文档嵌入成功: doc_${documentId}`);
   } catch (error) {
-    console.error('更新文档嵌入失败:', error);
+    logger.error('更新文档嵌入失败:', error);
     throw error;
   }
 };
@@ -64,18 +149,22 @@ export const updateDocumentEmbedding = async (
 /**
  * 删除文档嵌入
  */
-export const deleteDocumentEmbedding = async (noteId: number): Promise<void> => {
+export const deleteDocumentEmbedding = async (
+  documentId: number,
+  knowledgeId: number,
+): Promise<void> => {
   try {
     const client = getVectorDBClient();
-    const collection = await client.getOrCreateCollection({
-      name: getCollectionName(),
+    const collectionName = getCollectionName(knowledgeId);
+
+    await client.delete(collectionName, {
+      wait: true,
+      points: [documentId],
     });
 
-    await collection.delete({
-      ids: [`note_${noteId}`],
-    });
+    logger.info(`删除文档嵌入成功: doc_${documentId}`);
   } catch (error) {
-    console.error('删除文档嵌入失败:', error);
+    logger.error('删除文档嵌入失败:', error);
     throw error;
   }
 };
@@ -84,77 +173,83 @@ export const deleteDocumentEmbedding = async (noteId: number): Promise<void> => 
  * 语义搜索
  */
 export const semanticSearch = async (
+  knowledgeId: number,
   queryEmbedding: number[],
   topK = 5,
 ): Promise<
   Array<{
     id: string;
     score: number;
-    metadata: Record<string, any>;
+    payload: Record<string, any>;
   }>
 > => {
   try {
     const client = getVectorDBClient();
-    const collection = await client.getOrCreateCollection({
-      name: getCollectionName(),
+    const collectionName = getCollectionName(knowledgeId);
+
+    const results = await client.search(collectionName, {
+      vector: queryEmbedding,
+      limit: topK,
+      with_payload: true,
     });
 
-    const results = await collection.query({
-      queryEmbeddings: [queryEmbedding],
-      nResults: topK,
-    });
-
-    if (!results || !results.ids || results.ids.length === 0) {
-      return [];
-    }
-
-    // 格式化搜索结果
-    return results.ids[0].map((id, index) => ({
-      id,
-      score: 1 - (results.distances?.[0]?.[index] || 0),
-      metadata: results.metadatas?.[0]?.[index] || {},
+    return results.map((point: any) => ({
+      id: point.id,
+      score: point.score,
+      payload: point.payload || {},
     }));
   } catch (error) {
-    console.error('语义搜索失败:', error);
+    logger.error('语义搜索失败:', error);
     throw error;
   }
 };
 
 /**
- * 获取集合中的文档数量
+ * 获取 collection 中的文档数量
+ * @param knowledgeId 知识库 ID（可选，不传则返回 0）
  */
-export const getCollectionCount = async (): Promise<number> => {
+export const getCollectionCount = async (knowledgeId?: number): Promise<number> => {
+  if (knowledgeId === undefined) {
+    return 0;
+  }
   try {
     const client = getVectorDBClient();
-    const collection = await client.getOrCreateCollection({
-      name: getCollectionName(),
-    });
+    const collectionName = getCollectionName(knowledgeId);
 
-    return await collection.count();
+    const info = await client.getCollection(collectionName);
+    return info.points_count || 0;
   } catch (error) {
-    console.error('获取文档数量失败:', error);
+    logger.error('获取文档数量失败:', error);
     throw error;
   }
 };
 
 /**
- * 清空集合
+ * 清空 collection
+ * @param knowledgeId 知识库 ID（必填）
  */
-export const clearCollection = async (): Promise<void> => {
+export const clearCollection = async (knowledgeId: number): Promise<void> => {
   try {
     const client = getVectorDBClient();
-    const collection = await client.getOrCreateCollection({
-      name: getCollectionName(),
-    });
+    const collectionName = getCollectionName(knowledgeId);
 
-    const count = await collection.count();
-    if (count > 0) {
-      // 获取所有 ID 并删除
-      const allIds = Array.from({ length: count }, (_, i) => `temp_${i}`);
-      await collection.delete({ ids: allIds });
+    // 获取所有 points 并删除
+    const info = await client.getCollection(collectionName);
+    if (info.points_count && info.points_count > 0) {
+      const scrollResult = await client.scroll(collectionName, { limit: 100 });
+      const ids = (scrollResult as any).result?.map((point: any) => point.id) || [];
+
+      if (ids.length > 0) {
+        await client.delete(collectionName, {
+          wait: true,
+          points: ids,
+        });
+      }
     }
+
+    logger.info(`清空 Collection 成功: ${collectionName}`);
   } catch (error) {
-    console.error('清空集合失败:', error);
+    logger.error('清空 Collection 失败:', error);
     throw error;
   }
 };

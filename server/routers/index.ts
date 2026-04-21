@@ -1,7 +1,7 @@
 import express from 'express';
 import { imageOcr, uploadFile } from '../controllers/common-controller';
+import { addToKnowledge } from '../controllers/docs-associate-controller';
 import { isInstalled, saveConfig } from '../controllers/install-controller';
-import { success } from '../utils/response';
 import { createUser, userLogin, updateUser } from '../controllers/user-controller';
 import { createCate, getCateInfo, getCates, updateCate, deleteCate } from '../controllers/cate-controller';
 import {
@@ -32,10 +32,8 @@ import {
   moveNote,
   getNoteCounts,
   searchNotes,
-  addNoteToKnowledge,
 } from '../controllers/note-controller';
 import {
-  uploadDocs,
   createDocs,
   getDocsInfo,
   getDocsList,
@@ -69,14 +67,20 @@ import {
   removeArticle,
   searchArticles,
   getArticleCounts,
+} from '../controllers/article-controller';
+
+import {
   createArticleCate,
   getArticleCates,
   updateArticleCate,
   deleteArticleCate,
+} from '../controllers/article-cate-controller';
+
+import {
   getTempArticles,
   deleteTempArticle,
   importTempArticle,
-} from '../controllers/article-controller';
+} from '../controllers/temp-article-controller';
 
 const router = express.Router();
 
@@ -116,10 +120,8 @@ router.post('/note/update', updateNote);
 router.get('/note/detail', getNoteInfo);
 router.post('/note/move', moveNote);
 router.get('/note/delete', removeNote);
-router.get('/note/addToKnowledge', addNoteToKnowledge);
 
 // 文档相关
-router.post('/docs/upload', uploadDocs);
 router.post('/docs/create', createDocs);
 router.get('/docs/getList', getDocsList);
 router.post('/docs/update', updateDocs);
@@ -176,5 +178,7 @@ router.get('/article_cate/delete', deleteArticleCate);
 router.get('/temp_article/list', getTempArticles);
 router.get('/temp_article/delete', deleteTempArticle);
 router.post('/temp_article/import', importTempArticle);
+
+router.post('/knowledge/addToKnowledge', addToKnowledge);
 
 export default router;

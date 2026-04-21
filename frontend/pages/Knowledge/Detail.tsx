@@ -27,12 +27,7 @@ const Detail: React.FC<DetailProps> = (props) => {
         // 先获取文档信息
         const infoResponse = await request.get(`/docs/info?id=${selectedDocument.id}`);
         const docInfo = infoResponse.data;
-        if (docInfo && docInfo.path) {
-          // 在 Electron 环境下，可以通过 preload 暴露的接口来读取文件
-          // 这里暂时使用空内容，后续可以通过 Electron API 来读取
-          // TODO: 通过 Electron bridge 读取本地文件
-          setContent('');
-        }
+        setContent(docInfo.content || '');
       } catch (error) {
         console.error('加载文档内容失败:', error);
         setContent('');
@@ -64,8 +59,8 @@ const Detail: React.FC<DetailProps> = (props) => {
             onChange={(val) => setContent(val || '')}
             preview="preview"
             hideToolbar={true}
-            height="100%"
-            style={{ minHeight: '400px' }}
+            height={600}
+            style={{ width: '100%' }}
           />
         </Spin>
       </div>

@@ -32,6 +32,8 @@ const KnowBase: React.FC = () => {
         setNewKnowledgeDesc('');
         // 刷新列表
         await getKnowledgeList();
+        // 选中刚刚创建的知识库
+        setCurrentKnowledge(response.data);
       } else {
         message.error(response.message || '创建失败');
       }
@@ -52,6 +54,17 @@ const KnowBase: React.FC = () => {
         message.success('知识库删除成功');
         // 重新获取列表
         await getKnowledgeList();
+        // 优先选中被删除的前一个知识库，如果前一个知识库不存在则选中后一个，如果完全没有知识库了，不选中任何知识库
+        if (currentKnowledge?.id === id) {
+          const currentIndex = knowledgeList.findIndex((item) => item.id === id);
+          if (currentIndex > 0) {
+            setCurrentKnowledge(knowledgeList[currentIndex - 1]);
+          } else if (knowledgeList.length > 1) {
+            setCurrentKnowledge(knowledgeList[1]);
+          } else {
+            setCurrentKnowledge(null);
+          }
+        }
       } else {
         message.error(response.message || '删除失败');
       }

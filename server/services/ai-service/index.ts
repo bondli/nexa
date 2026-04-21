@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { loadLLMConfig, saveLLMConfig, getDefaultBaseUrl } from './config/llm-config';
 
-// 兼容旧 API - generateEmbedding, chat, summarize, setAPIKey, getAPIKey
+// 兼容旧 API - chat, summarize, setAPIKey, getAPIKey
 export type { LLMConfig } from './config/llm-config';
 
 // Agent 模块
@@ -12,35 +12,6 @@ export type { AgentConfig, StreamCallback as AgentStreamCallback, ToolCall } fro
 // Human-in-the-loop 模块
 export { HumanInTheLoopManager, getHumanInTheLoopManager } from './agent/human-in-loop';
 export type { HumanInTheLoopState, PendingTask } from './agent/human-in-loop';
-
-/**
- * 生成文本嵌入向量 - 使用配置文件中的 API
- */
-export const generateEmbedding = async (text: string): Promise<number[]> => {
-  const config = loadLLMConfig();
-  const baseUrl = config.baseUrl || getDefaultBaseUrl(config.provider);
-
-  try {
-    const response = await axios.post(
-      `${baseUrl}/embeddings`,
-      {
-        model: 'text-embedding-3-small',
-        input: text,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${config.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-
-    return response.data.data[0].embedding;
-  } catch (error) {
-    console.error('生成嵌入向量失败:', error);
-    throw new Error('生成嵌入向量失败');
-  }
-};
 
 /**
  * 设置 API Key - 保存到配置文件

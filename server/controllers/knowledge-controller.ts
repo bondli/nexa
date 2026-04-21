@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import logger from 'electron-log';
 import Knowledge from '../models/Knowledge';
+import Docs from '../models/Docs';
 import { success, notFound, badRequest, serverError } from '../utils/response';
+import { createCollection, deleteCollection } from '../services/vector-store-service';
 
 /**
  * 获取所有知识库
@@ -65,6 +67,13 @@ export const createKnowledge = async (req: Request, res: Response): Promise<void
       counts: 0,
     });
 
+    // 创建知识库后，在 Qdrant 中创建对应的 collection
+    try {
+      await createCollection(result.id);
+    } catch (collectionError) {
+      logger.error('创建 Qdrant Collection 失败:', collectionError);
+    }
+
     success(res, result.toJSON());
   } catch (error: any) {
     logger.error('Error on creating Knowledge:', error.message || error);
@@ -106,15 +115,28 @@ export const updateKnowledge = async (req: Request, res: Response): Promise<void
 export const deleteKnowledge = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.query;
-    const result = await Knowledge.findByPk(Number(id));
+    const knowledgeId = Number(id);
+    const result = await Knowledge.findByPk(knowledgeId);
 
     if (!result) {
       notFound(res, '知识库不存在');
       return;
     }
 
+    // 先删除该知识库下的所有文档（MySQL）
+    await Docs.destroy({
+      where: { knowledgeId },
+    });
+
     // 删除知识库
     await result.destroy();
+
+    // 删除 Qdrant 中对应的 collection
+    try {
+      await deleteCollection(knowledgeId);
+    } catch (collectionError) {
+      logger.error('删除 Qdrant Collection 失败:', collectionError);
+    }
 
     success(res, null, '知识库删除成功');
   } catch (error) {
