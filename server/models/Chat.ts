@@ -9,12 +9,13 @@ interface ChatAttributes {
   sessionId: string;
   title: string;
   userId: number;
+  cateId: number | null;
 }
 
 /**
  * Chat 创建时的可选属性
  */
-interface ChatCreationAttributes extends Optional<ChatAttributes, 'id'> {}
+interface ChatCreationAttributes extends Optional<ChatAttributes, 'id' | 'cateId'> {}
 
 /**
  * Chat 会话模型实例接口
@@ -43,6 +44,11 @@ const Chat = sequelize.define<ChatInstance, ChatCreationAttributes>(
       comment: '用户id',
       type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    cateId: {
+      comment: '分组id',
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
   },
   {

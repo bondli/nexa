@@ -1,0 +1,83 @@
+.chatCateContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+
+  .cateTitleRow {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: var(--ant-color-text-description);
+  }
+
+  // 分组列表
+  .cateList {
+    width: 100%;
+    padding: 4px 0;
+  }
+
+  .cateItem {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+
+  .cateIcon {
+    margin-right: 8px;
+  }
+
+  .cateName {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cateCount {
+    margin: 0 4px;
+    font-size: 12px;
+    color: #999;
+  }
+}
+
+.tips {
+  font-size: 12px;
+  color: #9c9c9c;
+  padding-top: 4px;
+}
+
+.chatListContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  .list {
+    width: 100%;
+    padding: 12px 0;
+    // 隐藏滚动条但保持滚动功能
+    &::-webkit-scrollbar {
+      width: 0;
+      background: transparent;
+    }
+
+    // Firefox
+    scrollbar-width: none;
+
+    // IE
+    -ms-overflow-style: none;
+  }
+}

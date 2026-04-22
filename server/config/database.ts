@@ -54,6 +54,8 @@ const setupAssociations = (): void => {
   const Cate = require('../models/Cate').default;
   const Knowledge = require('../models/Knowledge').default;
   const Docs = require('../models/Docs').default;
+  const Chat = require('../models/Chat').default;
+  const ChatCate = require('../models/ChatCate').default;
 
   // 用户关联笔记
   User.hasMany(Note, { foreignKey: 'userId', as: 'notes' });
@@ -84,6 +86,18 @@ const setupAssociations = (): void => {
   // 笔记关联知识库文档
   Note.hasMany(Docs, { foreignKey: 'noteId', as: 'documents' });
   Docs.belongsTo(Note, { foreignKey: 'noteId', as: 'note' });
+
+  // 用户关联聊天会话分组
+  User.hasMany(ChatCate, { foreignKey: 'userId', as: 'chatCates' });
+  ChatCate.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+  // 用户关联聊天会话
+  User.hasMany(Chat, { foreignKey: 'userId', as: 'chats' });
+  Chat.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+  // 分组关联会话
+  ChatCate.hasMany(Chat, { foreignKey: 'cateId', as: 'chats' });
+  Chat.belongsTo(ChatCate, { foreignKey: 'cateId', as: 'chatCate' });
 };
 
 // 测试数据库连接

@@ -4,6 +4,7 @@ import { generateUUID, sleep } from '@commons/utils';
 import { MainContext } from '@commons/context';
 import { API_BASE_URL } from '@commons/constant';
 import { ChatBoxContext, ChatBoxProvider } from './context';
+import ChatCate from './ChatCate';
 import ChatHistory from './ChatHistory';
 import MessageList from './MessageList';
 import NewChatButton from './NewChatButton';
@@ -18,7 +19,7 @@ const ChatBoxPage: React.FC = () => {
   const { currentChat, setMessageList, abortController, setMessageProcessing, conversationId, setConversationId } =
     useContext(ChatBoxContext);
 
-  // 新会话
+  // 新对话
   const handleNewChat = () => {
     setConversationId(generateUUID());
   };
@@ -27,9 +28,9 @@ const ChatBoxPage: React.FC = () => {
   const submitMessage = async (msg: string, action?: string) => {
     setMessageProcessing(true);
 
-    // 获取sessionId的顺序：当前选中的会话 --> 新生成的会话ID --> 临时分配一个
+    // 获取sessionId的顺序：当前选中的对话 --> 新生成的对话ID --> 临时分配一个
     let finalSessionId = currentChat?.sessionId || conversationId || '';
-    // 首次进入可能没有conversationId，系统给他补一个，当着是新会话
+    // 首次进入可能没有conversationId，系统给他补一个，当着是新对话
     if (!finalSessionId) {
       finalSessionId = generateUUID();
       setConversationId(finalSessionId);
@@ -165,11 +166,12 @@ const ChatBoxPage: React.FC = () => {
   return (
     <Layout className={style.container}>
       <Sider trigger={null} collapsible theme={'light'} width={260} className={style.sider}>
-        {/* 新会话 */}
+        {/* 新对话 */}
         <NewChatButton text={'New Chat'} size={'large'} type={'default'} width={'100%'} onClick={handleNewChat} />
 
-        {/* 会话列表 */}
+        {/* 对话列表 */}
         <div className={style.list}>
+          <ChatCate />
           <ChatHistory />
         </div>
       </Sider>

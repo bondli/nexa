@@ -1,37 +1,26 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useState } from 'react';
 import { FileDoneOutlined, EditOutlined, DragOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { GetProp } from 'antd';
 import { App, Empty, Input, Modal, Select } from 'antd';
 import type { ConversationsProps } from '@ant-design/x';
 import { Conversations } from '@ant-design/x';
-import dayjs from 'dayjs';
 import request from '@commons/request';
-import { ChatObject } from '../constant';
+import { ChatObject, ChatCateObject } from '../constant';
 import { ChatBoxContext } from '../context';
 import style from './index.module.less';
 
-// 判断日期属于哪个分组
-const getTimeGroup = (dateStr?: string): string => {
-  if (!dateStr) return '更早';
-
-  const date = dayjs(dateStr);
-  const now = dayjs();
-  const today = now.startOf('day');
-  const sevenDaysAgo = today.subtract(7, 'day');
-
-  if (date.isAfter(today) || date.isSame(today, 'day')) {
-    return '今天';
-  } else if (date.isAfter(sevenDaysAgo)) {
-    return '近七天';
-  } else {
-    return '更早';
-  }
+type CateDetailProps = {
+  selectedCate: ChatCateObject | null;
+  chatList: ChatObject[];
+  onSelected?: (chat: ChatObject) => void;
+  onUpdated?: () => void;
 };
 
-const ChatHistory: React.FC = () => {
+const CateDetail: React.FC<CateDetailProps> = (props) => {
   const { message, modal } = App.useApp();
+  const { selectedCate, chatList, onSelected, onUpdated } = props;
 
-  const { currentChat, setCurrentChat, chatList, getChatList, chatCates, getChatCateList } = useContext(ChatBoxContext);
+  const { currentChat, setCurrentChat, chatCates } = useContext(ChatBoxContext);
 
   const [renameText, setRenameText] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,18 +29,12 @@ const ChatHistory: React.FC = () => {
   const [showMovePanel, setShowMovePanel] = useState(false);
   const [moveToCateId, setMoveToCateId] = useState(0);
 
-  // 获取对话列表
-  useEffect(() => {
-    getChatList();
-  }, []);
-
-  // 构建对话菜单项（带时间分组）
+  // 构建对话菜单项
   const buildConversationItems = (chats: ChatObject[]): GetProp<ConversationsProps, 'items'> => {
     return chats.map((item) => ({
       label: item.title,
       key: item.sessionId,
       icon: <FileDoneOutlined style={{ fontSize: '16px' }} />,
-      group: getTimeGroup(item.updatedAt || item.createdAt),
     }));
   };
 
@@ -59,7 +42,7 @@ const ChatHistory: React.FC = () => {
   const handleChatSelect = (key) => {
     chatList.forEach((item) => {
       if (item.sessionId == key && item.sessionId !== currentChat?.sessionId) {
-        setCurrentChat(item as ChatObject);
+        onSelected(item as ChatObject);
       }
     });
   };
@@ -70,9 +53,8 @@ const ChatHistory: React.FC = () => {
       sessionId,
     });
     if (response.code === 0) {
-      getChatList();
-      setCurrentChat(null);
       message.success('该对话成功被删除了');
+      onUpdated();
     } else {
       message.error('删除失败，请稍后再试');
     }
@@ -85,8 +67,8 @@ const ChatHistory: React.FC = () => {
       title,
     });
     if (response.code === 0) {
-      getChatList();
       setIsModalOpen(false);
+      onUpdated();
     } else {
       message.error('改名失败，请稍后再试');
     }
@@ -104,13 +86,12 @@ const ChatHistory: React.FC = () => {
       cateId: moveToCateId,
     });
     if (response.code === 0) {
-      getChatList();
-      getChatCateList();
       message.success('移动成功');
       // 如果当前选中的对话和操作的对话相同，需要将当前选中的对话清掉
       if (operateSessionId === currentChat?.sessionId) {
         setCurrentChat(null);
       }
+      onUpdated();
     } else {
       message.error('移动失败，请稍后再试');
     }
@@ -170,7 +151,6 @@ const ChatHistory: React.FC = () => {
           items={buildConversationItems(chatList)}
           onActiveChange={handleChatSelect}
           className={style.list}
-          groupable
         />
       ) : (
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={'暂无对话'} />
@@ -211,7 +191,7 @@ const ChatHistory: React.FC = () => {
             style={{ width: 160 }}
           >
             {chatCates.map((item) => {
-              if (item.id !== currentChat?.cateId) {
+              if (item.id !== selectedCate?.id) {
                 return (
                   <Select.Option value={item.id} key={item.id}>
                     {item.name}
@@ -226,4 +206,4 @@ const ChatHistory: React.FC = () => {
   );
 };
 
-export default memo(ChatHistory);
+export default memo(CateDetail);

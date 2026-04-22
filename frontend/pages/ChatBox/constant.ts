@@ -1,4 +1,4 @@
-// 会话
+// 对话
 export type ChatObject = {
   id: number | string;
   sessionId: string;
@@ -6,6 +6,19 @@ export type ChatObject = {
   icon: React.ReactNode;
   isVirtual?: boolean;
   orders?: number;
+  cateId?: number | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+// 聊天分组
+export type ChatCateObject = {
+  id: number;
+  name: string;
+  counts: number;
+  userId: number;
+  createdAt: string;
+  updatedAt: string;
 };
 
 // 消息

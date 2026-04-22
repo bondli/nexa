@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import logger from 'electron-log';
 import Chat from '../models/Chat';
+import ChatCate from '../models/ChatCate';
 import { getMessages as getAllMessages, deleteMessages } from '../services/chat-service';
 import { createAgent, loadLLMConfig } from '../services/ai-service';
 import { success, successWithPage, notFound, badRequest, serverError } from '../utils/response';
@@ -38,14 +39,15 @@ export const getChatInfo = async (req: Request, res: Response) => {
   }
 };
 
-// 查询所有会话
+// 查询所有会话（查询所有未分组的会话）
 export const getChats = async (req: Request, res: Response) => {
   const userId = Number(req.headers['x-user-id']) || 0;
   try {
     const { count, rows } = await Chat.findAndCountAll({
-      where: { userId },
+      where: { userId, cateId: null },
       order: [['createdAt', 'DESC']],
     });
+
     successWithPage(res, rows || [], count || 0);
   } catch (error) {
     logger.error('Error on getting chats:', error);

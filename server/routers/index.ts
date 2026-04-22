@@ -58,6 +58,16 @@ import {
   chatToLLM,
 } from '../controllers/chat-controller';
 import {
+  getChatCateList,
+  addChatCate,
+  updateChatCate,
+  deleteChatCate,
+  getChatCateChats,
+  moveChatToCate,
+  deleteChatCateChat,
+  renameChatCateChat,
+} from '../controllers/chat-cate-controller';
+import {
   createArticle,
   getArticleInfo,
   getArticles,
@@ -158,6 +168,16 @@ router.post('/chat/update', updateChat);
 router.post('/chat/delete', deleteChat);
 router.get('/chat/msglist', getMessages);
 router.post('/chat/withllm', chatToLLM);
+router.post('/chat/move_to_cate', moveChatToCate);
+
+// 聊天会话分组
+router.get('/chat_cate/list', getChatCateList);
+router.post('/chat_cate/add', addChatCate);
+router.post('/chat_cate/update', updateChatCate);
+router.get('/chat_cate/delete', deleteChatCate);
+router.get('/chat_cate/chats', getChatCateChats);
+router.post('/chat_cate/chat/delete', deleteChatCateChat);
+router.post('/chat_cate/chat/rename', renameChatCateChat);
 
 // 文章相关
 router.post('/article/add', createArticle);
