@@ -129,16 +129,19 @@ export const updateArticle = async (req: Request, res: Response) => {
   try {
     const { id, title, desc, url, cateId, status, opType } = req.body;
     const result = await Article.findByPk(Number(id));
+    const operatorArticle = result.toJSON();
     if (result) {
       await result.update({ title, desc, url, cateId: Number(cateId), status });
 
       // 针对不同的操作类型，需要更新分类中的数量字段
-      if (opType === 'delete' || opType === 'restore') {
-        const operatorArticle = result.toJSON();
+      if (opType === 'delete' || opType === 'restore' || opType === 'move') {
         let updateNumCommand = '';
         if (opType === 'restore') {
           updateNumCommand = 'counts + 1';
         } else if (opType === 'delete') {
+          updateNumCommand = 'counts - 1';
+        } else if (opType === 'move') {
+          // 源分类减1
           updateNumCommand = 'counts - 1';
         }
         const cateResult = await ArticleCate.findByPk(Number(operatorArticle.cateId));
@@ -153,6 +156,21 @@ export const updateArticle = async (req: Request, res: Response) => {
               },
             },
           );
+        if (opType === 'move') { // 移动文章时，需要同时更新源分类和目标分类的计数
+          // 目标分类加1
+          const targetCateResult = await ArticleCate.findByPk(Number(cateId));
+          targetCateResult &&
+            targetCateResult.update(
+              {
+                counts: Sequelize.literal('counts + 1'),
+              },
+              {
+                where: {
+                  id: cateId,
+                },
+              },
+            );
+        }
       }
       success(res, result.toJSON());
     } else {
