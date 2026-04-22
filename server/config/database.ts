@@ -1,9 +1,6 @@
-import fs from 'fs';
 import { Sequelize } from 'sequelize';
 import logger from 'electron-log';
-import { getConfigPath, ensureConfigDir } from './setting';
-
-const configPath = getConfigPath();
+import { getDatabaseConfig } from '../services/config-service';
 
 // 读取配置
 const loadConfig = (): {
@@ -13,14 +10,19 @@ const loadConfig = (): {
   DB_USERNAME: string;
   DB_PASSWORD: string;
 } => {
-  ensureConfigDir();
-  if (fs.existsSync(configPath)) {
-    try {
-      return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-    } catch (error) {
-      logger.error('读取配置文件失败，使用默认配置:', error);
-    }
+  const dbConfig = getDatabaseConfig();
+
+  if (dbConfig && dbConfig.DB_HOST && dbConfig.DB_PORT && dbConfig.DB_NAME) {
+    return {
+      DB_HOST: dbConfig.DB_HOST,
+      DB_PORT: dbConfig.DB_PORT,
+      DB_NAME: dbConfig.DB_NAME,
+      DB_USERNAME: dbConfig.DB_USERNAME || 'root',
+      DB_PASSWORD: dbConfig.DB_PASSWORD || '',
+    };
   }
+
+  // 返回默认配置
   return {
     DB_HOST: 'localhost',
     DB_PORT: 3306,

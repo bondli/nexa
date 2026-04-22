@@ -1,7 +1,5 @@
-import path from 'path';
-import os from 'os';
-import fs from 'fs';
 import { QdrantClient } from '@qdrant/js-client-rest';
+import { getQdrantConfig as getConfigFromService } from '../services/config-service';
 
 let qdrantClient: QdrantClient | null = null;
 
@@ -14,25 +12,12 @@ export interface QdrantConfig {
 }
 
 /**
- * 获取 Qdrant 配置文件路径
- */
-export const getQdrantConfigPath = (): string => {
-  const homeDir = os.homedir();
-  return path.join(homeDir, '.nexa', 'qdrant.json');
-};
-
-/**
  * 读取 Qdrant 配置
  */
 export const getQdrantConfig = (): QdrantConfig => {
-  const configPath = getQdrantConfigPath();
-  try {
-    if (fs.existsSync(configPath)) {
-      const data = fs.readFileSync(configPath, 'utf-8');
-      return JSON.parse(data);
-    }
-  } catch (error) {
-    console.error('读取 Qdrant 配置失败:', error);
+  const config = getConfigFromService();
+  if (config && config.url) {
+    return config as QdrantConfig;
   }
   return { url: '' };
 };

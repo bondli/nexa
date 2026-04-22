@@ -1,57 +1,38 @@
 import { Request, Response, NextFunction } from 'express';
-import { setAPIKey, getAPIKey } from '../services/ai-service';
-import { getCollectionCount } from '../services/vector-store-service';
+import { getConfig, saveConfig, UnifiedConfig } from '../services/config-service';
 import { success, badRequest } from '../utils/response';
 
 /**
- * 获取当前设置
+ * 获取统一配置
  */
-export const getSettings = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getAllSettings = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const apiKey = getAPIKey();
-    const vectorDBCount = await getCollectionCount();
-
-    success(res, {
-      apiKey: apiKey ? '******' : '',
-      hasApiKey: !!apiKey,
-      vectorDBCount,
-    });
+    const config = getConfig();
+    success(res, config);
   } catch (error) {
     next(error);
   }
 };
 
 /**
- * 更新 AI API Key
+ * 保存统一配置
  */
-export const updateAPIKey = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const saveAllSettings = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { apiKey } = req.body;
+    const config: UnifiedConfig = req.body;
 
-    if (!apiKey) {
-      badRequest(res, '缺少 API Key');
+    if (!config || typeof config !== 'object') {
+      badRequest(res, '配置格式错误');
       return;
     }
 
-    setAPIKey(apiKey);
+    const success_result = saveConfig(config);
 
-    success(res, null, 'API Key 更新成功');
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * 获取向量数据库状态
- */
-export const getVectorDBStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const count = await getCollectionCount();
-
-    success(res, {
-      count,
-      status: count > 0 ? 'active' : 'empty',
-    });
+    if (success_result) {
+      success(res, null, '配置保存成功');
+    } else {
+      badRequest(res, '配置保存失败');
+    }
   } catch (error) {
     next(error);
   }

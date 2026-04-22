@@ -4,7 +4,8 @@ import axios from 'axios';
 import logger from 'electron-log';
 import Picture from '../models/Picture';
 import Docs from '../models/Docs';
-import { getConfigPath, ensureConfigDir, getApiConfig } from '../config/setting';
+
+import { getCloudApiConfig, getConfigFilePath } from './config-service';
 
 // 云端配置
 interface CloudConfig {
@@ -31,13 +32,13 @@ interface SyncQueue {
 }
 
 /**
- * 获取云端配置（从 ~/.nexa/api.json 读取）
+ * 获取云端配置（从统一配置读取）
  */
 const getCloudConfig = (): CloudConfig => {
-  const apiConfig = getApiConfig();
+  const apiConfig = getCloudApiConfig();
   return {
-    apiKey: apiConfig.cloudSyncApiKey || '',
-    endpoint: apiConfig.cloudSyncEndpoint || '',
+    apiKey: apiConfig?.apiKey || '',
+    endpoint: apiConfig?.endpoint || '',
   };
 };
 
@@ -45,7 +46,7 @@ const getCloudConfig = (): CloudConfig => {
  * 获取队列文件路径
  */
 const getQueueFilePath = (): string => {
-  return path.join(path.dirname(getConfigPath()), 'sync-queue.json');
+  return path.join(path.dirname(getConfigFilePath()), 'sync-queue.json');
 };
 
 /**
@@ -69,8 +70,11 @@ const readSyncQueue = (): SyncQueue => {
  */
 const writeSyncQueue = (queue: SyncQueue): void => {
   const queuePath = getQueueFilePath();
-  ensureConfigDir();
   try {
+    const dir = path.dirname(queuePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
     fs.writeFileSync(queuePath, JSON.stringify(queue, null, 2), 'utf-8');
   } catch (error) {
     logger.error('写入同步队列失败:', error);

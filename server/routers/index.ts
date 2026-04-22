@@ -82,6 +82,8 @@ import {
   importTempArticle,
 } from '../controllers/temp-article-controller';
 
+import { getAllSettings, saveAllSettings } from '../controllers/settings-controller';
+
 const router = express.Router();
 
 // 初始化接口
@@ -180,5 +182,9 @@ router.get('/temp_article/delete', deleteTempArticle);
 router.post('/temp_article/import', importTempArticle);
 
 router.post('/knowledge/addToKnowledge', addToKnowledge);
+
+// 设置相关
+router.get('/settings/get', getAllSettings);
+router.post('/settings/save', saveAllSettings);
 
 export default router;

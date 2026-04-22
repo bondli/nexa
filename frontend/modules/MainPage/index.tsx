@@ -12,6 +12,7 @@ import { MainContext } from '@commons/context';
 import { deleteStore } from '@commons/electron';
 import User from '@components/User';
 import Logo from '@components/Logo';
+import Setting from '@components/Setting';
 import ChatBox from '@pages/ChatBox';
 import NoteBook from '@pages/NoteBook';
 import Knowledge from '@pages/Knowledge';
@@ -84,6 +85,7 @@ const MainPage: React.FC = () => {
 
         {/* 用户信息 */}
         <div className={style.user}>
+          <Setting />
           <User info={userInfo} onLogout={onLogout} hiddenText={true} />
         </div>
       </Sider>

@@ -4,11 +4,12 @@ import express from 'express';
 import cors from 'cors';
 import logger from 'electron-log';
 import { PORT } from './config/constant';
-import { getConfigPath } from './config/setting';
+
 import { testConnection, syncDatabase } from './config/database';
 import { initVectorDB } from './config/vectorDB';
 import router from './routers/index';
 import { initSyncQueue, startSyncScheduler } from './services/cloud-sync-service';
+import { getConfigFilePath } from './services/config-service';
 
 // 引入所有模型，确保数据库同步时能创建所有表
 import './models/User';
@@ -23,13 +24,13 @@ const app = express();
 
 // 检查是否已配置数据库
 const isDatabaseConfigured = (): boolean => {
-  const configPath = getConfigPath();
+  const configPath = getConfigFilePath();
   if (!fs.existsSync(configPath)) {
     return false;
   }
   try {
     const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-    return !!(config && config.DB_HOST);
+    return !!(config && config.database && config.database.DB_HOST);
   } catch {
     return false;
   }

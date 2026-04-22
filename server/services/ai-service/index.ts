@@ -1,8 +1,10 @@
 // 配置模块
 import axios from 'axios';
-import { loadLLMConfig, saveLLMConfig, getDefaultBaseUrl } from './config/llm-config';
 
-// 兼容旧 API - chat, summarize, setAPIKey, getAPIKey
+import { loadLLMConfig, getDefaultBaseUrl } from './config/llm-config';
+
+// 导出配置相关函数
+export { loadLLMConfig, getDefaultBaseUrl };
 export type { LLMConfig } from './config/llm-config';
 
 // Agent 模块
@@ -13,22 +15,6 @@ export type { AgentConfig, StreamCallback as AgentStreamCallback, ToolCall } fro
 export { HumanInTheLoopManager, getHumanInTheLoopManager } from './agent/human-in-loop';
 export type { HumanInTheLoopState, PendingTask } from './agent/human-in-loop';
 
-/**
- * 设置 API Key - 保存到配置文件
- */
-export const setAPIKey = (apiKey: string): void => {
-  const config = loadLLMConfig();
-  config.apiKey = apiKey;
-  saveLLMConfig(config);
-};
-
-/**
- * 获取 API Key - 从配置文件读取
- */
-export const getAPIKey = (): string => {
-  const config = loadLLMConfig();
-  return config.apiKey;
-};
 
 /**
  * 聊天功能 - 使用配置文件中的 API
@@ -163,6 +149,3 @@ export const optimizeText = async (text: string): Promise<string> => {
     return text;
   }
 };
-
-// 重新导出配置函数
-export { loadLLMConfig, saveLLMConfig, getDefaultBaseUrl } from './config/llm-config';
