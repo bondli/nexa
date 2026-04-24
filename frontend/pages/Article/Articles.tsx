@@ -162,7 +162,7 @@ const Articles: React.FC = () => {
       {/* 加载更多触发区域 */}
       <div ref={loadMoreRef} style={{ textAlign: 'center', padding: '16px 0' }}>
         {!articleHasMore && articleList.length > 0 && (
-          <span style={{ color: '#999' }}>没有更多数据了（共 {total} 条）</span>
+          <span style={{ color: 'var(--ant-color-text-description)' }}>没有更多数据了（共 {total} 条）</span>
         )}
       </div>
     </div>

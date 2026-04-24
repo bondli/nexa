@@ -27,6 +27,14 @@ const initIpcRenderer = () => {
     store.set(key, value);
   });
 
+  // 设置窗口背景色（用于 macOS 标题栏颜色）
+  ipcMain.on('set-window-background-color', (_, isDark: boolean) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      // macOS 上 hidden titleBarStyle 时，backgroundColor 控制标题栏区域颜色
+      mainWindow.setBackgroundColor(isDark ? '#18181b' : '#ffffff');
+    }
+  });
+
   ipcMain.on('getStore', (_, key) => {
     const value = store.get(key);
     _.returnValue = value || '';
@@ -144,6 +152,9 @@ const createWindow = () => {
     height: 800,
     minWidth: 1000,
     minHeight: 720,
+    // macOS 隐藏原生标题栏，使用自定义 React 标题栏
+    titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
+    backgroundColor: '#18181b', // 默认暗色
     webPreferences: {
       webSecurity: false,
       preload: path.join(__dirname, 'preload.js'),

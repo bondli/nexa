@@ -39,7 +39,7 @@ const MainPage: React.FC = () => {
       <Sider trigger={null} collapsible theme={'light'} width={80} className={style.sider}>
         {/* logo */}
         <div className={style.logo}>
-          <Logo mode={'dark'} title={'NEXA'} hiddenText={true} />
+          <Logo title={'NEXA'} hiddenText={true} />
         </div>
 
         <div className={style.list}>

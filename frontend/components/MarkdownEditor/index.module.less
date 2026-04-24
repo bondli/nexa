@@ -11,11 +11,13 @@
 
   :global(.w-md-editor) {
     height: 100% !important;
+    border: none !important;
+    background-color: var(--ant-color-bg-elevated);
   }
 
   :global(.w-md-editor-toolbar) {
-    border-bottom: 1px solid rgb(228, 228, 231);
-    background-color: #fafafa;
+    border-bottom: 1px solid var(--ant-color-border);
+    background-color: var(--ant-color-bg-elevated);
   }
 
   // 覆盖 toolbar 中按钮的字体大小（包括 H1/H2/H3 等标题按钮）
@@ -41,14 +43,14 @@
   }
 
   :global(.w-md-editor-preview pre) {
-    background-color: #f6f8fa;
+    background-color: var(--ant-color-bg-layout);
     border-radius: 4px;
     padding: 12px;
     overflow-x: auto;
   }
 
   :global(.w-md-editor-preview code) {
-    background-color: #f6f8fa;
+    background-color: var(--ant-color-bg-layout);
     border-radius: 3px;
     padding: 2px 6px;
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
@@ -61,10 +63,10 @@
   }
 
   :global(.w-md-editor-preview blockquote) {
-    border-left: 4px solid #dfe2e5;
+    border-left: 4px solid var(--ant-color-border);
     padding-left: 16px;
     margin-left: 0;
-    color: #6a737d;
+    color: var(--ant-color-text-secondary);
   }
 
   :global(.w-md-editor-preview img) {
@@ -73,7 +75,7 @@
   }
 
   :global(.w-md-editor-preview a) {
-    color: #0366d6;
+    color: var(--ant-color-primary);
     text-decoration: none;
   }
 

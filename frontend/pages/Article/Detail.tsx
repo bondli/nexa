@@ -6,7 +6,7 @@ import { format as timeAgoFormat } from 'timeago.js';
 import { throttle, debounce } from 'lodash-es';
 import request from '@commons/request';
 import { userLog } from '@commons/electron';
-import MarkdownEditor from '../NoteBook/MarkdownEditor/index';
+import MarkdownEditor from '@components/MarkdownEditor/index';
 import style from './index.module.less';
 
 // 3秒节流：频繁输入时最多每3秒保存一次

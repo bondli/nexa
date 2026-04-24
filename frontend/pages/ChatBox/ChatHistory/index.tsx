@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useState, useRef } from 'react';
 import { FileDoneOutlined, EditOutlined, DragOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { GetProp } from 'antd';
 import { App, Empty, Input, Modal, Select } from 'antd';
@@ -39,6 +39,8 @@ const ChatHistory: React.FC = () => {
 
   const [showMovePanel, setShowMovePanel] = useState(false);
   const [moveToCateId, setMoveToCateId] = useState(0);
+
+  const inputRef = useRef(null);
 
   // 获取对话列表
   useEffect(() => {
@@ -153,6 +155,10 @@ const ChatHistory: React.FC = () => {
         setRenameText(initRenameText);
         setOperateSessionId(sessionId);
         setIsModalOpen(true);
+        setTimeout(() => {
+          inputRef?.current?.focus();
+          inputRef?.current?.select();
+        }, 200);
       } else if (menuInfo.key === 'move') {
         setOperateSessionId(sessionId);
         setShowMovePanel(true);
@@ -187,6 +193,7 @@ const ChatHistory: React.FC = () => {
         <Input
           placeholder="请输入新的的对话名称"
           value={renameText}
+          ref={inputRef}
           onChange={(e) => setRenameText(e.target.value)}
           onPressEnter={() => handleRenameConversation(operateSessionId, renameText)}
         />

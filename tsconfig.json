@@ -26,7 +26,8 @@
       "@commons/*": ["./frontend/commons/*"],
       "@components/*": ["./frontend/components/*"],
       "@modules/*": ["./frontend/modules/*"],
-      "@pages/*": ["./frontend/pages/*"]
+      "@pages/*": ["./frontend/pages/*"],
+      "@utils/*": ["./frontend/utils/*"]
     }
   },
   "include": ["frontend", "electron", "server", "declare"]

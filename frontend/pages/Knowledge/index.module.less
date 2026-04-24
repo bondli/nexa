@@ -1,6 +1,6 @@
 // 页面主框架
 .sider {
-  border-right: 1px solid #f0f0f0;
+  border-right: 1px solid var(--ant-color-border);
 }
 
 .content {
@@ -26,7 +26,7 @@
     margin-bottom: 4px;
     .titleTips {
       font-size: 12px;
-      color: #9c9c9c;
+      color: var(--ant-color-text-secondary);
       padding-left: 4px;
       font-style: normal;
     }
@@ -43,12 +43,11 @@
   }
 
   .knowbaseCard:hover {
-    border-color: #1677ff;
+    border-color: var(--ant-color-primary);
   }
 
   .knowbaseCardActive {
-    border-color: #1677ff;
-    background: #e6f4ff;
+    border-color: var(--ant-color-primary);
   }
 
   .knowbaseCardContent {
@@ -65,7 +64,7 @@
 
   .knowbaseCardIcon {
     font-size: 18px;
-    color: #1677ff;
+    color: var(--ant-color-primary);
   }
 
   .knowbaseCardTitle {
@@ -79,7 +78,7 @@
 
   .knowbaseCardDelete {
     opacity: 0;
-    color: #ff4d4f;
+    color: var(--ant-color-error);
     cursor: pointer;
     transition: opacity 0.3s;
     font-size: 14px;
@@ -91,7 +90,7 @@
 
   .knowbaseCardDesc {
     font-size: 12px;
-    color: #8c8c8c;
+    color: var(--ant-color-text-secondary);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -105,15 +104,15 @@
 
   .knowbaseCardCount {
     font-size: 12px;
-    color: #8c8c8c;
+    color: var(--ant-color-text-secondary);
   }
 }
 
 // 文档头部「包含标题，搜索，上传」
 .knowHeader {
   height: 64px;
-  border-bottom: 1px solid #e5e5e5;
-  background-color: #fff;
+  border-bottom: 1px solid var(--ant-color-border);
+  background-color: var(--ant-color-bg-container);
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -142,7 +141,7 @@
 
 // 文档列表样式
 .documentsContainer {
-  background: #fff;
+  background: var(--ant-color-bg-container);
   padding: 16px;
   height: 100%;
 }
@@ -157,7 +156,7 @@
   }
 
   :global(.ant-card-actions) {
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--ant-color-border);
   }
 
   .documentCardContent {
@@ -175,7 +174,7 @@
 
   .documentCardIcon {
     font-size: 20px;
-    color: #1677ff;
+    color: var(--ant-color-primary);
     flex-shrink: 0;
   }
 
@@ -196,7 +195,7 @@
 
   .documentCardInfo {
     font-size: 12px;
-    color: #8c8c8c;
+    color: var(--ant-color-text-secondary);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -219,7 +218,7 @@
   .detailHeader {
     margin-bottom: 16px;
     padding-bottom: 12px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--ant-color-border);
   }
 
   .detailTitle {
@@ -230,5 +229,10 @@
 
   .detailContent {
     height: calc(100% - 50px);
+
+    // 去掉 MDEditor 的白色边框
+    :global(.w-md-editor) {
+      border: none !important;
+    }
   }
 }

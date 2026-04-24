@@ -55,6 +55,8 @@ export default defineConfig(({ command, mode }) => {
         '@components': getPath('frontend/components'),
         '@modules': getPath('frontend/modules'),
         '@pages': getPath('frontend/pages'),
+        '@services': getPath('frontend/services'),
+        '@utils': getPath('frontend/utils'),
       },
     },
     server: {

@@ -14,7 +14,7 @@ const MessageList: React.FC = () => {
   const scrollToBottom = useRef<any>(null);
   const lastScrollHeight = useRef<number>(0); // 记录上一次的 scrollHeight
 
-  const { messageList, currentChat, getChatList } = useContext(ChatBoxContext);
+  const { messageList, currentChat } = useContext(ChatBoxContext);
 
   useEffect(() => {
     if (!msgListWrapperRef.current) return;
@@ -96,7 +96,7 @@ const MessageList: React.FC = () => {
         role={{
           assistant: {
             placement: 'start',
-            avatar: <Avatar icon={<AliwangwangOutlined />} style={{ background: '#000' }} />,
+            avatar: <Avatar icon={<AliwangwangOutlined />} className={style.avatarAssistant} />,
             loadingRender: () => (
               <Space>
                 <Spin size="small" />
@@ -106,11 +106,11 @@ const MessageList: React.FC = () => {
           },
           system: {
             placement: 'start',
-            avatar: <Avatar icon={<AliwangwangOutlined />} style={{ background: '#000' }} />,
+            avatar: <Avatar icon={<AliwangwangOutlined />} className={style.avatarAssistant} />,
           },
           user: {
             placement: 'end',
-            avatar: <Avatar icon={<UserOutlined />} style={{ background: '#87d068' }} />,
+            avatar: <Avatar icon={<UserOutlined />} className={style.avatarUser} />,
           },
         }}
       />

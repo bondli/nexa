@@ -1,19 +1,19 @@
 // 页面主框架
 .sider {
-  border-right: 1px solid #e5e5e5;
+  border-right: 1px solid var(--ant-color-border);
 }
 .content {
   width: 100%;
   height: 100vh;
-  background-color: #fff;
+  background-color: var(--ant-color-bg-container);
   overflow: hidden;
 }
 
 // 文章头部「包含标题，搜索，新增」
 .noteHeader {
   height: 64px;
-  border-bottom: 1px solid #e5e5e5;
-  background-color: #fff;
+  border-bottom: 1px solid var(--ant-color-border);
+  background-color: var(--ant-color-bg-container);
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -44,7 +44,7 @@
 .listContainer {
   width: 100%;
   height: calc(100vh - 65px);
-  background-color: #fff;
+  background-color: var(--ant-color-bg-container);
   padding: 0 24px 16px 16px;
   overflow-y: scroll;
   scrollbar-width: none;
@@ -56,7 +56,7 @@
     .time {
       margin-top: 4px;
       padding-left: 14px;
-      color: #71717a;
+      color: var(--ant-color-text-secondary);
       font-size: 12px;
     }
   }
@@ -66,7 +66,7 @@
     align-items: flex-end;
     justify-content: center;
     .extraText {
-      color: #71717a;
+      color: var(--ant-color-text-secondary);
       font-size: 12px;
     }
     .extraActions {
@@ -89,7 +89,7 @@
 
   .titleContainer {
     height: 60px;
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid var(--ant-color-border);
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -103,7 +103,7 @@
       justify-content: center;
       align-items: flex-start;
       .titleTips {
-        color: #71717a;
+        color: var(--ant-color-text-secondary);
         font-size: 12px;
         margin-top: 4px;
       }
@@ -114,7 +114,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: flex-end;
-      color: #71717a;
+      color: var(--ant-color-text-secondary);
       font-size: 12px;
     }
   }
@@ -146,7 +146,7 @@
     margin-bottom: 4px;
     .titleTips {
       font-size: 12px;
-      color: #9c9c9c;
+      color: var(--ant-color-text-secondary);
       padding-left: 4px;
       font-style: normal;
     }
@@ -160,7 +160,7 @@
 
 .tips {
   font-size: 12px;
-  color: #9c9c9c;
+  color: var(--ant-color-text-secondary);
   padding-top: 4px;
 }
 
@@ -171,20 +171,20 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--ant-color-border);
     .tempUrl {
       flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      color: #1890ff;
+      color: var(--ant-color-primary);
       cursor: pointer;
       &:hover {
         text-decoration: underline;
       }
     }
     .tempTime {
-      color: #999;
+      color: var(--ant-color-text-secondary);
       font-size: 12px;
       margin-left: 16px;
     }
@@ -194,9 +194,9 @@
 // 文章列表中的 URL 图标
 .urlIcon {
   margin-left: 8px;
-  color: #1890ff;
+  color: var(--ant-color-primary);
   cursor: pointer;
   &:hover {
-    color: #40a9ff;
+    color: var(--ant-color-primary-hover);
   }
 }

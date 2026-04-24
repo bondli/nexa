@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { userLog, getStore } from '@commons/electron';
 import { MainContext } from '@commons/context';
+import ThemeProvider from '@components/ThemeProvider';
 import BootPage from './modules/BootPage';
 import UserPage from '@/modules/UserPage';
 import MainPage from '@/modules/MainPage';
@@ -43,7 +44,11 @@ const AppContainer: React.FC = () => {
     return <UserPage />;
   }
 
-  return <MainPage />;
+  return (
+    <ThemeProvider>
+      <MainPage />
+    </ThemeProvider>
+  );
 };
 
 export default AppContainer;

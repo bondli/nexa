@@ -1,0 +1,42 @@
+.titleBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 27px;
+  z-index: 9999;
+  // macOS traffic lights are at approximately (12, 12) and need ~70px width
+  // We use pointer-events: none on container but pointer-events: auto on children we want clickable
+}
+
+.dragRegion {
+  height: 100%;
+  // -webkit-app-region: drag makes this region draggable
+  -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+  padding-left: 70px; // Leave space for traffic lights
+  pointer-events: auto; // Allow clicks to pass through except for drag
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.dark {
+  background-color: #000000;
+
+  .title {
+    color: #ffffff;
+  }
+}
+
+.light {
+  background-color: #ffffff;
+
+  .title {
+    color: #000000;
+  }
+}

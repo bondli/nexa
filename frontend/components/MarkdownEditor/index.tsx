@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MDEditor, { commands, ICommand } from '@uiw/react-md-editor';
+import { getResolvedTheme } from '@utils/theme';
 import styles from './index.module.less';
 
 // 自定义标题命令，使用较小的字体
@@ -19,6 +20,7 @@ interface MarkdownEditorProps {
 
 const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ value, onChange, onBlur }) => {
   const [internalValue, setInternalValue] = useState(value);
+  const isDark = getResolvedTheme() === 'dark';
 
   // 当外部 value 变化时更新内部状态
   useEffect(() => {
@@ -35,7 +37,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ value, onChange, onBlur
   };
 
   return (
-    <div className={styles.container} data-color-mode="light" style={{ height: '100%' }}>
+    <div className={styles.container} style={{ height: '100%' }} data-color-mode={isDark ? 'dark' : 'light'}>
       <div className={styles.editorWrapper}>
         <MDEditor
           value={internalValue}

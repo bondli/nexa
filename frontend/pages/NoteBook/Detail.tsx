@@ -5,7 +5,7 @@ import { format as timeAgoFormat } from 'timeago.js';
 import { throttle, debounce } from 'lodash-es';
 import request from '@commons/request';
 import { userLog } from '@commons/electron';
-import MarkdownEditor from './MarkdownEditor/index';
+import MarkdownEditor from '@components/MarkdownEditor/index';
 import style from './index.module.less';
 
 // 将节流函数定义在组件外部，确保复用同一个实例

@@ -1,4 +1,3 @@
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { App, ConfigProvider, notification } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
@@ -28,6 +27,27 @@ notification.config({
   rtl: false,
 });
 
+// 共享的主题配置
+const themeConfig = {
+  token: {
+    colorPrimary: '#18181b',
+    colorPrimaryActive: 'rgb(24 24 27 / 80%)',
+    colorPrimaryHover: 'rgb(24 24 27 / 80%)',
+    borderRadius: 6,
+  },
+  components: {
+    Menu: {
+      itemHeight: 36,
+      itemSelectedColor: 'white',
+      itemSelectedBg: '#18181b',
+    },
+    Button: {
+      contentFontSizeSM: 12,
+      primaryShadow: '0',
+    },
+  },
+};
+
 // 判断是否为快速笔记窗口
 const isQuickNote = (): boolean => {
   const hash = window.location.hash;
@@ -46,18 +66,7 @@ const root = createRoot(document.getElementById('root'));
 if (isScreenshotCapture()) {
   root.render(
     <App>
-      <ConfigProvider
-        locale={zhCN}
-        input={{ autoComplete: 'off' }}
-        theme={{
-          token: {
-            colorPrimary: '#18181b',
-            colorPrimaryActive: 'rgb(24 24 27 / 80%)',
-            colorPrimaryHover: 'rgb(24 24 27 / 80%)',
-            borderRadius: 6,
-          },
-        }}
-      >
+      <ConfigProvider locale={zhCN} input={{ autoComplete: 'off' }} theme={themeConfig}>
         <CaptureSave />
       </ConfigProvider>
     </App>,
@@ -65,18 +74,7 @@ if (isScreenshotCapture()) {
 } else if (isQuickNote()) {
   root.render(
     <App>
-      <ConfigProvider
-        locale={zhCN}
-        input={{ autoComplete: 'off' }}
-        theme={{
-          token: {
-            colorPrimary: '#18181b',
-            colorPrimaryActive: 'rgb(24 24 27 / 80%)',
-            colorPrimaryHover: 'rgb(24 24 27 / 80%)',
-            borderRadius: 6,
-          },
-        }}
-      >
+      <ConfigProvider locale={zhCN} input={{ autoComplete: 'off' }} theme={themeConfig}>
         <QuickNote />
       </ConfigProvider>
     </App>,
@@ -84,29 +82,7 @@ if (isScreenshotCapture()) {
 } else {
   root.render(
     <App>
-      <ConfigProvider
-        locale={zhCN}
-        input={{ autoComplete: 'off' }}
-        theme={{
-          token: {
-            colorPrimary: '#18181b',
-            colorPrimaryActive: 'rgb(24 24 27 / 80%)',
-            colorPrimaryHover: 'rgb(24 24 27 / 80%)',
-            borderRadius: 6,
-          },
-          components: {
-            Menu: {
-              itemHeight: 36,
-              itemSelectedColor: 'white',
-              itemSelectedBg: '#18181b',
-            },
-            Button: {
-              contentFontSizeSM: 12,
-              primaryShadow: '0',
-            },
-          },
-        }}
-      >
+      <ConfigProvider locale={zhCN} input={{ autoComplete: 'off' }} theme={themeConfig}>
         <MainProvider>
           <AppContainer />
         </MainProvider>

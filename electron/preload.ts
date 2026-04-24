@@ -49,5 +49,10 @@ contextBridge.exposeInMainWorld('electron', {
     openExternalUrl(url: string) {
       ipcRenderer.send('open-external-url', url);
     },
+
+    // 设置窗口背景色（影响 macOS 标题栏颜色）
+    setWindowBackgroundColor(isDark: boolean) {
+      ipcRenderer.send('set-window-background-color', isDark);
+    },
   },
 });

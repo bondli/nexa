@@ -53,7 +53,13 @@ const ChatSender: React.FC<ChatSenderProps> = (props) => {
     key: item.id,
     label: (
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px' }}>
-        <div>{selectedKnowledgeIds.includes(item.id) && <CheckOutlined style={{ fontSize: 10 }} />}</div>
+        <div>
+          {selectedKnowledgeIds.includes(item.id) ? (
+            <CheckOutlined style={{ fontSize: 10 }} />
+          ) : (
+            <div style={{ width: 10 }}></div>
+          )}
+        </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 14 }}>{item.name}</div>
         </div>
@@ -94,7 +100,6 @@ const ChatSender: React.FC<ChatSenderProps> = (props) => {
           abortController.current?.abort();
         }}
         autoSize={{ minRows: 3, maxRows: 3 }}
-        style={{ background: '#fff' }}
         allowSpeech
         placeholder="Ask or input / use skills"
         suffix={(_, info) => {

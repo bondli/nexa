@@ -18,7 +18,7 @@
   }
   .sologon {
     font-size: 12px;
-    color: #c5c2c2;
+    color: var(--ant-color-text-secondary);
     margin-left: 24px;
   }
 }
@@ -29,7 +29,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: #fff;
+  background: var(--ant-color-bg-container);
   .left {
     display: flex;
     justify-content: flex-end;
@@ -39,7 +39,7 @@
     display: flex;
     justify-content: flex-start;
     padding-left: 24px;
-    border-left: 1px solid hsl(240 5.9% 90%);
+    border-left: 1px solid var(--ant-color-border);
   }
   .mainForm {
     display: flex;
@@ -49,11 +49,11 @@
 
     .userTips {
       font-size: 12px;
-      color: #c5c2c2;
+      color: var(--ant-color-text-secondary);
       margin-left: 12px;
       cursor: pointer;
       &:hover {
-        color: #18181b;
+        color: var(--ant-color-text);
       }
     }
   }

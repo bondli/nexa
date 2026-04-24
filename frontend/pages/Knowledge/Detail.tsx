@@ -2,6 +2,7 @@ import React, { memo, useState, useEffect } from 'react';
 import { Spin, Empty } from 'antd';
 import MDEditor from '@uiw/react-md-editor';
 import request from '@commons/request';
+import { getResolvedTheme } from '@utils/theme';
 import { DocumentType } from './constant';
 import style from './index.module.less';
 
@@ -13,6 +14,9 @@ const Detail: React.FC<DetailProps> = (props) => {
   const { selectedDocument } = props;
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
+
+  // 获取当前主题
+  const isDark = getResolvedTheme() === 'dark';
 
   // 加载文档内容
   useEffect(() => {
@@ -48,7 +52,7 @@ const Detail: React.FC<DetailProps> = (props) => {
   }
 
   return (
-    <div className={style.detailContainer} data-color-mode="light">
+    <div className={style.detailContainer} data-color-mode={isDark ? 'dark' : 'light'}>
       <div className={style.detailHeader}>
         <h2 className={style.detailTitle}>{selectedDocument.name}</h2>
       </div>
