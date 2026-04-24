@@ -25,7 +25,9 @@
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(22, 119, 255, 0.4);
   z-index: 2147483647;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .nexa-floating-ball:hover {
@@ -48,7 +50,9 @@
   max-height: 1000px;
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.18),
+    0 2px 8px rgba(0, 0, 0, 0.08);
   z-index: 2147483647;
   display: flex;
   flex-direction: column;
@@ -81,7 +85,9 @@
   font-size: 20px;
   line-height: 1;
   border-radius: 4px;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;

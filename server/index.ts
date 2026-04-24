@@ -63,11 +63,14 @@ const getFilesDirectory = (): string => {
 };
 
 // 提供files目录下的静态文件服务，添加缓存头
-app.use('/files', express.static(getFilesDirectory(), {
-  maxAge: '1y', // 缓存1年
-  etag: true,
-  lastModified: true,
-}));
+app.use(
+  '/files',
+  express.static(getFilesDirectory(), {
+    maxAge: '1y', // 缓存1年
+    etag: true,
+    lastModified: true,
+  }),
+);
 
 app.use(router);
 

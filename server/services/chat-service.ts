@@ -1,5 +1,5 @@
 import logger from 'electron-log';
-import ChatMessage, { CheckpointInstance } from '../models/ChatMessage';
+import ChatMessage from '../models/ChatMessage';
 
 /**
  * 单条消息的接口
@@ -11,37 +11,7 @@ export interface MessageItem {
 }
 
 /**
- * 从 checkpoint 中提取消息列表
- */
-const extractMessagesFromCheckpoint = (checkpoint: Record<string, unknown>): MessageItem[] => {
-  const messages: MessageItem[] = [];
-  const channelValues = checkpoint.channel_values as Record<string, unknown> | undefined;
-
-  if (channelValues?.messages && Array.isArray(channelValues.messages)) {
-    for (const msg of channelValues.messages) {
-      const msgObj = msg as { id: string[]; kwargs: { content: string }; type: string };
-      if (msgObj.kwargs?.content) {
-        // 根据 type 判断 role
-        let role: 'user' | 'assistant' | 'system' = 'user';
-        if (msgObj.type === 'ai' || msgObj.type === 'AIMessage') {
-          role = 'assistant';
-        } else if (msgObj.type === 'system') {
-          role = 'system';
-        }
-        messages.push({
-          role,
-          content: msgObj.kwargs.content,
-          timestamp: new Date(),
-        });
-      }
-    }
-  }
-
-  return messages;
-};
-
-/**
- * 获取会话的消息列表（从 ChatMessage checkpoint 表）
+ * 获取会话的消息列表（从 ChatMessage 表，每条消息一行）
  */
 export const getMessages = async (sessionId: string): Promise<MessageItem[]> => {
   try {
@@ -50,17 +20,17 @@ export const getMessages = async (sessionId: string): Promise<MessageItem[]> => 
       return [];
     }
 
-    // 获取最新的 checkpoint
-    const checkpoint = await ChatMessage.findOne({
-      where: { sessionId, checkpointNs: '' },
-      order: [['createdAt', 'DESC']],
+    const records = await ChatMessage.findAll({
+      where: { sessionId },
+      order: [['createdAt', 'ASC']],
     });
 
-    if (!checkpoint) {
-      return [];
-    }
+    const messages: MessageItem[] = records.map((record) => ({
+      role: record.role as MessageItem['role'],
+      content: record.content,
+      timestamp: record.createdAt || new Date(),
+    }));
 
-    const messages = extractMessagesFromCheckpoint(checkpoint.checkpoint);
     logger.info(`[MessageService] Retrieved ${messages.length} messages for sessionId: ${sessionId}`);
 
     return messages;
@@ -80,7 +50,6 @@ export const deleteMessages = async (sessionId: string): Promise<{ deletedMessag
     });
 
     logger.info(`[MessageService] Deleted ${deletedMessages} messages for sessionId: ${sessionId}`);
-
     return { deletedMessages };
   } catch (error) {
     logger.error('[MessageService] Error deleting messages:', error);

@@ -16,8 +16,15 @@ const { Header, Sider, Content } = Layout;
 const ChatBoxPage: React.FC = () => {
   const { userInfo } = useContext(MainContext);
 
-  const { currentChat, setMessageList, abortController, setMessageProcessing, conversationId, setConversationId } =
-    useContext(ChatBoxContext);
+  const {
+    currentChat,
+    setMessageList,
+    abortController,
+    setMessageProcessing,
+    conversationId,
+    setConversationId,
+    selectedKnowledgeIds,
+  } = useContext(ChatBoxContext);
 
   // 新对话
   const handleNewChat = () => {
@@ -48,10 +55,13 @@ const ChatBoxPage: React.FC = () => {
     // 2. 构造 fetch 请求参数
     const controller = new AbortController();
     abortController.current = controller;
+    const useRAG = selectedKnowledgeIds.length > 0;
     const body = JSON.stringify({
       message: msg,
       sessionId: finalSessionId,
       useTools: action !== 'simple', // 默认使用工具调用
+      useRAG: useRAG,
+      knowledgeIds: selectedKnowledgeIds,
     });
 
     try {
@@ -189,7 +199,7 @@ const ChatBoxPage: React.FC = () => {
 
         <Content className={style.content}>
           <div className={style.messageList}>
-            <MessageList handleSubmitMessage={submitMessage} />
+            <MessageList />
           </div>
 
           <div className={style.sender}>

@@ -1,18 +1,15 @@
 import { memo, useContext, useEffect, useRef } from 'react';
-import { Space, Spin, Avatar } from 'antd';
+import { Typography, Space, Spin, Avatar } from 'antd';
 import { UserOutlined, AliwangwangOutlined } from '@ant-design/icons';
 import { Bubble, Welcome } from '@ant-design/x';
+import markdownit from 'markdown-it';
 import { throttle } from 'lodash-es';
-import MessageContent from '@components/MessageContent';
 import { ChatBoxContext } from '../context';
 import style from './index.module.less';
 
-type MessageListProps = {
-  handleSubmitMessage: (msg: string, action?: string) => void;
-};
+const md = markdownit({ html: true, breaks: true });
 
-const MessageList: React.FC<MessageListProps> = (props) => {
-  const { handleSubmitMessage } = props;
+const MessageList: React.FC = () => {
   const msgListWrapperRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = useRef<any>(null);
   const lastScrollHeight = useRef<number>(0); // 记录上一次的 scrollHeight
@@ -87,8 +84,12 @@ const MessageList: React.FC<MessageListProps> = (props) => {
               i.status === 'loading' && i.content.trim()
                 ? { effect: 'typing', step: 1, interval: 10 } // 流式状态：每次1个字符，间隔10ms
                 : false, // 非流式状态：禁用typing效果
-            messageRender: (content) => {
-              return <MessageContent content={content} onAction={handleSubmitMessage} callback={getChatList} />;
+            contentRender: (content) => {
+              return (
+                <Typography>
+                  <div dangerouslySetInnerHTML={{ __html: md.render(content) }} className={style.markdown} />
+                </Typography>
+              );
             },
           };
         })}

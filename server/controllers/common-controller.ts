@@ -5,8 +5,8 @@ import multer from 'multer';
 import logger from 'electron-log';
 import { PORT, ALLOWED_IMAGE_EXTENSIONS, ALLOWED_FILE_EXTENSIONS } from '../config/constant';
 import { success, badRequest, serverError } from '../utils/response';
-import { processScreenshot } from '../services/screenshot/ocr-service';
-import { optimizeText } from '../services/ai-service';
+import { processScreenshot } from '../services/ocr-service';
+import { optimizeText } from '../services/llm-text-service';
 import { syncFileToCloud } from '../services/cloud-sync-service';
 
 /**

@@ -42,7 +42,7 @@ const sequelize = new Sequelize({
   username: configObj.DB_USERNAME,
   password: configObj.DB_PASSWORD,
   database: configObj.DB_NAME,
-  logging: false,
+  logging: (sql) => logger.info('[SQL]', sql),
   timezone: '+08:00',
 });
 
@@ -122,14 +122,6 @@ export const syncDatabase = async (force = false): Promise<void> => {
     logger.info('数据库模型同步成功');
   } catch (error: any) {
     logger.error('数据库模型同步失败:', error.message || error);
-    // 如果失败，尝试强制创建（会删除旧表）
-    try {
-      await sequelize.sync({ force: true });
-      logger.info('数据库模型同步成功（强制重建）');
-    } catch (retryError: any) {
-      logger.error('数据库模型强制同步也失败:', retryError.message || retryError);
-      throw retryError;
-    }
   }
 };
 

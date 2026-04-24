@@ -11,6 +11,7 @@ import { Button, Popover, Modal, Input, App, Space, Upload } from 'antd';
 import type { UploadProps } from 'antd';
 import { API_BASE_URL } from '@commons/constant';
 import { MainContext } from '@commons/context';
+import request from '@commons/request';
 import { PictureContext } from './context';
 import SearchBox from './SearchBox';
 import style from './index.module.less';
@@ -102,21 +103,21 @@ const Header: React.FC = () => {
     setTempCateOrder(Number(e.target.value));
   };
 
-  const handleSaveOrder = () => {
+  const handleSaveOrder = async () => {
     if (!tempCateOrder) {
       message.error('请输入图片分类排序');
       return;
     }
-    updateCate(currentCate.id, currentCate.name)
-      .then(() => {
-        setShowOrderPanel(false);
-        setCurrentCate({ ...currentCate, orders: tempCateOrder });
-        getCateList();
-        message.success('排序成功');
-      })
-      .catch((err) => {
-        message.error(`排序失败：${err.message}`);
-      });
+    try {
+      await request.post('/pictureCate/update', { id: currentCate.id, orders: tempCateOrder });
+      setShowOrderPanel(false);
+      setCurrentCate({ ...currentCate, orders: tempCateOrder });
+      getCateList();
+      message.success('排序成功');
+    } catch (error) {
+      message.error(`排序失败：${error.message}`);
+      console.error(error);
+    }
   };
 
   const handleCancelOrder = () => {
@@ -239,7 +240,7 @@ const Header: React.FC = () => {
         <Input
           value={tempCateName}
           onChange={handleCateNameChange}
-          maxLength={8}
+          maxLength={20}
           allowClear
           ref={inputRef}
           onPressEnter={handleSaveEdit}

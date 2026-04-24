@@ -22,6 +22,9 @@ type ChatBoxContextType = {
   conversationId: string;
   setConversationId: React.Dispatch<React.SetStateAction<string>>;
   abortController: React.MutableRefObject<AbortController | null>;
+  // RAG 配置
+  selectedKnowledgeIds: number[];
+  setSelectedKnowledgeIds: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 export const ChatBoxContext = createContext<ChatBoxContextType | undefined>(undefined);
@@ -68,6 +71,9 @@ export const ChatBoxProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // 消息发送取消器
   const abortController = useRef<AbortController | null>(null);
 
+  // RAG 配置
+  const [selectedKnowledgeIds, setSelectedKnowledgeIds] = useState<number[]>([]);
+
   // 切换对话时的副作用
   useEffect(() => {
     if (currentChat && currentChat.sessionId) {
@@ -75,10 +81,11 @@ export const ChatBoxProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [currentChat]);
 
-  // 新对话时的副作用（1、清理当前消息列表；2、如上次对话还没结束，执行取消；3、增加一个对话）
+  // 新对话时的副作用（1、清理当前消息列表；2、如上次对话还没结束，执行取消；3、增加一个对话；4、重置 RAG 配置）
   useEffect(() => {
     setMessageList([]);
     abortController.current?.abort();
+    setSelectedKnowledgeIds([]);
     conversationId && addConversation(conversationId);
   }, [conversationId]);
 
@@ -105,6 +112,8 @@ export const ChatBoxProvider: React.FC<{ children: React.ReactNode }> = ({ child
         conversationId,
         setConversationId,
         abortController,
+        selectedKnowledgeIds,
+        setSelectedKnowledgeIds,
       }}
     >
       {children}

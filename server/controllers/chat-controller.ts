@@ -3,7 +3,7 @@ import logger from 'electron-log';
 import Chat from '../models/Chat';
 import ChatCate from '../models/ChatCate';
 import { getMessages as getAllMessages, deleteMessages } from '../services/chat-service';
-import { createAgent, loadLLMConfig } from '../services/ai-service';
+import { createAgent, loadLLMConfig } from '../services/agent';
 import { success, successWithPage, notFound, badRequest, serverError } from '../utils/response';
 
 // 新增一个会话
@@ -91,6 +91,13 @@ export const deleteChat = async (req: Request, res: Response) => {
 
       // 删除会话记录
       await result.destroy();
+      // 如果有分组id，需要更新分组下的会话数量
+      if (result.cateId) {
+        const cate = await ChatCate.findOne({ where: { id: result.cateId } });
+        if (cate && cate.counts > 0) {
+          await cate.update({ counts: cate.counts - 1 });
+        }
+      }
       success(res, { deletedMessages: deleteResult }, 'chat deleted successfully');
     } else {
       notFound(res, 'Chat not found');
@@ -128,12 +135,11 @@ export const getMessages = async (req: Request, res: Response) => {
 
 /**
  * 与 LLM 对话（SSE 流式返回）
- * 使用 LangGraph + MySQL Checkpoint 实现消息持久化
- * 预留知识库对话接口：后续支持选择知识库来对话，知识库的内容被向量化了
- * 预留向量检索接口：调用工具时使用向量相似度搜索相关笔记
+ * 使用 Agent 模块实现，支持工具调用、RAG、上下文压缩
+ * 消息自动持久化到 ChatMessage 表
  */
 export const chatToLLM = async (req: Request, res: Response) => {
-  const { message, sessionId, useTools = true } = req.body;
+  const { message, sessionId, useTools = true, useRAG = false, knowledgeIds = [] } = req.body;
 
   if (!message) {
     badRequest(res, 'message is required');
@@ -161,18 +167,11 @@ export const chatToLLM = async (req: Request, res: Response) => {
       return;
     }
 
-    // 创建 Agent 实例（会自动加载工具和 checkpoint saver）
-    const agent = await createAgent();
+    // 创建 Agent 实例
+    const agent = createAgent({ sessionId, useTools, useRAG, knowledgeIds });
 
-    // 获取历史消息（从 checkpoints 表读取）
-    const historyMessages = await getAllMessages(sessionId);
-
-    // 构建消息列表
+    // 只传入当前用户消息，Agent 内部会自动加载历史
     const messages: Array<{ role: string; content: string }> = [
-      ...historyMessages.map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      })),
       { role: 'user', content: message },
     ];
 
@@ -192,8 +191,7 @@ export const chatToLLM = async (req: Request, res: Response) => {
       }
     };
 
-    // 调用 Agent，传入 sessionId 作为 threadId
-    // 这样消息会自动持久化到 MySQL checkpoints 表
+    // 调用 Agent，消息自动持久化
     if (useTools) {
       await agent.chat(messages, sessionId, streamCallback);
     } else {

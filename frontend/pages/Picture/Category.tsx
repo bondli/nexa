@@ -108,9 +108,9 @@ const Category: React.FC = () => {
   const createCateForm = (
     <div>
       <Input
-        placeholder={`最多8个字符`}
+        placeholder={`最多20个字符`}
         value={newCateName}
-        maxLength={8}
+        maxLength={20}
         allowClear
         onChange={handleNameInput}
         onPressEnter={handleCreateCate}

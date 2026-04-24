@@ -2,61 +2,49 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database';
 
 /**
- * Checkpoint 模型属性接口 - 用于 langgraph 状态持久化
+ * 消息模型属性接口 - 每条消息一行记录
  */
-interface CheckpointAttributes {
+interface MessageAttributes {
+  id: number;
   sessionId: string;
-  checkpointNs: string;
-  checkpointId?: string;
-  parentCheckpointId?: string;
-  checkpoint: Record<string, unknown>;
-  metadata?: Record<string, unknown>;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
   createdAt?: Date;
 }
 
 /**
- * Checkpoint 创建时的可选属性
+ * 消息创建时的可选属性
  */
-interface CheckpointCreationAttributes extends Optional<
-  CheckpointAttributes,
-  'checkpointId' | 'parentCheckpointId' | 'metadata' | 'createdAt'
+interface MessageCreationAttributes extends Optional<
+  MessageAttributes,
+  'id' | 'createdAt'
 > {}
 
 /**
- * Checkpoint 模型实例接口
+ * 消息模型实例接口
  */
-interface CheckpointInstance extends Model<CheckpointAttributes, CheckpointCreationAttributes>, CheckpointAttributes {}
+interface MessageInstance extends Model<MessageAttributes, MessageCreationAttributes>, MessageAttributes {}
 
-const ChatMessage = sequelize.define<CheckpointInstance, CheckpointCreationAttributes>(
+const ChatMessage = sequelize.define<MessageInstance, MessageCreationAttributes>(
   'ChatMessage',
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     sessionId: {
       type: DataTypes.STRING(255),
       field: 'session_id',
-      primaryKey: true,
-    },
-    checkpointNs: {
-      type: DataTypes.STRING(255),
-      field: 'checkpoint_ns',
-      primaryKey: true,
-    },
-    checkpointId: {
-      type: DataTypes.STRING(255),
-      field: 'checkpoint_id',
-      allowNull: true,
-    },
-    parentCheckpointId: {
-      type: DataTypes.STRING(255),
-      field: 'parent_checkpoint_id',
-      allowNull: true,
-    },
-    checkpoint: {
-      type: DataTypes.JSON,
       allowNull: false,
     },
-    metadata: {
-      type: DataTypes.JSON,
-      allowNull: true,
+    role: {
+      type: DataTypes.STRING(20),
+      allowNull: false,
+    },
+    content: {
+      type: DataTypes.TEXT('long'),
+      allowNull: false,
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -69,11 +57,11 @@ const ChatMessage = sequelize.define<CheckpointInstance, CheckpointCreationAttri
     timestamps: false,
     indexes: [
       {
-        fields: ['session_id', 'checkpoint_ns', 'checkpoint_id', 'created_at'],
+        fields: ['session_id', 'created_at'],
       },
     ],
   },
 );
 
 export default ChatMessage;
-export type { CheckpointInstance, CheckpointAttributes, CheckpointCreationAttributes };
+export type { MessageInstance, MessageAttributes, MessageCreationAttributes };

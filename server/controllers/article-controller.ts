@@ -21,15 +21,17 @@ export const createArticle = async (req: Request, res: Response) => {
     // 使用事务确保数据一致性
     const result = await Article.sequelize!.transaction(async (t) => {
       // 创建Article记录
+      const createData = {
+        title,
+        desc,
+        url,
+        cateId: Number(cateId),
+        userId,
+        status: 'normal',
+      };
+      
       const articleResult = await Article.create(
-        {
-          title,
-          desc,
-          url,
-          cateId: Number(cateId),
-          userId,
-          status: 'normal',
-        },
+        createData,
         { transaction: t },
       );
 
@@ -131,7 +133,15 @@ export const updateArticle = async (req: Request, res: Response) => {
     const result = await Article.findByPk(Number(id));
     const operatorArticle = result.toJSON();
     if (result) {
-      await result.update({ title, desc, url, cateId: Number(cateId), status });
+      // 只更新传入的字段
+      const updateData: any = {};
+      if (title !== undefined) updateData.title = title;
+      if (desc !== undefined) updateData.desc = desc;
+      if (url !== undefined) updateData.url = url;
+      if (cateId !== undefined) updateData.cateId = Number(cateId);
+      if (status !== undefined) updateData.status = status;
+      
+      await result.update(updateData);
 
       // 针对不同的操作类型，需要更新分类中的数量字段
       if (opType === 'delete' || opType === 'restore' || opType === 'move') {
