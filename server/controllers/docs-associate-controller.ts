@@ -22,7 +22,8 @@ export const addToKnowledge = async (req: Request, res: Response) => {
     
     if (result) {
       // todo: 先判断是否已经向量化过了
-      const embedding = await generateEmbedding(result.title + '\n' + result.desc);
+      const textToEmbed = `${result.title}\n${''}\n${result.desc || ''}`;
+      const embedding = await generateEmbedding(textToEmbed);
       if (embedding) {
         await addDocumentEmbedding(Number(id), Number(knowledgeId), embedding, {
           title: result.title,
@@ -38,13 +39,15 @@ export const addToKnowledge = async (req: Request, res: Response) => {
         // 知识库对应的文档表新增一条记录
         await Docs.create({
           knowledgeId: Number(knowledgeId),
-          noteId: Number(id),
+          noteId: type === 'note' ? Number(id) : null, // 只有 note 类型才设置 noteId
           name: result.title,
-          desc: result.desc,
-          content: result.desc,
-          path: '',
-          userId: result.userId,
+          desc: '',
+          size: 0,
           type: type === 'article' ? 'article' : 'note',
+          userId: result.userId,
+          content: result.desc,
+          path: null,
+          cloudUrl: null,
           indexedAt: new Date(),
         });
         success(res, null, '加入知识库成功');
@@ -54,8 +57,15 @@ export const addToKnowledge = async (req: Request, res: Response) => {
     } else {
       notFound(res, 'Note/Article not found');
     }
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Error on adding Note/Article to knowledge:', error);
+    logger.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      sql: error.sql,
+      parameters: error.parameters,
+      original: error.original,
+    });
     serverError(res, 'Error adding Note/Article to knowledge');
   }
 };

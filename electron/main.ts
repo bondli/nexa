@@ -1,6 +1,6 @@
 import path from 'path';
 import { fork, type ChildProcess } from 'child_process';
-import { app, BrowserWindow, ipcMain, globalShortcut, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, globalShortcut, shell, nativeTheme } from 'electron';
 import Store from 'electron-store';
 import logger from 'electron-log';
 import { createTray, setRecreateWindowCallback } from './tray';
@@ -138,6 +138,14 @@ process.on('exit', () => {
 });
 
 let mainWindow: BrowserWindow | null = null;
+
+/**
+ * 获取当前系统主题对应的背景色
+ */
+const getSystemBackgroundColor = (): string => {
+  return nativeTheme.shouldUseDarkColors ? '#18181b' : '#ffffff';
+};
+
 /**
  * 创建主窗口
  */
@@ -154,7 +162,7 @@ const createWindow = () => {
     minHeight: 720,
     // macOS 隐藏原生标题栏，使用自定义 React 标题栏
     titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
-    backgroundColor: '#18181b', // 默认暗色
+    backgroundColor: getSystemBackgroundColor(), // 根据系统主题动态设置
     webPreferences: {
       webSecurity: false,
       preload: path.join(__dirname, 'preload.js'),
@@ -194,6 +202,15 @@ const createWindow = () => {
   // 关闭 window 时触发下列事件
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  // 监听系统主题变化，动态更新窗口背景色
+  nativeTheme.on('updated', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      const newColor = getSystemBackgroundColor();
+      mainWindow.setBackgroundColor(newColor);
+      logger.info(`[Main Process] System theme changed, updated background to: ${newColor}`);
+    }
   });
 
   // 创建系统托盘，传入快速笔记窗口创建函数和截图快存窗口创建函数，以及关闭所有弹出窗口的函数

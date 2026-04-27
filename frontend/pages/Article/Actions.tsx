@@ -1,5 +1,12 @@
 import React, { memo, useState, useContext } from 'react';
-import { DeleteOutlined, UndoOutlined, DragOutlined, SettingOutlined, CopyOutlined } from '@ant-design/icons';
+import {
+  DeleteOutlined,
+  UndoOutlined,
+  DragOutlined,
+  SettingOutlined,
+  CopyOutlined,
+  FileAddOutlined,
+} from '@ant-design/icons';
 import { Dropdown, Modal, App, Select } from 'antd';
 import type { MenuProps } from 'antd';
 import request from '@commons/request';
@@ -18,6 +25,12 @@ const Actions: React.FC<ActionsProps> = (props) => {
 
   const [showMovePanel, setShowMovePanel] = useState(false);
   const [moveToCateId, setMoveToCateId] = useState(0);
+
+  // 添加到知识库相关状态
+  const [showAddToKnowledgePanel, setShowAddToKnowledgePanel] = useState(false);
+  const [selectedKnowledgeId, setSelectedKnowledgeId] = useState<number | undefined>(undefined);
+  const [addingToKnowledge, setAddingToKnowledge] = useState(false);
+  const [knowledgeList, setKnowledgeList] = useState<any[]>([]);
 
   // 临时文章复制链接
   const copyTempArticleLink = () => {
@@ -141,6 +154,56 @@ const Actions: React.FC<ActionsProps> = (props) => {
       });
   };
 
+  // 点击添加到知识库 - 通过 API 获取知识库列表
+  const handleAddToKnowledge = () => {
+    request
+      .get('/knowledge/list')
+      .then((res) => {
+        const list = res.data || [];
+        setKnowledgeList(list);
+        if (list.length === 0) {
+          message.warning('暂无知识库，请先创建知识库');
+          return;
+        }
+        setShowAddToKnowledgePanel(true);
+        setSelectedKnowledgeId(undefined);
+      })
+      .catch((err) => {
+        userLog('Fetch Knowledge List Error: ', err);
+        message.error('获取知识库列表失败');
+      });
+  };
+
+  // 取消添加到知识库
+  const handleCancelAddToKnowledge = () => {
+    setShowAddToKnowledgePanel(false);
+    setSelectedKnowledgeId(undefined);
+  };
+
+  // 确认添加到知识库
+  const handleConfirmAddToKnowledge = () => {
+    if (!selectedKnowledgeId) {
+      message.error('请先选择目标知识库');
+      return;
+    }
+    userLog('Add Article to Knowledge: ', { articleId: selectedArticle.id, knowledgeId: selectedKnowledgeId });
+    setAddingToKnowledge(true);
+    request
+      .get(`/knowledge/addToKnowledge?id=${selectedArticle.id}&knowledgeId=${selectedKnowledgeId}&type=article`)
+      .then(() => {
+        message.success('已添加到知识库');
+        setShowAddToKnowledgePanel(false);
+        setSelectedKnowledgeId(undefined);
+      })
+      .catch((err) => {
+        userLog('Add Article to Knowledge Error: ', err);
+        message.error(`添加到知识库失败：${err.message}`);
+      })
+      .finally(() => {
+        setAddingToKnowledge(false);
+      });
+  };
+
   // 操作菜单
   const getMenus = (): MenuProps['items'] => {
     const menus = [];
@@ -174,7 +237,7 @@ const Actions: React.FC<ActionsProps> = (props) => {
         onClick: removeArticle,
       });
     } else {
-      // 正常状态：显示删除和移动分类
+      // 正常状态：显示删除、移动分类和添加到知识库
       menus.push({
         key: 'delete',
         icon: <DeleteOutlined />,
@@ -186,6 +249,12 @@ const Actions: React.FC<ActionsProps> = (props) => {
         icon: <DragOutlined />,
         label: '移动分类',
         onClick: handleMove,
+      });
+      menus.push({
+        key: 'addToKnowledge',
+        icon: <FileAddOutlined />,
+        label: '添加到知识库',
+        onClick: handleAddToKnowledge,
       });
     }
 
@@ -226,6 +295,35 @@ const Actions: React.FC<ActionsProps> = (props) => {
                 }
                 return null;
               })}
+          </Select>
+        </div>
+      </Modal>
+
+      <Modal
+        title={`添加到知识库`}
+        open={showAddToKnowledgePanel}
+        onOk={handleConfirmAddToKnowledge}
+        onCancel={handleCancelAddToKnowledge}
+        confirmLoading={addingToKnowledge}
+        destroyOnHidden={true}
+      >
+        <div style={{ paddingTop: '16px' }}>
+          <span>请选择目标知识库：</span>
+          <Select
+            onChange={(v) => {
+              setSelectedKnowledgeId(v);
+            }}
+            style={{ width: 200 }}
+            value={selectedKnowledgeId}
+            placeholder="选择知识库"
+          >
+            {knowledgeList.map((item: any) => {
+              return (
+                <Select.Option value={item.id} key={item.id}>
+                  {item.name}
+                </Select.Option>
+              );
+            })}
           </Select>
         </div>
       </Modal>

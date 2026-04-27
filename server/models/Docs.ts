@@ -8,7 +8,7 @@ interface DocsAttributes {
   id: number;
   name: string;
   desc: string | null;
-  path: string;
+  path: string | null;
   userId: number;
   noteId: number | null;
   knowledgeId: number;
@@ -25,7 +25,7 @@ interface DocsAttributes {
  */
 interface DocsCreationAttributes extends Optional<
   DocsAttributes,
-  'id' | 'desc' | 'noteId' | 'status' | 'size' | 'type' | 'indexedAt' | 'cloudUrl' | 'content'
+  'id' | 'desc' | 'path' | 'noteId' | 'status' | 'size' | 'type' | 'indexedAt' | 'cloudUrl' | 'content'
 > {}
 
 /**
@@ -54,7 +54,7 @@ const Docs = sequelize.define<DocsInstance, DocsCreationAttributes>(
     path: {
       comment: '文档路径',
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     userId: {
       comment: '用户id',

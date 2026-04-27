@@ -201,7 +201,7 @@ router.get('/temp_article/list', getTempArticles);
 router.get('/temp_article/delete', deleteTempArticle);
 router.post('/temp_article/import', importTempArticle);
 
-router.post('/knowledge/addToKnowledge', addToKnowledge);
+router.get('/knowledge/addToKnowledge', addToKnowledge);
 
 // 设置相关
 router.get('/settings/get', getAllSettings);
