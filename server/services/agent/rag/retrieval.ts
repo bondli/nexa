@@ -1,8 +1,8 @@
-import { semanticSearch } from '../../vector-store-service';
+import logger from 'electron-log';
+import { semanticSearch, getCollectionCount } from '../../vector-store-service';
 import { generateEmbedding } from '../../embedding-service';
 import type { RetrievalResult, RAGConfig } from '../types';
 import { logRetrieval } from '../logging';
-import logger from 'electron-log';
 
 /**
  * RAG 服务配置
@@ -18,7 +18,7 @@ export interface RAGServiceConfig {
  */
 const DEFAULT_CONFIG: RAGServiceConfig = {
   defaultTopK: 5,
-  minScore: 0.7,
+  minScore: 0.5, // 降低阈值，从 0.7 调整为 0.5，避免过滤掉有效结果
   maxContextLength: 4000,
 };
 
@@ -54,13 +54,23 @@ class RetrievalService {
       const allResults: RetrievalResult[] = [];
 
       for (const knowledgeId of knowledgeIds) {
-        const results = await semanticSearch(knowledgeId, queryEmbedding, effectiveTopK);
+        // 诊断：检查 collection 中是否有数据
+        try {
+          const count = await getCollectionCount(knowledgeId);
+          logger.info(`[RetrievalService] 知识库 ${knowledgeId} 的 collection 约有 ${count} 条数据`);
+        } catch (countError) {
+          logger.warn(`[RetrievalService] 获取知识库 ${knowledgeId} 数据量失败:`, countError);
+        }
 
+        const results = await semanticSearch(knowledgeId, queryEmbedding, effectiveTopK, effectiveMinScore);
+
+        // 由于已将 scoreThreshold 传给 Qdrant，这里不再需要客户端过滤
+        // 但保留作为备用检查
         const mappedResults: RetrievalResult[] = results
           .filter((r) => r.score >= effectiveMinScore)
           .map((r) => ({
             id: r.id,
-            content: r.payload.content || '',
+            content: r.payload.content || r.payload.desc || '', // 兼容处理：优先取 content，次取 desc
             score: r.score,
             metadata: r.payload,
           }));
@@ -115,10 +125,7 @@ class RetrievalService {
   /**
    * 准备 RAG 上下文
    */
-  async prepareRAGContext(
-    query: string,
-    config: RAGConfig,
-  ): Promise<{ context: string; hasResults: boolean }> {
+  async prepareRAGContext(query: string, config: RAGConfig): Promise<{ context: string; hasResults: boolean }> {
     const results = await this.retrieve(query, config);
 
     if (results.length === 0) {

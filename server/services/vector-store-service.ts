@@ -1,5 +1,5 @@
-import { getVectorDBClient } from '../config/vectorDB';
 import logger from 'electron-log';
+import { getVectorDBClient } from '../config/vectorDB';
 
 // 向量维度（与 embedding 模型一致，需与 embedding 服务的向量维度匹配）
 // doubao-embedding-vision 是 2048 维
@@ -79,7 +79,9 @@ export const addDocumentEmbedding = async (
     const client = getVectorDBClient();
     const collectionName = getCollectionName(knowledgeId);
 
-    logger.info(`准备添加文档嵌入: collection=${collectionName}, docId=doc_${documentId}, vectorDim=${embedding.length}`);
+    logger.info(
+      `准备添加文档嵌入: collection=${collectionName}, docId=doc_${documentId}, vectorDim=${embedding.length}`,
+    );
 
     await client.upsert(collectionName, {
       wait: true,
@@ -149,10 +151,7 @@ export const updateDocumentEmbedding = async (
 /**
  * 删除文档嵌入
  */
-export const deleteDocumentEmbedding = async (
-  documentId: number,
-  knowledgeId: number,
-): Promise<void> => {
+export const deleteDocumentEmbedding = async (documentId: number, knowledgeId: number): Promise<void> => {
   try {
     const client = getVectorDBClient();
     const collectionName = getCollectionName(knowledgeId);
@@ -176,6 +175,7 @@ export const semanticSearch = async (
   knowledgeId: number,
   queryEmbedding: number[],
   topK = 5,
+  scoreThreshold?: number,
 ): Promise<
   Array<{
     id: string;
@@ -187,11 +187,30 @@ export const semanticSearch = async (
     const client = getVectorDBClient();
     const collectionName = getCollectionName(knowledgeId);
 
-    const results = await client.search(collectionName, {
+    logger.info(
+      `[semanticSearch] 开始搜索: collection=${collectionName}, topK=${topK}, scoreThreshold=${scoreThreshold}, 向量维度=${queryEmbedding.length}`,
+    );
+
+    // 构建搜索参数
+    const searchOptions: {
+      vector: number[];
+      limit: number;
+      with_payload: boolean;
+      score_threshold?: number;
+    } = {
       vector: queryEmbedding,
       limit: topK,
       with_payload: true,
-    });
+    };
+
+    // 如果设置了 scoreThreshold，则传给 Qdrant
+    if (scoreThreshold !== undefined && scoreThreshold > 0) {
+      searchOptions.score_threshold = scoreThreshold;
+    }
+
+    const results = await client.search(collectionName, searchOptions);
+
+    logger.info(`[semanticSearch] Qdrant 返回 ${results.length} 条结果`);
 
     return results.map((point: any) => ({
       id: point.id,

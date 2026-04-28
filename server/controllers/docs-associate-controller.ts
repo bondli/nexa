@@ -19,15 +19,30 @@ export const addToKnowledge = async (req: Request, res: Response) => {
     } else {
       result = await Article.findByPk(Number(id));
     }
-    
+
     if (result) {
-      // todo: 先判断是否已经向量化过了
-      const textToEmbed = `${result.title}\n${''}\n${result.desc || ''}`;
+      // 检查是否已经添加到该知识库
+      const existingDoc = await Docs.findOne({
+        where: {
+          knowledgeId: Number(knowledgeId),
+          ...(type === 'note' ? { noteId: Number(id) } : {}),
+          ...(type === 'article' ? { type: 'article', name: result.title } : {}),
+        },
+      });
+
+      if (existingDoc) {
+        return success(res, null, '该文档已在知识库中，无需重复添加');
+      }
+
+      const desc = '';
+      const content = result.desc || '';
+      const textToEmbed = `${result.title}\n${desc}\n${content}`;
       const embedding = await generateEmbedding(textToEmbed);
       if (embedding) {
         await addDocumentEmbedding(Number(id), Number(knowledgeId), embedding, {
           title: result.title,
-          desc: result.desc || '',
+          desc,
+          content, // 存储 content 以便 RAG 检索时使用
         });
         // 知识库文档量+1
         await Knowledge.update(

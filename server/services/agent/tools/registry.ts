@@ -26,7 +26,19 @@ class ToolRegistry {
       description: tool.description,
       func: async (input: string): Promise<string> => {
         try {
-          const params = input ? JSON.parse(input) : {};
+          // 尝试解析 JSON，如果失败则直接将 input 作为参数
+          let params: Record<string, unknown>;
+          if (input) {
+            try {
+              params = JSON.parse(input);
+            } catch {
+              // 如果不是 JSON 格式，则尝试直接使用 input 作为 searchQuery
+              // 这处理 LangChain 直接传递字符串而非 JSON 的情况
+              params = { searchQuery: input };
+            }
+          } else {
+            params = {};
+          }
           const result = await tool.execute(params);
           return result.success ? result.result || '' : result.error || 'Tool execution failed';
         } catch (error) {

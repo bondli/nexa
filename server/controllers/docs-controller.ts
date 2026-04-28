@@ -61,6 +61,7 @@ export const createDocs = async (req: Request, res: Response) => {
       await addDocumentEmbedding(result.id, knowledgeId, embedding, {
         title: name,
         desc: desc || '',
+        content: content || '', // 存储 content 以便 RAG 检索时使用
       });
     } catch (embeddingError) {
       logger.error('生成嵌入向量失败:', embeddingError);
@@ -129,6 +130,7 @@ export const updateDocs = async (req: Request, res: Response) => {
         await updateDocumentEmbedding(Number(id), knowledgeId, embedding, {
           title: name,
           desc: desc || '',
+          content: content || '', // 存储 content 以便 RAG 检索时使用
         });
       } catch (embeddingError) {
         logger.error('更新嵌入向量失败:', embeddingError);
