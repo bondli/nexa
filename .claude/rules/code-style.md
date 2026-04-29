@@ -178,7 +178,7 @@ const a = 1; // 设置a为1
 /frontend
   /components
   /pages
-  /services
+  /modules
   /utils
   /commons
   /hooks
@@ -187,7 +187,8 @@ const a = 1; // 设置a为1
 
 ## 七、AI 调用规范（重要）
 
-- 所有 AI 相关调用必须封装在 /services/aiService.ts
+- 所有 AI 相关调用必须封装在 /server/services/下
+- AI Agent单独成一个目录在  /server/services/agent
 - UI 层禁止直接调用 AI API
 
 ---

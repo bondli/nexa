@@ -9,9 +9,9 @@
 系统必须按照以下分层结构设计：
 
 1. UI 层（React）--> frontend/pages or frontend/components
-2. Service 层（业务逻辑）--> frontend/services
+2. Service 层（业务逻辑）--> frontend/pages/xxx/context.tsx
 3. Data 层（数据库访问） --> server/controller
-4. AI 层（大模型调用）--> server/services/aiService.ts
+4. AI 层（大模型调用）--> server/services/*.ts
 
 ---
 
@@ -31,7 +31,7 @@
 
 ---
 
-### 2. Service 层（frontend/services）
+### 2. Service 层（frontend/pages/xxx/context.tsx）
 
 职责：
 - 处理业务逻辑
@@ -52,7 +52,7 @@
 
 ---
 
-### 4. AI 层（server/services/aiService.ts）
+### 4. AI 层（server/services/*.ts）
 
 职责：
 - 封装所有大模型调用
@@ -105,7 +105,6 @@ UI → Service → Data / AI
 
 ## 六、AI 使用约束
 
-- 所有 AI 调用必须统一走 aiService
 - 禁止在任何组件中直接调用 LLM
 
 ---

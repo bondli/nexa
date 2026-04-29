@@ -8,6 +8,14 @@
 
 /nexa                # 项目根目录
   declare            # 全局types申明
+  browser-extension  # 浏览器插件代码
+    /src
+      /content
+      /popup
+      /background
+  client-app         # 手机App端代码
+    /src             # React-native代码
+    /Android         # Android原生代码
   electron           # electron代码
     /main.js
     /preload.js
