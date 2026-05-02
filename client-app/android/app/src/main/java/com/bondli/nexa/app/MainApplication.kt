@@ -10,6 +10,7 @@ import android.util.Log
 import com.facebook.react.bridge.ReactApplicationContext
 import com.bondli.nexa.app.LocalStorageModule
 import com.bondli.nexa.app.ShareModule
+import com.bondli.nexa.app.NexaImagePickerModule
 
 
 class MainApplication : Application(), ReactApplication {
@@ -76,6 +77,13 @@ class MainApplication : Application(), ReactApplication {
                             Log.d(TAG, "MySQLModule initialized successfully")
                         } catch (e: Exception) {
                             Log.e(TAG, "Failed to initialize MySQLModule", e)
+                        }
+
+                        try {
+                            modules.add(NexaImagePickerModule(reactContext))
+                            Log.d(TAG, "NexaImagePickerModule initialized successfully")
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Failed to initialize NexaImagePickerModule", e)
                         }
 
                         Log.d(TAG, "Total modules initialized: ${modules.size}")

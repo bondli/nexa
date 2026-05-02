@@ -2,7 +2,7 @@ import config from '../../config.json';
 
 export const DB_CONFIG = config;
 
-export type TAB_KEY = 'Note' | 'Article' | 'Collect' | 'Profile';
+export type TAB_KEY = 'Note' | 'Article' | 'Picture' | 'Collect' | 'Profile';
 
 export const PAGE_MAP: Record<TAB_KEY, Record<string, string>> = {
   'Note': {
@@ -16,6 +16,10 @@ export const PAGE_MAP: Record<TAB_KEY, Record<string, string>> = {
   'Collect': {
     title: '记录',
     icon: 'cloud-upload',
+  },
+  'Picture': {
+    title: '图片',
+    icon: 'picture',
   },
   'Profile': {
     title: '我的',

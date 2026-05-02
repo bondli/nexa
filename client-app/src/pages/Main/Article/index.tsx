@@ -125,11 +125,11 @@ const ArticlePage = () => {
             <View>
               {item.title ? (
                 <Text style={{ fontSize: 16, color: '#333', fontWeight: '500' }}>
-                  {item.title.substring(0, 20) + (item.title.length > 20 ? '...' : '')}
+                  {item.title.substring(0, 24) + (item.title.length > 24 ? '...' : '')}
                 </Text>
               ) : null}
               <Text style={{ fontSize: 13, color: '#1890ff', marginTop: 4 }}>
-                {item.url ? item.url.substring(0, 30) + (item.url.length > 30 ? '...' : '') : ''}
+                {item.url ? item.url.substring(0, 40) + (item.url.length > 40 ? '...' : '') : ''}
               </Text>
             </View>
           }
@@ -146,13 +146,13 @@ const ArticlePage = () => {
       <ListItem
         title={
           <Text style={{ fontSize: 16, color: '#333'}}>
-            {item.title ? item.title.substring(0, 18) + (item.title.length > 18 ? '...' : '') : ''}
+            {item.title ? item.title.substring(0, 24) + (item.title.length > 24 ? '...' : '') : ''}
           </Text>
         }
         subtitle={
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={{ fontSize: 12, color: '#999' }}>
-              {item.desc ? item.desc.substring(0, 20) + (item.desc.length > 20 ? '...' : '') : ''}
+              {item.desc ? item.desc.substring(0, 30) + (item.desc.length >30 ? '...' : '') : ''}
             </Text>
           </View>
         }

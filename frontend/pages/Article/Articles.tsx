@@ -76,7 +76,11 @@ const Articles: React.FC = () => {
     if (displayDesc.length > 50) {
       displayDesc = displayDesc.substring(0, 50);
     }
-    return <div className={style.listDesc}>{displayDesc}</div>;
+    return (
+      <div className={style.listDesc} onClick={() => gotoDetail(data)}>
+        {displayDesc}
+      </div>
+    );
   };
 
   const handleStatusUpdate = () => {

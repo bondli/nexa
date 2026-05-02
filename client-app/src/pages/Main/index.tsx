@@ -11,6 +11,7 @@ import NavBar from '@components/NavBar';
 import CollectPage from './Collect';
 import NotePage from './Note';
 import ArticlePage from './Article';
+import PicturePage from './Picture';
 import ProfilePage from './Profile';
 
 import styles from './styles';
@@ -60,6 +61,15 @@ const MainPage = () => {
           onPress={() => switchTab('Article')}
         >
           <ArticlePage />
+        </TabBar.Item>
+
+        <TabBar.Item
+          title={PAGE_MAP.Picture.title}
+          icon={<Icon name={PAGE_MAP.Picture.icon as any} />}
+          selected={currentPage === 'Picture'}
+          onPress={() => switchTab('Picture')}
+        >
+          <PicturePage />
         </TabBar.Item>
 
         <TabBar.Item

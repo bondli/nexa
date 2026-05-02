@@ -113,13 +113,13 @@ const NotePage = () => {
     <ListItem
       title={
         <Text style={{ fontSize: 16, color: '#333'}}>
-          {item.title ? item.title.substring(0, 18) + (item.title.length > 18 ? '...' : '') : ''}
+          {item.title ? item.title.substring(0, 28) + (item.title.length > 28 ? '...' : '') : ''}
         </Text>
       }
       subtitle={
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Text style={{ fontSize: 12, color: '#999' }}>
-            {item.desc ? item.desc.substring(0, 20) + (item.desc.length > 20 ? '...' : '') : ''}
+            {item.desc ? item.desc.substring(0, 30) + (item.desc.length > 30 ? '...' : '') : ''}
           </Text>
         </View>
       }
