@@ -6,10 +6,12 @@ import {
   SettingOutlined,
   CopyOutlined,
   FileAddOutlined,
+  RobotOutlined,
 } from '@ant-design/icons';
 import { Dropdown, Modal, App, Select } from 'antd';
 import type { MenuProps } from 'antd';
 import request from '@commons/request';
+import AISummarizeModal from '@components/AISummarizeModal';
 import { ArticleContext } from './context';
 import { userLog } from '@/commons/electron';
 
@@ -31,6 +33,9 @@ const Actions: React.FC<ActionsProps> = (props) => {
   const [selectedKnowledgeId, setSelectedKnowledgeId] = useState<number | undefined>(undefined);
   const [addingToKnowledge, setAddingToKnowledge] = useState(false);
   const [knowledgeList, setKnowledgeList] = useState<any[]>([]);
+
+  // AI总结相关状态
+  const [showAISummarizeModal, setShowAISummarizeModal] = useState(false);
 
   // 临时文章复制链接
   const copyTempArticleLink = () => {
@@ -251,9 +256,15 @@ const Actions: React.FC<ActionsProps> = (props) => {
         onClick: handleMove,
       });
       menus.push({
+        key: 'aiSummarize',
+        icon: <RobotOutlined />,
+        label: 'AI 总结',
+        onClick: () => setShowAISummarizeModal(true),
+      });
+      menus.push({
         key: 'addToKnowledge',
         icon: <FileAddOutlined />,
-        label: '添加到知识库',
+        label: '加到知识库',
         onClick: handleAddToKnowledge,
       });
     }
@@ -327,6 +338,12 @@ const Actions: React.FC<ActionsProps> = (props) => {
           </Select>
         </div>
       </Modal>
+
+      <AISummarizeModal
+        open={showAISummarizeModal}
+        articleId={selectedArticle?.id}
+        onClose={() => setShowAISummarizeModal(false)}
+      />
     </>
   );
 };

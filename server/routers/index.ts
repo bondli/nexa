@@ -77,6 +77,7 @@ import {
   removeArticle,
   searchArticles,
   getArticleCounts,
+  summarizeArticle,
 } from '../controllers/article-controller';
 
 import {
@@ -189,6 +190,7 @@ router.get('/article/detail', getArticleInfo);
 router.get('/article/delete', deleteArticle);
 router.get('/article/recover', recoverArticle);
 router.get('/article/remove', removeArticle);
+router.get('/article/summarize', summarizeArticle);
 
 // 文章分类
 router.post('/article_cate/create', createArticleCate);

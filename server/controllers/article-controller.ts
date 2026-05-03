@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
 import Sequelize, { Op } from 'sequelize';
+import axios from 'axios';
 import logger from 'electron-log';
 import Article from '../models/Article';
 import ArticleCate from '../models/ArticleCate';
 import TempArticle from '../models/TempArticle';
 import { success, successWithPage, badRequest, notFound, serverError } from '../utils/response';
+import { loadLLMConfig } from '../services/llm-text-service';
 
 // 新增一篇文章
 export const createArticle = async (req: Request, res: Response) => {
@@ -364,5 +366,83 @@ export const getArticleCounts = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error('Error getting ArticleCounts:', error);
     serverError(res, 'Error getting ArticleCounts');
+  }
+};
+
+// AI 总结文章
+export const summarizeArticle = async (req: Request, res: Response) => {
+  const { id } = req.query;
+
+  if (!id) {
+    badRequest(res, '文章ID不能为空');
+    return;
+  }
+
+  try {
+    // 查询文章
+    const article = await Article.findByPk(Number(id));
+    if (!article) {
+      notFound(res, '文章不存在');
+      return;
+    }
+
+    const articleData = article.toJSON();
+
+    // 如果已有总结，直接返回
+    if (articleData.summary) {
+      success(res, { summary: articleData.summary, cached: true });
+      return;
+    }
+
+    const content = articleData.desc || articleData.title;
+
+    if (!content || content.trim() === '') {
+      badRequest(res, '文章内容为空，无法总结');
+      return;
+    }
+
+    // 加载 LLM 配置
+    const config = loadLLMConfig();
+
+    if (!config.apiKey) {
+      badRequest(res, '请先配置 LLM API Key');
+      return;
+    }
+
+    // 构建提示词
+    const systemPrompt = '你是一个文章总结助手。请对用户提供的内容进行总结，突出关键信息和主要观点。用 Markdown 格式输出总结结果。';
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: `请总结以下内容：\n\n${content}` },
+    ];
+
+    // 调用 LLM 非流式接口
+    const response = await axios.post(
+      `${config.baseUrl}/chat/completions`,
+      {
+        model: config.model || 'gpt-4',
+        messages,
+        temperature: config.temperature || 0.7,
+        max_tokens: config.maxTokens || 2000,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${config.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    const summary = response.data.choices?.[0]?.message?.content || '';
+
+    // 保存总结到数据库
+    if (summary) {
+      await article.update({ summary });
+    }
+
+    success(res, { summary, cached: false });
+  } catch (error) {
+    logger.error('[summarizeArticle] Error:', error);
+    serverError(res, '总结失败，请稍后重试');
   }
 };

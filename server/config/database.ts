@@ -117,7 +117,7 @@ export const syncDatabase = async (force = false): Promise<void> => {
     // 建立模型关联
     setupAssociations();
 
-    // 先尝试不强制创建，忽略已有表
+    // 使用 alter: true 自动同步表结构（添加新列等）
     await sequelize.sync({ force: false });
     logger.info('数据库模型同步成功');
   } catch (error: any) {

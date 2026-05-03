@@ -12,6 +12,7 @@ interface ArticleAttributes {
   cateId: number;
   userId: number;
   status: string;
+  summary: string | null;
 }
 
 /**
@@ -62,6 +63,11 @@ const Article = sequelize.define<ArticleInstance, ArticleCreationAttributes>(
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: 'normal',
+    },
+    summary: {
+      comment: 'AI总结内容',
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
   },
   {
