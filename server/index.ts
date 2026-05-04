@@ -47,15 +47,15 @@ app.options('*', cors());
 
 // 添加静态文件服务，使files目录下的文件可以通过Web访问
 const getFilesDirectory = (): string => {
-  // 检查是否在 Electron 环境中
-  const isElectron = !!(process as any).resourcesPath;
+  // 检查是否在打包后的 Electron 环境中
+  const isPackaged = process.env.APP_IS_PACKAGED === '1';
 
   let filesDir: string;
-  if (isElectron) {
-    // Electron 环境：使用 resourcesPath
+  if (isPackaged) {
+    // 打包后的 Electron 环境：使用 resourcesPath
     filesDir = path.join((process as any).resourcesPath, 'files');
   } else {
-    // Node.js 环境：使用项目根目录下的 files 文件夹
+    // 开发环境或 Node.js 环境：使用项目根目录下的 files 文件夹
     filesDir = path.join(process.cwd(), 'files');
   }
 

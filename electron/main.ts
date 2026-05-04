@@ -86,6 +86,7 @@ const startServer = (): void => {
     env: {
       ...process.env,
       NODE_ENV: process.env.NODE_ENV || 'production',
+      APP_IS_PACKAGED: app.isPackaged ? '1' : '0',
     },
   });
 
