@@ -45,12 +45,8 @@ const ChatBoxPage: React.FC = () => {
       await sleep(300);
     }
 
-    // 1. 同时追加用户消息和loading状态的assistant消息，避免状态更新时序问题
-    setMessageList((prev) => [
-      ...prev,
-      { role: 'user', content: msg, status: 'success' },
-      { role: 'assistant', content: '', status: 'loading' },
-    ]);
+    // 1. 先添加用户消息
+    setMessageList((prev) => [...prev, { role: 'user', content: msg, status: 'success' }]);
 
     // 2. 构造 fetch 请求参数
     const controller = new AbortController();
@@ -63,6 +59,11 @@ const ChatBoxPage: React.FC = () => {
       useRAG: useRAG,
       knowledgeIds: selectedKnowledgeIds,
     });
+
+    // 用于跟踪是否已经有assistant消息
+    let hasAssistantMessage = false;
+    // 用于跟踪是否已收到final事件（收到后不再处理data.content）
+    let hasFinalContent = false;
 
     try {
       const response = await fetch(`${API_BASE_URL}chat/withllm`, {
@@ -80,6 +81,36 @@ const ChatBoxPage: React.FC = () => {
       let assistantContent = '';
       let done = false;
       const decoder = new TextDecoder('utf-8');
+
+      // 辅助函数：更新或创建assistant消息
+      const updateOrCreateAssistantMessage = (content: string, status: 'loading' | 'success' | 'error') => {
+        setMessageList((prev) => {
+          const updated = [...prev];
+          if (!hasAssistantMessage) {
+            // 第一次：替换掉空的loading消息
+            const lastIndex = updated.length - 1;
+            if (lastIndex >= 0 && updated[lastIndex].role === 'user') {
+              updated.push({ role: 'assistant', content, status });
+              hasAssistantMessage = true;
+            }
+          } else {
+            // 已有assistant消息：更新最后一条assistant消息
+            for (let i = updated.length - 1; i >= 0; i--) {
+              if (updated[i].role === 'assistant') {
+                updated[i] = { ...updated[i], content, status };
+                break;
+              }
+            }
+          }
+          return updated;
+        });
+      };
+
+      // 辅助函数：追加assistant消息（用于执行事件）
+      const appendAssistantMessage = (content: string, status: 'loading' | 'success' | 'error') => {
+        setMessageList((prev) => [...prev, { role: 'assistant', content, status }]);
+      };
+
       while (!done) {
         const { value, done: doneReading } = await reader.read();
         done = doneReading;
@@ -90,41 +121,78 @@ const ChatBoxPage: React.FC = () => {
             if (line.startsWith('data: ')) {
               try {
                 const data = JSON.parse(line.replace('data: ', ''));
-                // 处理新格式的响应: { content, done, toolCalls }
-                if (data.content) {
-                  assistantContent += data.content;
-                  setMessageList((prev) => {
-                    const updated = [...prev];
-                    // 从后往前找最近的loading状态的assistant消息进行更新
-                    for (let i = updated.length - 1; i >= 0; i--) {
-                      if (updated[i].role === 'assistant' && updated[i].status === 'loading') {
-                        updated[i] = {
-                          ...updated[i],
-                          content: assistantContent,
-                          status: 'loading',
-                        };
-                        break;
-                      }
+                console.log('[ChatBox] SSE data received:', JSON.stringify(data).substring(0, 200));
+
+                // 处理新格式的执行事件
+                if (data.type && data.sessionId === finalSessionId) {
+                  console.log('[ChatBox] Processing event:', data.type);
+
+                  // 如果是最终回答，更新消息内容
+                  if (data.type === 'final' && data.data?.final?.content) {
+                    assistantContent = data.data.final.content;
+                    hasFinalContent = true;
+                    updateOrCreateAssistantMessage(assistantContent, 'success');
+                    return;
+                  }
+
+                  // 如果是 thinking 事件
+                  if (data.type === 'thinking') {
+                    updateOrCreateAssistantMessage(`🤔 ${data.data?.thinking?.message || '正在思考...'}`, 'loading');
+                    return;
+                  }
+
+                  // 如果是工具调用事件
+                  if (data.type === 'tool_call') {
+                    const toolName = data.data?.tool_call?.tool || 'unknown';
+                    const params = data.data?.tool_call?.params || {};
+                    const paramsStr = JSON.stringify(params, null, 2);
+                    appendAssistantMessage(`🔧 调用工具: ${toolName}\n\`\`\`json\n${paramsStr}\n\`\`\``, 'success');
+                    return;
+                  }
+
+                  // 如果是工具开始执行事件
+                  if (data.type === 'tool_start') {
+                    const toolName = data.data?.tool_start?.tool || 'unknown';
+                    appendAssistantMessage(`⚙️ 正在执行 ${toolName}...`, 'loading');
+                    return;
+                  }
+
+                  // 如果是工具结果事件
+                  if (data.type === 'tool_result') {
+                    const result = data.data?.tool_result?.result || '';
+                    let displayResult = result;
+                    try {
+                      displayResult = JSON.stringify(JSON.parse(result), null, 2);
+                    } catch {
+                      // Not JSON, use as-is
                     }
-                    return updated;
-                  });
+                    const truncated =
+                      displayResult.length > 500 ? displayResult.substring(0, 500) + '...' : displayResult;
+                    appendAssistantMessage(`✅ 工具执行完成:\n\`\`\`\n${truncated}\n\`\`\``, 'success');
+                    return;
+                  }
+
+                  // 如果是工具错误事件
+                  if (data.type === 'tool_error') {
+                    const error = data.data?.tool_error?.error || '未知错误';
+                    appendAssistantMessage(`❌ 工具执行失败: ${error}`, 'error');
+                    return;
+                  }
+
+                  return;
+                } else if (data.type) {
+                  console.log('[ChatBox] SessionId mismatch:', data.sessionId, 'vs', finalSessionId);
+                }
+
+                // 处理旧格式的响应: { content, done, toolCalls }
+                // 如果已经收到final事件，不再处理data.content（避免重复追加）
+                if (data.content && !hasFinalContent) {
+                  assistantContent += data.content;
+                  updateOrCreateAssistantMessage(assistantContent, 'loading');
                 }
                 // 处理错误
                 if (data.error) {
-                  setMessageList((prev) => {
-                    const updated = [...prev];
-                    for (let i = updated.length - 1; i >= 0; i--) {
-                      if (updated[i].role === 'assistant' && updated[i].status === 'loading') {
-                        updated[i] = {
-                          ...updated[i],
-                          status: 'error',
-                          content: data.error,
-                        };
-                        break;
-                      }
-                    }
-                    return updated;
-                  });
+                  updateOrCreateAssistantMessage(data.error, 'error');
                 }
               } catch (e) {
                 // 忽略解析错误
@@ -134,17 +202,12 @@ const ChatBoxPage: React.FC = () => {
           });
         }
       }
-      // 3. 结束后将 assistant 消息状态设为 success
+      // 流结束后，如果assistant消息还是loading状态且没有内容，设为成功
       setMessageList((prev) => {
         const updated = [...prev];
-        // 从后往前找最近的loading状态的assistant消息
         for (let i = updated.length - 1; i >= 0; i--) {
           if (updated[i].role === 'assistant' && updated[i].status === 'loading') {
-            updated[i] = {
-              ...updated[i],
-              content: assistantContent,
-              status: 'success',
-            };
+            updated[i] = { ...updated[i], content: assistantContent, status: 'success' };
             break;
           }
         }
@@ -152,10 +215,9 @@ const ChatBoxPage: React.FC = () => {
       });
     } catch (err) {
       const isAbortError = err instanceof Error && err.name === 'AbortError';
-      // 4. 错误时设为 error
+      // 错误时设为 error
       setMessageList((prev) => {
         const updated = [...prev];
-        // 从后往前找最近的loading状态的assistant消息
         for (let i = updated.length - 1; i >= 0; i--) {
           if (updated[i].role === 'assistant' && updated[i].status === 'loading') {
             updated[i] = {

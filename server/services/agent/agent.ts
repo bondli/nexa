@@ -3,12 +3,22 @@ import { ChatOpenAI } from '@langchain/openai';
 // @ts-ignore - 子路径导出在 moduleResolution:node 下不可见，但运行时正常
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 import logger from 'electron-log';
-import type { AgentConfig, AgentResult, ChatMessage, StreamCallback, ToolCall, RAGConfig } from './types';
+import type {
+  AgentConfig,
+  AgentResult,
+  ChatMessage,
+  StreamCallback,
+  ExtendedStreamCallback,
+  ToolCall,
+  RAGConfig,
+  ExecutionEvent,
+} from './types';
 import { loadLLMConfig, getDefaultBaseUrl } from './llm-config';
 import { getToolRegistry } from './tools';
 import { getSkillRegistry } from './skills';
 import { getMessageHistoryManager } from './memory/manager';
 import { getContextCompressor } from './memory/compressor';
+import { ToolExecutionCallbackHandler } from './callbacks/tool-callback';
 import { getRetrievalService } from './rag';
 import { logAgentExecution, logAgentError } from './logging';
 
@@ -63,6 +73,10 @@ class Agent {
       const { registerBuiltInTools } = require('./tools/builtins');
       registerBuiltInTools();
 
+      // 注册系统工具（沙箱工具）
+      const { registerSystemTools } = require('./tools/system-tools');
+      registerSystemTools();
+
       // 注册内置 Skills
       const { registerBuiltInSkills } = require('./skills/builtins');
       registerBuiltInSkills();
@@ -115,11 +129,17 @@ class Agent {
     messages: Array<{ role: string; content: string }>,
     sessionId: string,
     streamCallback?: StreamCallback,
+    extendedCallback?: ExtendedStreamCallback,
   ): Promise<AgentResult> {
     this.config.sessionId = sessionId;
 
     try {
       logAgentExecution(sessionId, 'Starting chat', { messageCount: messages.length, useTools: this.config.useTools });
+
+      // 发送思考中事件
+      if (extendedCallback) {
+        extendedCallback({ type: 'thinking', data: { thinking: { message: '正在分析您的问题...' } } });
+      }
 
       // 1. 加载历史消息
       const historyMessages = await this.loadHistory();
@@ -174,9 +194,14 @@ class Agent {
       const toolCalls: ToolCall[] = [];
 
       if (this.config.useTools) {
-        result = await this.chatWithTools(fullMessages, streamCallback, toolCalls);
+        result = await this.chatWithTools(fullMessages, streamCallback, toolCalls, extendedCallback);
       } else {
-        result = await this.chatWithoutTools(fullMessages, streamCallback);
+        result = await this.chatWithoutTools(fullMessages, streamCallback, extendedCallback);
+      }
+
+      // 发送最终回答事件
+      if (extendedCallback) {
+        extendedCallback({ type: 'final', data: { final: { content: result } } });
       }
 
       // 9. 只追加 assistant 的回复到数据库（用户消息已经在步骤3中追加）
@@ -216,6 +241,7 @@ class Agent {
     messages: BaseMessage[],
     streamCallback?: StreamCallback,
     toolCalls?: ToolCall[],
+    extendedCallback?: ExtendedStreamCallback,
   ): Promise<string> {
     const toolRegistry = getToolRegistry();
     const tools = toolRegistry.getLangChainTools();
@@ -227,16 +253,26 @@ class Agent {
       tools,
     });
 
+    // 创建工具执行回调处理器
+    const toolCallbackHandler = new ToolExecutionCallbackHandler(extendedCallback);
+
     // 流式调用
     let fullContent = '';
     const stream = await agent.stream(
       { messages },
-      { configurable: { thread_id: this.config.sessionId } },
+      {
+        configurable: { thread_id: this.config.sessionId },
+        callbacks: [toolCallbackHandler],
+      },
     );
 
     for await (const chunk of stream) {
       // chunk 是 Record<string, unknown> 类型，需要安全访问
       const chunkData = chunk as unknown as Record<string, unknown>;
+
+      // Debug: 记录所有 chunk 类型
+      const chunkTypes = Object.keys(chunkData);
+      logger.info(`[chatWithTools] Chunk types=${chunkTypes.join(',')}`);
 
       // 处理 agent 消息
       if (chunkData.agent) {
@@ -261,6 +297,19 @@ class Agent {
               name: tc.name,
               arguments: tc.args,
             });
+
+            // 发送工具调用事件
+            if (extendedCallback) {
+              extendedCallback({
+                type: 'tool_call',
+                data: { tool_call: { tool: tc.name, params: tc.args } },
+              });
+              extendedCallback({
+                type: 'tool_start',
+                data: { tool_start: { tool: tc.name, message: `正在执行 ${tc.name}...` } },
+              });
+            }
+
             if (streamCallback) {
               streamCallback('', false, [tc.name]);
             }
@@ -279,7 +328,11 @@ class Agent {
   /**
    * 不带工具的对话
    */
-  private async chatWithoutTools(messages: BaseMessage[], streamCallback?: StreamCallback): Promise<string> {
+  private async chatWithoutTools(
+    messages: BaseMessage[],
+    streamCallback?: StreamCallback,
+    extendedCallback?: ExtendedStreamCallback,
+  ): Promise<string> {
     let fullContent = '';
     const stream = await this.llm.stream(messages);
 
@@ -307,10 +360,10 @@ class Agent {
   async simpleChat(
     messages: Array<{ role: string; content: string }>,
     sessionId: string,
-    streamCallback?: StreamCallback,
+    extendedCallback?: ExtendedStreamCallback,
   ): Promise<string> {
     this.config.useTools = false;
-    const result = await this.chat(messages, sessionId, streamCallback);
+    const result = await this.chat(messages, sessionId, undefined, extendedCallback);
     return result.content;
   }
 

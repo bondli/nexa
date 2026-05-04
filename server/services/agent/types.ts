@@ -133,3 +133,63 @@ export interface CheckpointMetadata {
   messageCount: number;
   createdAt: Date;
 }
+
+/**
+ * 执行过程事件类型
+ */
+export type ExecutionEventType =
+  | 'thinking'      // Agent 思考中
+  | 'tool_call'      // Agent 决定调用工具
+  | 'tool_start'     // 工具开始执行
+  | 'tool_result'    // 工具执行结果
+  | 'tool_error'     // 工具执行错误
+  | 'reasoning'      // Agent 推理过程
+  | 'final';         // 最终回答
+
+/**
+ * 执行过程事件数据
+ */
+export interface ExecutionEventData {
+  thinking?: {
+    message: string;
+  };
+  tool_call?: {
+    tool: string;
+    params: Record<string, unknown>;
+  };
+  tool_start?: {
+    tool: string;
+    message: string;
+  };
+  tool_result?: {
+    tool: string;
+    success: boolean;
+    result?: string;
+    error?: string;
+  };
+  tool_error?: {
+    tool: string;
+    error: string;
+  };
+  reasoning?: {
+    thought: string;
+  };
+  final?: {
+    content: string;
+  };
+}
+
+/**
+ * 执行过程事件
+ */
+export interface ExecutionEvent {
+  type: ExecutionEventType;
+  data: ExecutionEventData;
+}
+
+/**
+ * 扩展的流式回调类型（支持多事件类型）
+ */
+export interface ExtendedStreamCallback {
+  (event: ExecutionEvent): void;
+}

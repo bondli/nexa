@@ -5,6 +5,7 @@ import ChatCate from '../models/ChatCate';
 import { getMessages as getAllMessages, deleteMessages } from '../services/chat-service';
 import { createAgent, loadLLMConfig } from '../services/agent';
 import { success, successWithPage, notFound, badRequest, serverError } from '../utils/response';
+import type { ExecutionEvent, ExtendedStreamCallback } from '../services/agent/types';
 
 // 新增一个会话
 export const createChat = async (req: Request, res: Response) => {
@@ -175,27 +176,20 @@ export const chatToLLM = async (req: Request, res: Response) => {
       { role: 'user', content: message },
     ];
 
-    // 流式回调
-    const streamCallback = (content: string, done: boolean, toolCalls?: string[]) => {
+    // 扩展的流式回调 - 支持多种事件类型
+    const extendedCallback: ExtendedStreamCallback = (event: ExecutionEvent) => {
       const data = {
         sessionId,
-        content,
-        done,
-        toolCalls,
+        ...event,
       };
       res.write(`data: ${JSON.stringify(data)}\n\n`);
-
-      // 如果完成且有工具调用
-      if (done && toolCalls && toolCalls.length > 0) {
-        logger.info(`[chatToLLM] 工具调用完成: ${toolCalls.join(', ')}`);
-      }
     };
 
     // 调用 Agent，消息自动持久化
     if (useTools) {
-      await agent.chat(messages, sessionId, streamCallback);
+      await agent.chat(messages, sessionId, undefined, extendedCallback);
     } else {
-      await agent.simpleChat(messages, sessionId, streamCallback);
+      await agent.simpleChat(messages, sessionId, extendedCallback);
     }
 
     // 发送结束信号
