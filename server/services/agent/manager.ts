@@ -1,8 +1,84 @@
-import type { AgentConfig } from './types';
+import type { AgentConfig, SkillDefinition } from './types';
 import { createAgent } from './agent';
 import type Agent from './agent';
 import { logAgentExecution } from './logging';
 import logger from 'electron-log';
+import { getSkillRegistry } from './skills/registry';
+import type { SkillInstance } from '../../models/skill';
+
+/**
+ * 从数据库加载用户安装的 Skills 到 registry
+ */
+const loadSkillsFromDB = async (): Promise<void> => {
+  try {
+    // 延迟导入避免循环依赖
+    const Skill = require('../../models/skill').default;
+    const registry = getSkillRegistry();
+
+    const skills = await Skill.findAll({ where: { enabled: true } });
+
+    for (const skillModel of skills) {
+      try {
+        const skillDef = parseSkillFromDBModel(skillModel);
+        registry.installSkill(skillDef);
+        logger.info(`[AgentManager] Loaded skill from DB: ${skillModel.name}`);
+      } catch (error) {
+        logger.warn(`[AgentManager] Failed to load skill ${skillModel.name}:`, error);
+      }
+    }
+
+    logger.info(`[AgentManager] Loaded ${skills.length} skills from DB`);
+  } catch (error) {
+    logger.error('[AgentManager] Error loading skills from DB:', error);
+  }
+};
+
+/**
+ * 从数据库模型解析 Skill 定义
+ */
+const parseSkillFromDBModel = (skillModel: SkillInstance): SkillDefinition => {
+  // 动态加载入口文件
+  const path = require('path');
+  const os = require('os');
+  const fs = require('fs');
+
+  const skillsBaseDir = path.join(os.homedir(), '.nexa', 'skills');
+  const skillDir = path.join(skillsBaseDir, skillModel.name);
+
+  // 查找入口脚本：优先使用 index.js，否则使用第一个 .js 文件
+  let entryFile = 'index.js';
+  if (!fs.existsSync(path.join(skillDir, entryFile))) {
+    const files = fs.readdirSync(skillDir).filter((f: string) => f.endsWith('.js'));
+    if (files.length === 0) {
+      throw new Error(`Skill ${skillModel.name} 目录中没有找到 .js 文件`);
+    }
+    entryFile = files[0];
+  }
+
+  const entryPath = path.join(skillDir, entryFile);
+
+  const module = require(entryPath);
+  const handler = module.default || module.handler || module.execute;
+
+  if (typeof handler !== 'function') {
+    throw new Error(`入口文件 ${entryPath} 未导出有效的 handler 函数`);
+  }
+
+  return {
+    name: skillModel.name,
+    description: skillModel.description,
+    parameters: {},
+    handler: async (params) => {
+      try {
+        const result = await handler(params);
+        return typeof result === 'string' ? result : JSON.stringify(result);
+      } catch (error) {
+        logger.error(`[AgentManager] Skill ${skillModel.name} 执行失败:`, error);
+        return JSON.stringify({ success: false, error: String(error) });
+      }
+    },
+  };
+};
 
 /**
  * Agent 信息
@@ -178,6 +254,13 @@ export const getAgentManager = (): AgentManager => {
     agentManager = new AgentManager();
   }
   return agentManager;
+};
+
+/**
+ * 初始化 Agent 系统：从数据库加载 Skills
+ */
+export const initializeAgentSkills = async (): Promise<void> => {
+  await loadSkillsFromDB();
 };
 
 export default AgentManager;

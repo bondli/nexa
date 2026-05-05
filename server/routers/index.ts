@@ -94,6 +94,16 @@ import {
 } from '../controllers/temp-article-controller';
 
 import { getAllSettings, saveAllSettings } from '../controllers/settings-controller';
+import {
+  listSkills,
+  getSkill,
+  installSkill,
+  parseSkill,
+  toggleSkill,
+  deleteSkill,
+  exportAllSkills,
+  importSkills,
+} from '../controllers/skill-controller';
 
 const router = express.Router();
 
@@ -208,5 +218,15 @@ router.get('/knowledge/addToKnowledge', addToKnowledge);
 // 设置相关
 router.get('/settings/get', getAllSettings);
 router.post('/settings/save', saveAllSettings);
+
+// Skill 相关
+router.get('/skill/list', listSkills);
+router.get('/skill/:name', getSkill);
+router.post('/skill/parse', parseSkill);
+router.post('/skill/install', installSkill);
+router.put('/skill/:name/toggle', toggleSkill);
+router.delete('/skill/:name', deleteSkill);
+router.get('/skill/export-all', exportAllSkills);
+router.post('/skill/import', importSkills);
 
 export default router;

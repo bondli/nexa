@@ -9,6 +9,7 @@ import ChatHistory from './ChatHistory';
 import MessageList from './MessageList';
 import NewChatButton from './NewChatButton';
 import ChatSender from './ChatSender';
+import SkillManage from './SkillManage';
 import style from './index.module.less';
 
 const { Header, Sider, Content } = Layout;
@@ -238,8 +239,8 @@ const ChatBoxPage: React.FC = () => {
   return (
     <Layout className={style.container}>
       <Sider trigger={null} collapsible theme={'light'} width={260} className={style.sider}>
-        {/* 新对话 */}
-        <NewChatButton text={'New Chat'} size={'large'} type={'default'} width={'100%'} onClick={handleNewChat} />
+        {/* Skills 管理入口 */}
+        <SkillManage />
 
         {/* 对话列表 */}
         <div className={style.list}>

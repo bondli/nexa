@@ -10,6 +10,7 @@ import { initVectorDB } from './config/vectorDB';
 import router from './routers/index';
 import { initSyncQueue, startSyncScheduler } from './services/cloud-sync-service';
 import { getConfigFilePath } from './services/config-service';
+import { initializeAgentSkills } from './services/agent/manager';
 
 // 引入所有模型，确保数据库同步时能创建所有表
 import './models/User';
@@ -19,6 +20,7 @@ import './models/Knowledge';
 import './models/Docs';
 import './models/Chat';
 import './models/Picture';
+import './models/skill';
 
 const app = express();
 
@@ -86,6 +88,8 @@ app.all('*', (req, res, next) => {
       await testConnection();
       await syncDatabase();
       await initVectorDB();
+      // 初始化 Agent Skills（从 DB 加载已安装的 skills）
+      await initializeAgentSkills();
     } else {
       logger.info('[API Server] 数据库未配置，跳过数据库连接');
     }
