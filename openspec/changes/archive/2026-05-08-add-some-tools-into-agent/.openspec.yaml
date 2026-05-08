@@ -1,0 +1,24 @@
+schema: spec-driven
+
+# Project context
+context: |
+  Tech stack: TypeScript, React, Node.js, Express, MySQL, Electron
+  Architecture: UI → Service → Data/AI 分层
+  现有代码：
+  - server/services/agent/tools/builtins.ts：已有 write_note, search_notes, get_weather 工具桩
+  - server/controllers/note-controller.ts：笔记 CRUD API
+  - server/controllers/article-controller.ts：文章 CRUD API
+  - server/controllers/cate-controller.ts：分类 API (getCates)
+  - server/routes/：现有路由文件
+
+# Per-artifact rules
+rules:
+  proposal:
+    - 使用中文编写
+    - 保持简洁，500字以内
+  design:
+    - 包含所有技术决策和权衡
+    - 必须覆盖所有工具实现
+  tasks:
+    - 任务粒度适中，单个任务 2 小时以内
+    - 按依赖关系排序

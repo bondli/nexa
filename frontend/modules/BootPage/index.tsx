@@ -47,7 +47,7 @@ const BootPage: React.FC = () => {
   return (
     <Layout className={style.layout}>
       <Header className={style.header}>
-        <Logo mode={'light'} title={'NEXA'} />
+        <Logo title={'NEXA'} />
         <div className={style.sologon}>{'AI Knowledage Manager'}</div>
       </Header>
       <Content className={style.content}>

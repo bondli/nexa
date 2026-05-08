@@ -161,8 +161,8 @@ const Articles: React.FC = () => {
         style={{ display: 'none' }}
         src={previewImgUrl}
         preview={{
-          visible: previewVisible,
-          onVisibleChange: (visible) => setPreviewVisible(visible),
+          open: previewVisible,
+          onOpenChange: (visible) => setPreviewVisible(visible),
         }}
       />
       <List

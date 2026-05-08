@@ -10,6 +10,7 @@ export class ToolExecutionCallbackHandler extends BaseCallbackHandler {
   name = 'tool_execution_handler';
 
   private extendedCallback?: ExtendedStreamCallback;
+  private currentToolName: string = '';
 
   constructor(extendedCallback?: ExtendedStreamCallback) {
     super();
@@ -21,34 +22,62 @@ export class ToolExecutionCallbackHandler extends BaseCallbackHandler {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleToolStart(tool: any, input: any, runId: string, parentRunId?: string): void {
-    // 尝试从不同属性获取工具名称
-    const toolName = tool?.name || tool?.id || tool?._name || 'unknown';
-    const args = typeof input === 'string' ? { query: input } : input;
+    let toolName = 'unknown';
 
-    logger.info(`[ToolCallback] Tool start: ${toolName}`, args);
-    logger.info(`[ToolCallback] Tool object:`, JSON.stringify(tool).substring(0, 200));
+    if (tool) {
+      // 直接检查标准 name 属性（DynamicTool 应该有这个）
+      if (typeof tool.name === 'string' && tool.name !== 'DynamicTool') {
+        toolName = tool.name;
+      }
+      // 检查自定义的 toolName 属性
+      else if (typeof tool.toolName === 'string') {
+        toolName = tool.toolName;
+      }
+      // DynamicTool 内部将名称存储在 _name 属性中
+      else if (typeof tool._name === 'string') {
+        toolName = tool._name;
+      }
+      // id 可能是字符串
+      else if (typeof tool.id === 'string' && tool.id !== 'DynamicTool') {
+        toolName = tool.id;
+      }
+      // id 可能是数组，从中提取实际名称
+      else if (Array.isArray(tool.id) && tool.id.length > 0) {
+        for (let i = tool.id.length - 1; i >= 0; i--) {
+          const item = tool.id[i];
+          if (item && typeof item === 'string' && !['langchain', 'tools', 'DynamicTool', 'unknown'].includes(item)) {
+            toolName = item;
+            break;
+          }
+        }
+      }
 
-    // 发送工具调用开始事件
-    if (this.extendedCallback) {
-      this.extendedCallback({
-        type: 'tool_call',
-        data: {
-          tool_call: {
-            tool: toolName,
-            params: args as Record<string, unknown>,
-          },
-        },
-      });
+      // 尝试从 func 的名称推断
+      if (toolName === 'unknown' && tool.func) {
+        if (typeof tool.func.name === 'string' && tool.func.name !== 'anonymous') {
+          toolName = tool.func.name;
+        }
+      }
 
-      this.extendedCallback({
-        type: 'tool_start',
-        data: {
-          tool_start: {
-            tool: toolName,
-            message: `正在执行 ${toolName}...`,
-          },
-        },
-      });
+      // 尝试从 func 的 displayName 推断
+      if (toolName === 'unknown' && tool.func) {
+        if (typeof (tool.func as any).displayName === 'string') {
+          toolName = (tool.func as any).displayName;
+        }
+      }
+    }
+
+    this.currentToolName = toolName;
+
+    // 解析 input 参数（仅用于存储，当前不需要发送）
+    // 注意：tool_call 和 tool_start 事件已在 chatWithTools 中正确发送
+    const args = typeof input === 'string' ? { input } : input;
+    if (typeof input === 'string') {
+      try {
+        JSON.parse(input);
+      } catch {
+        // ignore
+      }
     }
   }
 
@@ -59,15 +88,13 @@ export class ToolExecutionCallbackHandler extends BaseCallbackHandler {
   handleToolEnd(output: any, runId: string, parentRunId?: string): void {
     const resultStr = typeof output === 'string' ? output : JSON.stringify(output);
 
-    logger.info(`[ToolCallback] Tool end:`, resultStr.substring(0, 200));
-
     // 发送工具结果事件
     if (this.extendedCallback) {
       this.extendedCallback({
         type: 'tool_result',
         data: {
           tool_result: {
-            tool: '',
+            tool: this.currentToolName,
             success: true,
             result: resultStr,
           },
@@ -90,7 +117,7 @@ export class ToolExecutionCallbackHandler extends BaseCallbackHandler {
         type: 'tool_error',
         data: {
           tool_error: {
-            tool: '',
+            tool: this.currentToolName,
             error: errorMsg,
           },
         },

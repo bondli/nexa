@@ -152,6 +152,9 @@ export const chatToLLM = async (req: Request, res: Response) => {
     return;
   }
 
+  // 从请求头获取 userId
+  const userId = Number(req.headers['x-user-id']) || 0;
+
   // 设置 SSE 响应头
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -167,6 +170,10 @@ export const chatToLLM = async (req: Request, res: Response) => {
       res.end();
       return;
     }
+
+    // 设置 userId 到工具注册表
+    const { getToolRegistry } = require('../services/agent/tools/registry');
+    getToolRegistry().setUserId(userId);
 
     // 创建 Agent 实例
     const agent = createAgent({ sessionId, useTools, useRAG, knowledgeIds });

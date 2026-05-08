@@ -61,8 +61,6 @@ const ChatBoxPage: React.FC = () => {
       knowledgeIds: selectedKnowledgeIds,
     });
 
-    // 用于跟踪是否已经有assistant消息
-    let hasAssistantMessage = false;
     // 用于跟踪是否已收到final事件（收到后不再处理data.content）
     let hasFinalContent = false;
 
@@ -83,34 +81,13 @@ const ChatBoxPage: React.FC = () => {
       let done = false;
       const decoder = new TextDecoder('utf-8');
 
-      // 辅助函数：更新或创建assistant消息
-      const updateOrCreateAssistantMessage = (content: string, status: 'loading' | 'success' | 'error') => {
-        setMessageList((prev) => {
-          const updated = [...prev];
-          if (!hasAssistantMessage) {
-            // 第一次：替换掉空的loading消息
-            const lastIndex = updated.length - 1;
-            if (lastIndex >= 0 && updated[lastIndex].role === 'user') {
-              updated.push({ role: 'assistant', content, status });
-              hasAssistantMessage = true;
-            }
-          } else {
-            // 已有assistant消息：更新最后一条assistant消息
-            for (let i = updated.length - 1; i >= 0; i--) {
-              if (updated[i].role === 'assistant') {
-                updated[i] = { ...updated[i], content, status };
-                break;
-              }
-            }
-          }
-          return updated;
-        });
-      };
-
-      // 辅助函数：追加assistant消息（用于执行事件）
-      const appendAssistantMessage = (content: string, status: 'loading' | 'success' | 'error') => {
+      // 辅助函数：创建新assistant消息
+      const createAssistantMessage = (content: string, status: 'loading' | 'success' | 'error') => {
         setMessageList((prev) => [...prev, { role: 'assistant', content, status }]);
       };
+
+      // 辅助函数：追加assistant消息
+      const appendAssistantMessage = createAssistantMessage;
 
       while (!done) {
         const { value, done: doneReading } = await reader.read();
@@ -128,17 +105,17 @@ const ChatBoxPage: React.FC = () => {
                 if (data.type && data.sessionId === finalSessionId) {
                   console.log('[ChatBox] Processing event:', data.type);
 
-                  // 如果是最终回答，更新消息内容
+                  // 如果是最终回答，创建新消息
                   if (data.type === 'final' && data.data?.final?.content) {
                     assistantContent = data.data.final.content;
                     hasFinalContent = true;
-                    updateOrCreateAssistantMessage(assistantContent, 'success');
+                    appendAssistantMessage(assistantContent, 'success');
                     return;
                   }
 
                   // 如果是 thinking 事件
                   if (data.type === 'thinking') {
-                    updateOrCreateAssistantMessage(`🤔 ${data.data?.thinking?.message || '正在思考...'}`, 'loading');
+                    createAssistantMessage(`🤔 ${data.data?.thinking?.message || '正在思考...'}`, 'loading');
                     return;
                   }
 
@@ -161,15 +138,32 @@ const ChatBoxPage: React.FC = () => {
                   // 如果是工具结果事件
                   if (data.type === 'tool_result') {
                     const result = data.data?.tool_result?.result || '';
-                    let displayResult = result;
+                    let displayContent = result;
+
+                    // 尝试解析 LangChain 封装的 JSON 格式
                     try {
-                      displayResult = JSON.stringify(JSON.parse(result), null, 2);
+                      const parsed = JSON.parse(result);
+                      // 如果有 kwargs.content，说明是 LangChain 的 ToolMessage 格式
+                      if (parsed.kwargs?.content) {
+                        const innerContent = JSON.parse(parsed.kwargs.content);
+                        if (innerContent.success !== undefined) {
+                          // 如果内层是工具的实际返回，格式化显示
+                          if (innerContent.message) {
+                            displayContent = innerContent.message;
+                          } else if (innerContent.results) {
+                            displayContent = `找到 ${innerContent.results.length} 条结果`;
+                          }
+                        }
+                      } else if (parsed.content) {
+                        displayContent = parsed.content;
+                      }
                     } catch {
-                      // Not JSON, use as-is
+                      // 不是 JSON 或解析失败，保留原值
                     }
+
                     const truncated =
-                      displayResult.length > 500 ? displayResult.substring(0, 500) + '...' : displayResult;
-                    appendAssistantMessage(`✅ 工具执行完成:\n\`\`\`\n${truncated}\n\`\`\``, 'success');
+                      displayContent.length > 200 ? displayContent.substring(0, 200) + '...' : displayContent;
+                    appendAssistantMessage(`✅ 工具执行完成: ${truncated}`, 'success');
                     return;
                   }
 
@@ -189,11 +183,11 @@ const ChatBoxPage: React.FC = () => {
                 // 如果已经收到final事件，不再处理data.content（避免重复追加）
                 if (data.content && !hasFinalContent) {
                   assistantContent += data.content;
-                  updateOrCreateAssistantMessage(assistantContent, 'loading');
+                  createAssistantMessage(assistantContent, 'loading');
                 }
                 // 处理错误
                 if (data.error) {
-                  updateOrCreateAssistantMessage(data.error, 'error');
+                  createAssistantMessage(data.error, 'error');
                 }
               } catch (e) {
                 // 忽略解析错误
@@ -203,17 +197,6 @@ const ChatBoxPage: React.FC = () => {
           });
         }
       }
-      // 流结束后，如果assistant消息还是loading状态且没有内容，设为成功
-      setMessageList((prev) => {
-        const updated = [...prev];
-        for (let i = updated.length - 1; i >= 0; i--) {
-          if (updated[i].role === 'assistant' && updated[i].status === 'loading') {
-            updated[i] = { ...updated[i], content: assistantContent, status: 'success' };
-            break;
-          }
-        }
-        return updated;
-      });
     } catch (err) {
       const isAbortError = err instanceof Error && err.name === 'AbortError';
       // 错误时设为 error
