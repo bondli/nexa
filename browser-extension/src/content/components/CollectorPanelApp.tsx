@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Spin } from 'antd';
+import { Spin, Button, App as AntdApp } from 'antd';
+
+import { getCategories, saveArticle, ArticleData, Category } from '../../services/article';
 import { getLoginData, clearLoginData, UserInfo } from '../../services/utils';
 import LoginForm from './LoginForm';
 import CollectorContent from './CollectorContent';
+import ArticleCollectModal from './ArticleCollectModal';
 import ImageCollector from './ImageCollector';
 
 // 存储 key
@@ -29,11 +32,34 @@ const isDomainAllowed = async (): Promise<boolean> => {
 };
 
 export const CollectorPanelApp: React.FC = () => {
+  const { message } = AntdApp.useApp();
   const [isOpen, setIsOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<UserInfo | null>(null);
   const [checkLoading, setCheckLoading] = useState(true);
   const [domainAllowed, setDomainAllowed] = useState(false);
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+
+  // 文章相关
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [url, setUrl] = useState('');
+
+  const loadCategories = async () => {
+    try {
+      const data = await getCategories();
+      setCategories(data);
+      // 默认选择第一个分类
+      if (data.length > 0 && !selectedCategory) {
+        setSelectedCategory(data[0].id);
+      }
+    } catch {
+      console.error('加载分类失败');
+    }
+  };
 
   useEffect(() => {
     const initCheck = async () => {
@@ -48,6 +74,7 @@ export const CollectorPanelApp: React.FC = () => {
       setCheckLoading(false);
     };
     initCheck();
+    loadCategories();
   }, []);
 
   const handleLoginSuccess = (userInfo: UserInfo) => {
@@ -59,6 +86,47 @@ export const CollectorPanelApp: React.FC = () => {
     await clearLoginData();
     setIsLoggedIn(false);
     setUser(null);
+  };
+
+  // 收藏成功后的处理逻辑
+  const handleCollected = (result: any) => {
+    const { title, content, url } = result;
+    setTitle(title);
+    setContent(content);
+    setUrl(url);
+    loadCategories();
+    setIsOpen(false);
+    setShowModal(true);
+  };
+
+  // 最终保存
+  const handleModalSave = async (data: {
+    title: string;
+    desc: string;
+    url: string;
+    cateId: number;
+    summary: string;
+    image: string;
+  }) => {
+    try {
+      const noteData: ArticleData = {
+        title: data.title || '未命名',
+        desc: data.desc,
+        url: data.url,
+        cateId: data.cateId,
+        summary: data.summary,
+        image: data.image,
+      };
+      const result = await saveArticle(noteData);
+      if (result.success) {
+        message.success('保存成功');
+        setShowModal(false);
+      } else {
+        message.error(result.message || '保存失败');
+      }
+    } catch {
+      message.error('保存失败');
+    }
   };
 
   // 域名未授权且检查完毕，不渲染任何内容
@@ -89,13 +157,30 @@ export const CollectorPanelApp: React.FC = () => {
         <div className="nexa-collector-panel">
           <div className="nexa-panel-header">
             <span className="nexa-panel-title">Nexa 采集</span>
-            <button
-              className="nexa-panel-close"
-              onClick={() => setIsOpen(false)}
-              title="关闭"
-            >
-              ×
-            </button>
+
+            <div style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+            }}>
+              <span style={{ fontSize: '13px' }}>欢迎，{user.name}</span>
+              <Button
+                type="text"
+                size="small"
+                onClick={handleLogout}
+                style={{ color: '#fff' }}
+              >
+                退出
+              </Button>
+              <Button
+                type="text"
+                size="small"
+                onClick={() => setIsOpen(false)}
+                style={{ color: '#fff' }}
+              >
+                关闭
+              </Button>
+            </div>
           </div>
           <div className="nexa-panel-content">
             {checkLoading ? (
@@ -105,11 +190,20 @@ export const CollectorPanelApp: React.FC = () => {
             ) : !isLoggedIn ? (
               <LoginForm onLoginSuccess={handleLoginSuccess} />
             ) : user ? (
-              <CollectorContent user={user} onLogout={handleLogout} onClose={() => setIsOpen(false)} />
+              <CollectorContent onCollected={handleCollected} />
             ) : null}
           </div>
         </div>
       )}
+
+      <ArticleCollectModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        initialData={{ title, content, url }}
+        selectedCategory={selectedCategory || 0}
+        categories={categories}
+        onSave={handleModalSave}
+      />
     </div>
   );
 };

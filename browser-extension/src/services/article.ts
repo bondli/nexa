@@ -40,6 +40,8 @@ export interface ArticleData {
   desc: string;
   url?: string;
   cateId: number;
+  summary?: string;
+  image?: string;
   [key: string]: unknown;
 }
 

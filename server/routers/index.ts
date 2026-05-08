@@ -78,6 +78,8 @@ import {
   searchArticles,
   getArticleCounts,
   summarizeArticle,
+  summarizeContent,
+  generateImageArticle,
 } from '../controllers/article-controller';
 
 import {
@@ -201,6 +203,8 @@ router.get('/article/delete', deleteArticle);
 router.get('/article/recover', recoverArticle);
 router.get('/article/remove', removeArticle);
 router.get('/article/summarize', summarizeArticle);
+router.post('/article/summarize-content', summarizeContent);
+router.post('/article/generate-image', generateImageArticle);
 
 // 文章分类
 router.post('/article_cate/create', createArticleCate);

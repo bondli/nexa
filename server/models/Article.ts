@@ -13,6 +13,7 @@ interface ArticleAttributes {
   userId: number;
   status: string;
   summary: string | null;
+  image: string | null;
 }
 
 /**
@@ -67,6 +68,11 @@ const Article = sequelize.define<ArticleInstance, ArticleCreationAttributes>(
     summary: {
       comment: 'AI总结内容',
       type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    image: {
+      comment: '生成的图片云端地址',
+      type: DataTypes.STRING,
       allowNull: true,
     },
   },

@@ -7,13 +7,14 @@ import ArticleCate from '../models/ArticleCate';
 import TempArticle from '../models/TempArticle';
 import { success, successWithPage, badRequest, notFound, serverError } from '../utils/response';
 import { loadLLMConfig } from '../services/llm-text-service';
+import { extractDataForImage, fillHtmlTemplate } from '../services/article-template-service';
 
 // 新增一篇文章
 export const createArticle = async (req: Request, res: Response) => {
   const userId = Number(req.headers['x-user-id']) || 0;
 
   try {
-    const { title, desc, url, cateId } = req.body;
+    const { title, desc, url, cateId, summary, image } = req.body;
 
     if (!title || !url || !cateId) {
       badRequest(res, 'Title, url and cateId are required');
@@ -23,7 +24,7 @@ export const createArticle = async (req: Request, res: Response) => {
     // 使用事务确保数据一致性
     const result = await Article.sequelize!.transaction(async (t) => {
       // 创建Article记录
-      const createData = {
+      const createData: any = {
         title,
         desc,
         url,
@@ -31,6 +32,16 @@ export const createArticle = async (req: Request, res: Response) => {
         userId,
         status: 'normal',
       };
+
+      // 如果有summary字段则添加
+      if (summary !== undefined) {
+        createData.summary = summary;
+      }
+
+      // 如果有image字段则添加
+      if (image !== undefined) {
+        createData.image = image;
+      }
       
       const articleResult = await Article.create(
         createData,
@@ -446,3 +457,190 @@ export const summarizeArticle = async (req: Request, res: Response) => {
     serverError(res, '总结失败，请稍后重试');
   }
 };
+
+// 直接对内容进行总结（不依赖文章ID）
+export const summarizeContent = async (req: Request, res: Response) => {
+  const { content } = req.body;
+
+  if (!content) {
+    badRequest(res, '内容不能为空');
+    return;
+  }
+
+  try {
+    // 加载 LLM 配置
+    const config = loadLLMConfig();
+
+    if (!config.apiKey) {
+      badRequest(res, '请先配置 LLM API Key');
+      return;
+    }
+
+    // 构建提示词
+    const systemPrompt = '你是一个文章总结助手。请对用户提供的内容进行总结，突出关键信息和主要观点。用 Markdown 格式输出总结结果。';
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: `请总结以下内容：\n\n${content}` },
+    ];
+
+    // 调用 LLM 非流式接口
+    const response = await axios.post(
+      `${config.baseUrl}/chat/completions`,
+      {
+        model: config.model || 'gpt-4',
+        messages,
+        temperature: config.temperature || 0.7,
+        max_tokens: config.maxTokens || 2000,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${config.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    const summary = response.data.choices?.[0]?.message?.content || '';
+
+    success(res, { summary });
+  } catch (error) {
+    logger.error('[summarizeContent] Error:', error);
+    serverError(res, '总结失败，请稍后重试');
+  }
+};
+
+// 基于文章总结内容生成HTML用于图片生成
+export const generateImageArticle = async (req: Request, res: Response) => {
+  try {
+    const { summary, title } = req.body;
+
+    if (!summary) {
+      badRequest(res, '总结内容不能为空');
+      return;
+    }
+
+    // 1. 调用AI提取结构化数据
+    const extractedData = await extractDataForImage(summary, title);
+
+    // 2. 使用内联HTML模板填充数据
+    const htmlContent = fillHtmlTemplate(getHtmlTemplate(), extractedData);
+
+    // 返回HTML内容，前端可以使用html2canvas转换为图片
+    success(res, { htmlContent });
+  } catch (error) {
+    logger.error('[generateImageArticle] Error:', error);
+    serverError(res, '生成图片内容失败');
+  }
+};
+
+// HTML图文模板
+function getHtmlTemplate(): string {
+  return `<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>\${title}</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      :root {
+        --navy: #1b2a4a; --slate: #475569; --steel: #64748b; --sky: #e2e8f0;
+        --ice: #f1f5f9; --white: #ffffff; --accent: #2563eb; --accent-light: #dbeafe;
+        --warn: #dc2626; --warn-light: #fef2f2; --success: #059669;
+      }
+
+      body {
+        display: flex; justify-content: center; align-items: flex-start;
+        min-height: 100vh; padding: 40px 20px; background: #94a3b8;
+        font-family: 'Noto Sans SC', 'DM Sans', sans-serif;
+      }
+
+      .container { width: 952px; background: var(--white); position: relative; display: flex; flex-direction: column; }
+
+      .header-bar { background: var(--navy); padding: 56px 72px 48px; position: relative; }
+      .header-bar::after { content: ''; position: absolute; bottom: 0; left: 72px; width: 80px; height: 6px; background: var(--accent); }
+      .header-bar h1 { font-size: 72px; font-weight: 700; color: var(--white); line-height: 1.25; margin-bottom: 16px; }
+      .header-bar .subtitle { font-size: 30px; font-weight: 300; color: var(--steel); line-height: 1.6; }
+
+      .content-area { flex: 1; padding: 40px 72px; display: flex; flex-direction: column; gap: 32px; }
+
+      .sec-head { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+      .sec-head .num { font-family: 'DM Sans', sans-serif; font-size: 28px; font-weight: 700; color: var(--accent); background: var(--accent-light); width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+      .sec-head h2 { font-size: 40px; font-weight: 700; color: var(--navy); }
+
+      .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+      .kpi-card { background: var(--ice); border-radius: 12px; padding: 28px 24px; border-left: 5px solid var(--accent); }
+      .kpi-card .label { font-size: 26px; font-weight: 500; color: var(--steel); margin-bottom: 10px; }
+      .kpi-card .number { font-family: 'DM Sans', sans-serif; font-size: 56px; font-weight: 700; color: var(--navy); line-height: 1; }
+      .kpi-card .number .unit { font-size: 32px; font-weight: 400; color: var(--steel); }
+      .kpi-card .desc { font-size: 24px; word-break: break-all; font-weight: 500; color: var(--slate); margin-top: 8px; line-height: 1.4; }
+
+      .grid-60-40 { display: grid; gap: 32px; }
+
+      .spectrum { display: flex; flex-direction: column; gap: 16px; }
+      .spectrum-item { background: var(--ice); border-radius: 12px; padding: 24px 28px; border-left: 5px solid var(--accent); display: flex; align-items: flex-start; gap: 20px; }
+      .spectrum-item.mid { border-left-color: #93c5fd; }
+      .spectrum-item.low { border-left-color: var(--sky); }
+      .spectrum-item .s-left { min-width: 140px; }
+      .spectrum-item .s-label { font-size: 28px; font-weight: 700; color: var(--navy); }
+      .spectrum-item .s-en { font-family: 'DM Sans', sans-serif; font-size: 24px; font-weight: 500; color: var(--steel); display: block; margin-top: 4px; }
+      .spectrum-item .s-desc { font-size: 26px; word-break: break-all; color: var(--slate); line-height: 1.6; }
+      .spectrum-item .s-tag { font-size: 20px; font-weight: 600; padding: 4px 12px; border-radius: 4px; display: inline-block; margin-top: 8px; }
+      .s-tag.high { background: #dcfce7; color: #166534; }
+      .s-tag.medium { background: #fef9c3; color: #854d0e; }
+      .s-tag.zero { background: #fee2e2; color: #991b1b; }
+
+      .risk-box { background: var(--warn-light); border: 1px solid #fecaca; border-radius: 12px; padding: 28px 32px; }
+      .risk-box .sec-head .num { background: #fee2e2; color: var(--warn); }
+      .risk-box .sec-head h2 { color: var(--warn); }
+      .risk-item { display: flex; gap: 16px; padding: 12px 0; border-bottom: 1px solid #fecaca; font-size: 30px; color: #7f1d1d; line-height: 1.6; }
+      .risk-item:last-child { border-bottom: none; }
+      .risk-item .idx { font-family: 'DM Sans', sans-serif; font-weight: 700; color: var(--warn); flex-shrink: 0; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-bar">
+        <h1></h1>
+        <div class="subtitle"></div>
+      </div>
+
+      <div class="content-area">
+        <div>
+          <div class="sec-head">
+            <span class="num">01</span>
+            <h2>核心指标</h2>
+          </div>
+          <div class="kpi-row" style="grid-template-columns: repeat(<!-- KPI数量 -->, 1fr);">
+            <!-- KPI 动态替换 -->
+          </div>
+        </div>
+
+        <div class="grid-60-40">
+          <div>
+            <div class="sec-head">
+              <span class="num">02</span>
+              <h2>重点信息</h2>
+            </div>
+            <div class="spectrum">
+              <!-- 重点信息动态替换 -->
+            </div>
+          </div>
+        </div>
+
+        <div class="risk-box">
+          <div class="sec-head">
+            <span class="num">!</span>
+            <h2>结论总结</h2>
+          </div>
+          <!-- 结论动态替换 -->
+        </div>
+      </div>
+    </div>
+  </body>
+</html>`;
+}
+
