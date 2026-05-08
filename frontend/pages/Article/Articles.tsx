@@ -1,5 +1,5 @@
-import React, { memo, useContext, useEffect, useRef, useCallback } from 'react';
-import { List, Empty } from 'antd';
+import React, { memo, useContext, useEffect, useRef, useCallback, useState } from 'react';
+import { List, Empty, Image } from 'antd';
 import { GithubFilled, LinkOutlined } from '@ant-design/icons';
 import { format as timeAgoFormat } from 'timeago.js';
 import { openExternalUrl } from '@commons/electron';
@@ -45,9 +45,21 @@ const Articles: React.FC = () => {
     }
   };
 
+  const [previewImgUrl, setPreviewImgUrl] = useState<string>('');
+  const [previewVisible, setPreviewVisible] = useState(false);
+
+  // 图片预览，类似于antd的Image组件的预览能力
+  const previewImage = (imgUrl: string) => {
+    setPreviewImgUrl(imgUrl);
+    setPreviewVisible(true);
+  };
+
   // 渲染头像
-  const renderAvatar = () => {
+  const renderAvatar = (data: any) => {
     const color = '#1677ff';
+    if (data.image) {
+      return <GithubFilled style={{ fontSize: 28, color: 'red' }} onClick={() => previewImage(data.image)} />;
+    }
     return <GithubFilled style={{ fontSize: 28, color }} />;
   };
 
@@ -144,6 +156,15 @@ const Articles: React.FC = () => {
 
   return (
     <div className={style.listContainer}>
+      {/* 隐藏的 Image 组件，用于触发图片预览 */}
+      <Image
+        style={{ display: 'none' }}
+        src={previewImgUrl}
+        preview={{
+          visible: previewVisible,
+          onVisibleChange: (visible) => setPreviewVisible(visible),
+        }}
+      />
       <List
         loading={false}
         itemLayout={`horizontal`}
@@ -159,7 +180,7 @@ const Articles: React.FC = () => {
               </div>
             }
           >
-            <List.Item.Meta avatar={renderAvatar()} title={renderTitle(item)} description={renderDesc(item)} />
+            <List.Item.Meta avatar={renderAvatar(item)} title={renderTitle(item)} description={renderDesc(item)} />
           </List.Item>
         )}
       />

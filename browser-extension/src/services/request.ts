@@ -15,7 +15,7 @@ export interface ApiResponse<T = unknown> {
 const createRequest = (): AxiosInstance => {
   const client = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 10000,
+    timeout: 60000,
   });
 
   // 请求拦截器
