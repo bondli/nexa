@@ -108,13 +108,7 @@ const SkillManage: React.FC = () => {
   return (
     <>
       {/* Skills 管理按钮 */}
-      <Button
-        type="default"
-        size="large"
-        style={{ width: '100%' }}
-        icon={<ToolOutlined />}
-        onClick={() => setDrawerVisible(true)}
-      >
+      <Button type="primary" size="small" icon={<ToolOutlined />} onClick={() => setDrawerVisible(true)}>
         Skills
       </Button>
 

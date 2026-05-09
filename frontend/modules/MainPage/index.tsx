@@ -4,7 +4,7 @@ import {
   AliwangwangOutlined,
   SnippetsOutlined,
   HddOutlined,
-  UserSwitchOutlined,
+  TeamOutlined,
   FileImageOutlined,
   FilePdfOutlined,
 } from '@ant-design/icons';
@@ -18,6 +18,7 @@ import NoteBook from '@pages/NoteBook';
 import Knowledge from '@pages/Knowledge';
 import Picture from '@pages/Picture';
 import Article from '@pages/Article';
+import Report from '@pages/Report';
 import style from './index.module.less';
 
 const { Sider, Content } = Layout;
@@ -75,10 +76,10 @@ const MainPage: React.FC = () => {
               <HddOutlined style={{ fontSize: 24 }} />
             </div>
             <div
-              className={`${style.iconItem} ${currentPage === 'openclaw' ? style.active : ''}`}
-              onClick={() => setCurrentPage('openclaw')}
+              className={`${style.iconItem} ${currentPage === 'report' ? style.active : ''}`}
+              onClick={() => setCurrentPage('report')}
             >
-              <UserSwitchOutlined style={{ fontSize: 24 }} />
+              <TeamOutlined style={{ fontSize: 24 }} />
             </div>
           </div>
         </div>
@@ -97,6 +98,7 @@ const MainPage: React.FC = () => {
           {currentPage === 'article' && <Article />}
           {currentPage === 'knowledge' && <Knowledge />}
           {currentPage === 'picture' && <Picture />}
+          {currentPage === 'report' && <Report />}
         </Content>
       </Layout>
     </Layout>

@@ -222,8 +222,7 @@ const ChatBoxPage: React.FC = () => {
   return (
     <Layout className={style.container}>
       <Sider trigger={null} collapsible theme={'light'} width={260} className={style.sider}>
-        {/* Skills 管理入口 */}
-        <SkillManage />
+        <NewChatButton text={'New Chat'} size={'large'} type={'primary'} width={'100%'} onClick={handleNewChat} />
 
         {/* 对话列表 */}
         <div className={style.list}>
@@ -238,7 +237,8 @@ const ChatBoxPage: React.FC = () => {
 
           <div className={style.newChat}>
             <Space>
-              <NewChatButton text={'New Chat'} size={'small'} type={'primary'} width={'auto'} onClick={handleNewChat} />
+              {/* Skills 管理入口 */}
+              <SkillManage />
             </Space>
           </div>
         </Header>
