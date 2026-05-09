@@ -1,10 +1,10 @@
+import logger from 'electron-log';
+import type { SkillInstance } from '../../models/skill';
 import type { AgentConfig, SkillDefinition } from './types';
 import { createAgent } from './agent';
 import type Agent from './agent';
 import { logAgentExecution } from './logging';
-import logger from 'electron-log';
 import { getSkillRegistry } from './skills/registry';
-import type { SkillInstance } from '../../models/skill';
 
 /**
  * 从数据库加载用户安装的 Skills 到 registry

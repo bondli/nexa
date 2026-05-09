@@ -34,7 +34,7 @@ export const generateEmbedding = async (text: string): Promise<number[]> => {
       {
         model: config.model,
         input: text,
-        encoding_format: "float",
+        encoding_format: 'float',
       },
       {
         headers: {

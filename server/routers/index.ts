@@ -81,20 +81,13 @@ import {
   summarizeContent,
   generateImageArticle,
 } from '../controllers/article-controller';
-
 import {
   createArticleCate,
   getArticleCates,
   updateArticleCate,
   deleteArticleCate,
 } from '../controllers/article-cate-controller';
-
-import {
-  getTempArticles,
-  deleteTempArticle,
-  importTempArticle,
-} from '../controllers/temp-article-controller';
-
+import { getTempArticles, deleteTempArticle, importTempArticle } from '../controllers/temp-article-controller';
 import { getAllSettings, saveAllSettings } from '../controllers/settings-controller';
 import {
   listSkills,
@@ -106,6 +99,15 @@ import {
   exportAllSkills,
   importSkills,
 } from '../controllers/skill-controller';
+import {
+  generateReportHandler,
+  getReportList,
+  checkReportReminder,
+  deleteReport,
+  getReportDetail,
+  getReportGroups,
+  generateReportImageHandler,
+} from '../controllers/report-controller';
 
 const router = express.Router();
 
@@ -232,5 +234,14 @@ router.put('/skill/:name/toggle', toggleSkill);
 router.delete('/skill/:name', deleteSkill);
 router.get('/skill/export-all', exportAllSkills);
 router.post('/skill/import', importSkills);
+
+// 报告相关
+router.post('/report/generate', generateReportHandler);
+router.get('/report/list', getReportList);
+router.get('/report/check', checkReportReminder);
+router.get('/report/delete', deleteReport);
+router.get('/report/detail', getReportDetail);
+router.get('/report/group', getReportGroups);
+router.post('/report/generateImage', generateReportImageHandler);
 
 export default router;

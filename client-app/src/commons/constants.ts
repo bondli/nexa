@@ -5,23 +5,23 @@ export const DB_CONFIG = config;
 export type TAB_KEY = 'Note' | 'Article' | 'Picture' | 'Collect' | 'Profile';
 
 export const PAGE_MAP: Record<TAB_KEY, Record<string, string>> = {
-  'Note': {
+  Note: {
     title: '笔记',
     icon: 'file-text',
   },
-  'Article': {
+  Article: {
     title: '文章',
     icon: 'inbox',
   },
-  'Collect': {
+  Collect: {
     title: '记录',
     icon: 'cloud-upload',
   },
-  'Picture': {
+  Picture: {
     title: '图片',
     icon: 'picture',
   },
-  'Profile': {
+  Profile: {
     title: '我的',
     icon: 'setting',
   },

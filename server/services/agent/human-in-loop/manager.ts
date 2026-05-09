@@ -1,5 +1,5 @@
-import type { HumanTask } from '../types';
 import logger from 'electron-log';
+import type { HumanTask } from '../types';
 
 /**
  * Human-in-the-loop 管理器
@@ -48,7 +48,9 @@ class HumanInTheLoopManager {
     }, timeoutMs);
     this.timeouts.set(taskId, timeoutHandle);
 
-    logger.info(`[HumanInTheLoop] Created pending task: ${taskId}, tool: ${toolName}, missing: ${missingParams.join(', ')}`);
+    logger.info(
+      `[HumanInTheLoop] Created pending task: ${taskId}, tool: ${toolName}, missing: ${missingParams.join(', ')}`,
+    );
 
     return task;
   }
@@ -162,9 +164,7 @@ class HumanInTheLoopManager {
    */
   cleanupSession(sessionId: string): void {
     // 删除相关任务
-    const tasksToDelete = Array.from(this.pendingTasks.entries()).filter(
-      ([, task]) => task.sessionId === sessionId,
-    );
+    const tasksToDelete = Array.from(this.pendingTasks.entries()).filter(([, task]) => task.sessionId === sessionId);
 
     for (const [taskId] of tasksToDelete) {
       this.clearTaskTimeout(taskId);

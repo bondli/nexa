@@ -1,8 +1,8 @@
 const { spawn, execSync } = require('child_process');
 const path = require('path');
 const constants = require('../shared/constants');
-const { bundleAndroid } = require('./bundle');
 const { copyAndroid } = require('../copy-bundle');
+const { bundleAndroid } = require('./bundle');
 
 /**
  * Android 真机调试脚本
@@ -20,7 +20,7 @@ const bundleId = 'com.bondli.nexa.app';
 function getAndroidDevices() {
   try {
     const output = execSync('adb devices', { encoding: 'utf-8' });
-    const lines = output.split('\n').filter(line => line.trim() && !line.startsWith('List'));
+    const lines = output.split('\n').filter((line) => line.trim() && !line.startsWith('List'));
 
     const devices = [];
     for (const line of lines) {
@@ -94,10 +94,7 @@ function buildReleaseApk() {
 function installApk(deviceId) {
   console.log('\n=== 安装 APK 到真机 ===');
 
-  const apkPath = path.join(
-    constants.projectRoot,
-    'android/app/build/outputs/apk/release/app-release.apk'
-  );
+  const apkPath = path.join(constants.projectRoot, 'android/app/build/outputs/apk/release/app-release.apk');
 
   try {
     // 先卸载旧版本
@@ -160,7 +157,7 @@ function startLogcat(deviceId) {
   if (!pid) {
     console.log(`⚠️ 应用 ${packageName} 尚未运行`);
     console.log('💡 请启动应用，脚本会自动检测并开始监控日志\n');
-    
+
     // 等待应用启动，轮询获取 PID
     const checkInterval = setInterval(() => {
       pid = getAppPid(deviceId, packageName);
@@ -170,7 +167,7 @@ function startLogcat(deviceId) {
         startLogcatWithPid(deviceId, pid);
       }
     }, 1000);
-    
+
     return null;
   } else {
     console.log(`✅ 应用 PID: ${pid}`);
@@ -183,7 +180,7 @@ function startLogcatWithPid(deviceId, pid) {
   // 先清空日志缓冲区，避免历史日志干扰
   execSync(`adb -s ${deviceId} logcat -c`);
   console.log('🧹 已清空历史日志\n');
-  
+
   // 只保留需要的日志，排除系统 UI 日志
   // grep -v 排除不需要的 tag
   const cmd = `adb -s ${deviceId} logcat -v time --pid=${pid} | grep -v -E 'HwViewRootImpl|ViewRootImpl|InputEvent|Choreographer|BufferQueue|ViewManagerPropertyUpdater|DynamicRefreshRateHelper'`;

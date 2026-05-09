@@ -49,7 +49,7 @@ async function killPort(port) {
 function getAndroidDevices() {
   try {
     const output = execSync('adb devices', { encoding: 'utf-8' });
-    const lines = output.split('\n').filter(line => line.trim() && !line.startsWith('List'));
+    const lines = output.split('\n').filter((line) => line.trim() && !line.startsWith('List'));
 
     const devices = [];
     for (const line of lines) {
@@ -72,7 +72,10 @@ function getAndroidDevices() {
 function getAndroidEmulators() {
   try {
     const output = execSync('emulator -list-avds', { encoding: 'utf-8' });
-    return output.split('\n').map(line => line.trim()).filter(line => line);
+    return output
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line);
   } catch (error) {
     return [];
   }
@@ -182,10 +185,7 @@ function buildDebugApk() {
 function installApk(deviceId) {
   console.log('\n=== 安装 APK 到设备 ===');
 
-  const apkPath = path.join(
-    constants.projectRoot,
-    'android/app/build/outputs/apk/debug/app-debug.apk'
-  );
+  const apkPath = path.join(constants.projectRoot, 'android/app/build/outputs/apk/debug/app-debug.apk');
 
   try {
     execSync(`adb -s ${deviceId} install -r "${apkPath}"`, {

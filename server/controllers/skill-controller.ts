@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import os from 'os';
+import { Request, Response } from 'express';
 import archiver from 'archiver';
 import logger from 'electron-log';
 import { success, badRequest, notFound, serverError } from '../utils/response';
@@ -24,7 +24,9 @@ const getSkillsBaseDir = (): string => {
 /**
  * 解析 skill.md 文件，提取元数据
  */
-const parseSkillMd = (skillDir: string): { name: string; description: string; version: string; author: string } | null => {
+const parseSkillMd = (
+  skillDir: string,
+): { name: string; description: string; version: string; author: string } | null => {
   const skillMdPath = path.join(skillDir, 'skill.md');
 
   if (!fs.existsSync(skillMdPath)) {

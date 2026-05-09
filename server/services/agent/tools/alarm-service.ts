@@ -77,16 +77,26 @@ const parseNaturalLanguageTime = (timeStr: string): Date | null => {
   const lowerStr = timeStr.toLowerCase().trim();
 
   // 半小时后、15分钟后、1小时后 等
-  const relativeMatch = lowerStr.match(/^(\d+)\s*小时\s*(\d+)?\s*分\s*钟?\s*后?$|^(\d+)\s*分\s*钟?\s*后?$|^半\s*小\s*时?\s*后?$/);
+  const relativeMatch = lowerStr.match(
+    /^(\d+)\s*小时\s*(\d+)?\s*分\s*钟?\s*后?$|^(\d+)\s*分\s*钟?\s*后?$|^半\s*小\s*时?\s*后?$/,
+  );
   if (relativeMatch) {
     const hours = relativeMatch[1] ? parseInt(relativeMatch[1]) : 0;
-    const minutes = relativeMatch[2] ? parseInt(relativeMatch[2]) : (relativeMatch[0].includes('半') ? 30 : (relativeMatch[3] ? parseInt(relativeMatch[3]) : 0));
+    const minutes = relativeMatch[2]
+      ? parseInt(relativeMatch[2])
+      : relativeMatch[0].includes('半')
+        ? 30
+        : relativeMatch[3]
+          ? parseInt(relativeMatch[3])
+          : 0;
     const totalMs = (hours * 60 + minutes) * 60 * 1000;
     return new Date(now.getTime() + totalMs);
   }
 
   // 明天下午3点、今天上午9点 等
-  const dayTimeMatch = lowerStr.match(/^(今天|明天|后天)?\s*(上午|下午|晚上|早上|中午|凌晨|傍晚)?\s*(\d{1,2})\s*[点时:：]\s*(\d{1,2})?/);
+  const dayTimeMatch = lowerStr.match(
+    /^(今天|明天|后天)?\s*(上午|下午|晚上|早上|中午|凌晨|傍晚)?\s*(\d{1,2})\s*[点时:：]\s*(\d{1,2})?/,
+  );
   if (dayTimeMatch) {
     const day = dayTimeMatch[1];
     const timeOfDay = dayTimeMatch[2];

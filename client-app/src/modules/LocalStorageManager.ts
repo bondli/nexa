@@ -62,7 +62,7 @@ const LocalStorageManagerModule: LocalStorageManagerInterface = {
 
   hasKey: (key: string): Promise<boolean> => {
     return LocalStorageManager.hasKey(key);
-  }
+  },
 };
 
 export default LocalStorageManagerModule;

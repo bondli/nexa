@@ -44,10 +44,7 @@ class MessageHistoryManager {
   /**
    * 批量追加消息（仅保存新增的消息）
    */
-  async appendMessages(
-    sessionId: string,
-    messages: Array<{ role: string; content: string }>,
-  ): Promise<void> {
+  async appendMessages(sessionId: string, messages: Array<{ role: string; content: string }>): Promise<void> {
     if (!messages.length) return;
 
     try {
@@ -55,7 +52,7 @@ class MessageHistoryManager {
         .filter((msg) => msg.role !== 'system')
         .map((msg) => ({
           sessionId,
-          role: msg.role === 'assistant' ? 'assistant' as const : 'user' as const,
+          role: msg.role === 'assistant' ? ('assistant' as const) : ('user' as const),
           content: msg.content,
         }));
 

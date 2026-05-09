@@ -133,12 +133,7 @@ const ArticleCollectModal: React.FC<ArticleCollectModalProps> = ({
       destroyOnHidden={true}
       className={styles.modal}
     >
-      <Tabs
-        activeKey={activeStep}
-        onChange={handleTabChange}
-        items={items}
-        className={styles.tabs}
-      />
+      <Tabs activeKey={activeStep} onChange={handleTabChange} items={items} className={styles.tabs} />
 
       <div className={styles.content}>
         {activeStep === 'step1' && (
@@ -149,11 +144,7 @@ const ArticleCollectModal: React.FC<ArticleCollectModalProps> = ({
           />
         )}
         {activeStep === 'step2' && (
-          <Step2Summarize
-            content={collectedContent}
-            alreadySummary={summary}
-            onComplete={handleStep2Complete}
-          />
+          <Step2Summarize content={collectedContent} alreadySummary={summary} onComplete={handleStep2Complete} />
         )}
         {activeStep === 'step3' && (
           <Step3GenerateImage

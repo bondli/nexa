@@ -1,15 +1,11 @@
 import { useEffect, useState, useContext } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-
 import { Toast, ActivityIndicator, List, WhiteSpace, Icon } from '@ant-design/react-native';
-
 import { MainContext } from '@commons/context';
 import { setStorage, removeStorage } from '@commons/utils';
 import UserService from '@services/UserService';
-
-import ListItem from '@/components/ListItem';
-
 import styles from './styles';
+import ListItem from '@/components/ListItem';
 
 const ProfilePage = () => {
   const { userInfo, setUserInfo } = useContext(MainContext);
@@ -19,7 +15,6 @@ const ProfilePage = () => {
     totalArticles: 0,
     totalPictures: 0,
   });
-
 
   useEffect(() => {
     // todo something
@@ -47,7 +42,7 @@ const ProfilePage = () => {
     } catch (error) {
       console.error('Failed to fetch data:', error);
       Toast.fail('获取应用数据失败');
-    } finally { 
+    } finally {
       setLoading(false);
     }
   };
@@ -62,16 +57,15 @@ const ProfilePage = () => {
 
   return (
     <ScrollView style={styles.container}>
-
       <View style={styles.userContainer}>
         <ListItem
           icon={<Icon name={`github`} size={24} color={`#000000`} />}
-          title={
-            <Text style={{ fontSize: 16, color: '#333'}}>{userInfo.name}</Text>
-          }
+          title={<Text style={{ fontSize: 16, color: '#333' }}>{userInfo.name}</Text>}
           extra={
             <View style={styles.logoutContainer}>
-              <TouchableOpacity onPress={logout}><Text style={styles.logoutText}>退出</Text></TouchableOpacity>
+              <TouchableOpacity onPress={logout}>
+                <Text style={styles.logoutText}>退出</Text>
+              </TouchableOpacity>
             </View>
           }
         />
@@ -90,10 +84,8 @@ const ProfilePage = () => {
           图片总数
         </List.Item>
       </List>
-
     </ScrollView>
   );
-
 };
 
 export default ProfilePage;

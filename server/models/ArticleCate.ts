@@ -21,7 +21,8 @@ interface ArticleCateCreationAttributes extends Optional<ArticleCateAttributes, 
 /**
  * ArticleCate 文章分类模型实例接口
  */
-interface ArticleCateInstance extends Model<ArticleCateAttributes, ArticleCateCreationAttributes>, ArticleCateAttributes {}
+interface ArticleCateInstance
+  extends Model<ArticleCateAttributes, ArticleCateCreationAttributes>, ArticleCateAttributes {}
 
 const ArticleCate = sequelize.define<ArticleCateInstance, ArticleCateCreationAttributes>(
   'ArticleCate',

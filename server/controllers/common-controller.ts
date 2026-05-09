@@ -135,10 +135,11 @@ interface RequestWithFile extends Request {
  * 返回字段：name, size, type, path, cloudUrl
  */
 export const uploadFile = (req: RequestWithFile, res: Response): void => {
-  const fileType = req.query.fileType as string || 'auto';
+  const fileType = (req.query.fileType as string) || 'auto';
 
   // 根据 fileType 参数决定使用哪个上传中间件
-  const useImageUpload = fileType === 'image' || (fileType === 'auto' && isAllowedImageType(req.body.originalName || ''));
+  const useImageUpload =
+    fileType === 'image' || (fileType === 'auto' && isAllowedImageType(req.body.originalName || ''));
   const uploadMiddleware = useImageUpload ? imageUpload : documentUpload;
 
   uploadMiddleware(req as any, res as any, async (err: any) => {

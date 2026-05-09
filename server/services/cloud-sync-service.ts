@@ -4,7 +4,6 @@ import axios from 'axios';
 import logger from 'electron-log';
 import Picture from '../models/Picture';
 import Docs from '../models/Docs';
-
 import { getCloudApiConfig, getConfigFilePath } from './config-service';
 
 // 云端配置
@@ -87,8 +86,9 @@ const writeSyncQueue = (queue: SyncQueue): void => {
 const addToQueue = (item: Omit<SyncQueueItem, 'retryCount' | 'createdAt'>): void => {
   const queue = readSyncQueue();
   // 检查是否已存在相同的 localPath
-  const exists = queue.pending.some((q) => q.localPath === item.localPath) ||
-                 queue.failed.some((q) => q.localPath === item.localPath);
+  const exists =
+    queue.pending.some((q) => q.localPath === item.localPath) ||
+    queue.failed.some((q) => q.localPath === item.localPath);
   if (!exists) {
     queue.pending.push({
       ...item,
@@ -136,11 +136,7 @@ const moveToFailed = (localPath: string): void => {
 /**
  * 根据 localPath 查找记录并更新 cloudUrl
  */
-const updateCloudUrlByLocalPath = async (
-  localPath: string,
-  fileType: FileType,
-  cloudUrl: string,
-): Promise<boolean> => {
+const updateCloudUrlByLocalPath = async (localPath: string, fileType: FileType, cloudUrl: string): Promise<boolean> => {
   try {
     let updated = false;
     if (fileType === 'picture') {

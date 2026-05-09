@@ -1,11 +1,10 @@
 import { View, Text } from 'react-native';
 import { Icon } from '@ant-design/react-native';
-
 import styles from './styles';
 
 interface EmptyProps {
   text?: string;
-  extra?: React.ReactNode; 
+  extra?: React.ReactNode;
 }
 
 const Empty = ({ text = '暂无数据', extra = null }: EmptyProps) => {

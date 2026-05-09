@@ -1,8 +1,8 @@
 import { spawn } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
-import logger from 'electron-log';
 import os from 'os';
+import logger from 'electron-log';
 
 /**
  * 沙箱工具执行结果
@@ -25,8 +25,19 @@ export interface SandboxToolParams {
  * 允许的文件扩展名
  */
 const ALLOWED_EXTENSIONS = [
-  '.txt', '.md', '.json', '.csv', '.xml', '.html', '.css', '.js', '.ts',
-  '.xlsx', '.xls', '.docx', '.pdf',
+  '.txt',
+  '.md',
+  '.json',
+  '.csv',
+  '.xml',
+  '.html',
+  '.css',
+  '.js',
+  '.ts',
+  '.xlsx',
+  '.xls',
+  '.docx',
+  '.pdf',
 ];
 
 /**
@@ -147,7 +158,10 @@ class SandboxExecutor {
     // 检查扩展名
     const ext = path.extname(expandedPath).toLowerCase();
     if (!['.txt', '.md', '.json', '.csv', '.xml', '.html', '.css', '.js', '.ts'].includes(ext)) {
-      return { success: false, error: `不支持的文本文件格式: ${ext}，支持的格式: txt, md, json, csv, xml, html, css, js, ts` };
+      return {
+        success: false,
+        error: `不支持的文本文件格式: ${ext}，支持的格式: txt, md, json, csv, xml, html, css, js, ts`,
+      };
     }
 
     try {
@@ -157,7 +171,10 @@ class SandboxExecutor {
 
       const stats = fs.statSync(expandedPath);
       if (stats.size > MAX_FILE_SIZE) {
-        return { success: false, error: `文件过大 (${Math.round(stats.size / 1024 / 1024)}MB)，最大支持 ${MAX_FILE_SIZE / 1024 / 1024}MB` };
+        return {
+          success: false,
+          error: `文件过大 (${Math.round(stats.size / 1024 / 1024)}MB)，最大支持 ${MAX_FILE_SIZE / 1024 / 1024}MB`,
+        };
       }
 
       const content = fs.readFileSync(expandedPath, 'utf-8');
@@ -205,7 +222,10 @@ class SandboxExecutor {
 
       const stats = fs.statSync(expandedPath);
       if (stats.size > MAX_FILE_SIZE) {
-        return { success: false, error: `文件过大 (${Math.round(stats.size / 1024 / 1024)}MB)，最大支持 ${MAX_FILE_SIZE / 1024 / 1024}MB` };
+        return {
+          success: false,
+          error: `文件过大 (${Math.round(stats.size / 1024 / 1024)}MB)，最大支持 ${MAX_FILE_SIZE / 1024 / 1024}MB`,
+        };
       }
 
       // 根据扩展名选择解析方法
@@ -277,7 +297,6 @@ class SandboxExecutor {
    */
   private parsePdf(filePath: string): SandboxResult {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const pdfParse = require('pdf-parse');
       const dataBuffer = fs.readFileSync(filePath);
 
@@ -304,7 +323,6 @@ class SandboxExecutor {
    */
   private parseDocx(filePath: string): SandboxResult {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const mammoth = require('mammoth');
       const result = mammoth.extractRawText({ path: filePath });
 

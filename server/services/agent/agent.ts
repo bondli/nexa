@@ -290,7 +290,9 @@ class Agent {
       if (chunkData.tools) {
         const toolsData = chunkData.tools as { messages: Array<Record<string, unknown>> };
         const toolMessage = toolsData.messages[0];
-        const toolCallsList = toolMessage?.tool_calls as Array<{ name: string; args: Record<string, unknown> }> | undefined;
+        const toolCallsList = toolMessage?.tool_calls as
+          | Array<{ name: string; args: Record<string, unknown> }>
+          | undefined;
         if (toolCallsList) {
           for (const tc of toolCallsList) {
             effectiveToolCalls.push({
@@ -319,7 +321,11 @@ class Agent {
     }
 
     if (streamCallback) {
-      streamCallback('', true, effectiveToolCalls.map((tc) => tc.name));
+      streamCallback(
+        '',
+        true,
+        effectiveToolCalls.map((tc) => tc.name),
+      );
     }
 
     return fullContent;

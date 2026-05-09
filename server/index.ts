@@ -4,7 +4,6 @@ import express from 'express';
 import cors from 'cors';
 import logger from 'electron-log';
 import { PORT } from './config/constant';
-
 import { testConnection, syncDatabase } from './config/database';
 import { initVectorDB } from './config/vectorDB';
 import router from './routers/index';
@@ -21,6 +20,7 @@ import './models/Docs';
 import './models/Chat';
 import './models/Picture';
 import './models/skill';
+import './models/Reports';
 
 const app = express();
 

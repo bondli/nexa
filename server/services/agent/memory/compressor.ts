@@ -1,7 +1,7 @@
 import { ChatOpenAI } from '@langchain/openai';
+import logger from 'electron-log';
 import type { ChatMessage, CompressionResult } from '../types';
 import { loadLLMConfig, getDefaultBaseUrl } from '../llm-config';
-import logger from 'electron-log';
 
 /**
  * 上下文压缩配置
@@ -88,9 +88,7 @@ class ContextCompressor {
       const existingSummary = this.sessionSummaries.get(sessionId) || '';
 
       // 拼接需要摘要的消息文本
-      const messagesText = olderMessages
-        .map((msg) => `${msg.role}: ${msg.content}`)
-        .join('\n');
+      const messagesText = olderMessages.map((msg) => `${msg.role}: ${msg.content}`).join('\n');
 
       // 构建摘要提示
       const summaryPrompt = existingSummary

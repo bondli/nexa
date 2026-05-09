@@ -34,7 +34,7 @@ function copyDir(src, dest) {
   }
   ensureDir(dest);
   const files = fs.readdirSync(src);
-  files.forEach(file => {
+  files.forEach((file) => {
     const srcFile = path.join(src, file);
     const destFile = path.join(dest, file);
     if (fs.statSync(srcFile).isFile()) {

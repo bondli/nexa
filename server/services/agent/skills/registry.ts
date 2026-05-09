@@ -1,7 +1,7 @@
+import logger from 'electron-log';
 import type { SkillDefinition, SkillHandler } from '../types';
 import { logToolCall } from '../logging';
 import { getToolRegistry } from '../tools/registry';
-import logger from 'electron-log';
 
 /**
  * Skill 注册表 - 管理所有已安装的 Skill

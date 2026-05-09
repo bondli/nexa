@@ -15,10 +15,7 @@ interface MessageAttributes {
 /**
  * 消息创建时的可选属性
  */
-interface MessageCreationAttributes extends Optional<
-  MessageAttributes,
-  'id' | 'createdAt'
-> {}
+interface MessageCreationAttributes extends Optional<MessageAttributes, 'id' | 'createdAt'> {}
 
 /**
  * 消息模型实例接口

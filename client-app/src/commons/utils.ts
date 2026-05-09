@@ -77,11 +77,4 @@ const getInitialShareParams = async (): Promise<ShareParams | null> => {
   }
 };
 
-export {
-  setStorage,
-  getStorage,
-  removeStorage,
-  checkUserInfo,
-  parseShareUrl,
-  getInitialShareParams,
-};
+export { setStorage, getStorage, removeStorage, checkUserInfo, parseShareUrl, getInitialShareParams };

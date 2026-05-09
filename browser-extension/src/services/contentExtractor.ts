@@ -68,10 +68,7 @@ const PLATFORM_SELECTORS = [
 export const extractPageContent = (): ExtractResult => {
   try {
     // 获取页面标题
-    const title =
-      document.title ||
-      document.querySelector('h1')?.textContent ||
-      '未命名';
+    const title = document.title || document.querySelector('h1')?.textContent || '未命名';
 
     // 获取页面 URL
     const url = window.location.href;

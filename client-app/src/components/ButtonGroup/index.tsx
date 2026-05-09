@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { styles } from './styles';
@@ -27,15 +26,10 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({ options, onChange, selectedVa
       {options.map((option) => (
         <TouchableOpacity
           key={option.value}
-          style={[
-            styles.button,
-            selected === option.value && styles.selectedButton,
-          ]}
+          style={[styles.button, selected === option.value && styles.selectedButton]}
           onPress={() => handlePress(option.value)}
         >
-          <Text style={[styles.text, selected === option.value && styles.selectedText]}>
-            {option.label}
-          </Text>
+          <Text style={[styles.text, selected === option.value && styles.selectedText]}>{option.label}</Text>
         </TouchableOpacity>
       ))}
     </View>

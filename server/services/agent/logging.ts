@@ -25,33 +25,21 @@ export const configureLangChainLogging = (): void => {
 /**
  * Agent 执行日志
  */
-export const logAgentExecution = (
-  sessionId: string,
-  step: string,
-  data?: Record<string, unknown>,
-): void => {
+export const logAgentExecution = (sessionId: string, step: string, data?: Record<string, unknown>): void => {
   logger.info(`[Agent:${sessionId}] ${step}`, data || '');
 };
 
 /**
  * Agent 错误日志
  */
-export const logAgentError = (
-  sessionId: string,
-  error: unknown,
-  context?: Record<string, unknown>,
-): void => {
+export const logAgentError = (sessionId: string, error: unknown, context?: Record<string, unknown>): void => {
   logger.error(`[Agent:${sessionId}] Error:`, error, context || '');
 };
 
 /**
  * 工具调用日志
  */
-export const logToolCall = (
-  toolName: string,
-  args: Record<string, unknown>,
-  result?: unknown,
-): void => {
+export const logToolCall = (toolName: string, args: Record<string, unknown>, result?: unknown): void => {
   logger.info(`[Tool] ${toolName} called with:`, args);
   if (result) {
     logger.info(`[Tool] ${toolName} result:`, result);
@@ -61,11 +49,6 @@ export const logToolCall = (
 /**
  * RAG 检索日志
  */
-export const logRetrieval = (
-  sessionId: string,
-  query: string,
-  resultsCount: number,
-  knowledgeIds: number[],
-): void => {
+export const logRetrieval = (sessionId: string, query: string, resultsCount: number, knowledgeIds: number[]): void => {
   logger.info(`[RAG:${sessionId}] Query: "${query}", Found ${resultsCount} results from knowledgeIds:`, knowledgeIds);
 };

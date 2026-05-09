@@ -22,8 +22,7 @@ interface PictureCateCreationAttributes extends Optional<PictureCateAttributes, 
  * PictureCate 图片分类模型实例接口
  */
 interface PictureCateInstance
-  extends Model<PictureCateAttributes, PictureCateCreationAttributes>,
-    PictureCateAttributes {}
+  extends Model<PictureCateAttributes, PictureCateCreationAttributes>, PictureCateAttributes {}
 
 const PictureCate = sequelize.define<PictureCateInstance, PictureCateCreationAttributes>(
   'PictureCate',

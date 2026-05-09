@@ -1,5 +1,5 @@
-import { getSkillRegistry, createSkill } from './registry';
 import logger from 'electron-log';
+import { getSkillRegistry, createSkill } from './registry';
 
 /**
  * 获取当前日期时间
@@ -71,7 +71,7 @@ const calculatorSkill = createSkill(
       }
 
       // 使用 Function 计算结果（比 eval 安全，但仍需谨慎）
-      // eslint-disable-next-line no-new-func
+
       const result = new Function(`return ${expression}`)();
 
       return JSON.stringify({ success: true, result });

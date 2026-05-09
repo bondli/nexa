@@ -172,10 +172,7 @@ export const searchPictures = async (req: Request, res: Response) => {
       where: {
         userId,
         status: 'normal',
-        [Op.or]: [
-          { name: { [Op.like]: `%${keyword}%` } },
-          { description: { [Op.like]: `%${keyword}%` } },
-        ],
+        [Op.or]: [{ name: { [Op.like]: `%${keyword}%` } }, { description: { [Op.like]: `%${keyword}%` } }],
       },
       order: [['createdAt', 'DESC']],
       limit: Number(pageSize),

@@ -42,28 +42,32 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
         }
       `}</style>
       <div style={{ padding: '24px 20px' }}>
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <BookOutlined style={{ fontSize: '36px', color: '#1677ff' }} />
-        <Title level={5} style={{ margin: '10px 0 4px', color: '#1a1a1a' }}>登录到 Nexa</Title>
-        <Text type="secondary" style={{ fontSize: '13px' }}>采集并保存网页内容</Text>
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <BookOutlined style={{ fontSize: '36px', color: '#1677ff' }} />
+          <Title level={5} style={{ margin: '10px 0 4px', color: '#1a1a1a' }}>
+            登录到 Nexa
+          </Title>
+          <Text type="secondary" style={{ fontSize: '13px' }}>
+            采集并保存网页内容
+          </Text>
+        </div>
+
+        <Form form={form} onFinish={handleLogin} layout="vertical" size="large" className="nexa-login-form">
+          <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
+            <Input prefix={<UserOutlined style={{ color: '#bfbfbf' }} />} placeholder="用户名" />
+          </Form.Item>
+
+          <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
+            <Input.Password prefix={<LockOutlined style={{ color: '#bfbfbf' }} />} placeholder="密码" />
+          </Form.Item>
+
+          <Form.Item style={{ marginBottom: 0 }}>
+            <Button type="primary" htmlType="submit" loading={loading} block>
+              登录
+            </Button>
+          </Form.Item>
+        </Form>
       </div>
-
-      <Form form={form} onFinish={handleLogin} layout="vertical" size="large" className="nexa-login-form">
-        <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
-          <Input prefix={<UserOutlined style={{ color: '#bfbfbf' }} />} placeholder="用户名" />
-        </Form.Item>
-
-        <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
-          <Input.Password prefix={<LockOutlined style={{ color: '#bfbfbf' }} />} placeholder="密码" />
-        </Form.Item>
-
-        <Form.Item style={{ marginBottom: 0 }}>
-          <Button type="primary" htmlType="submit" loading={loading} block>
-            登录
-          </Button>
-        </Form.Item>
-      </Form>
-    </div>
     </>
   );
 };

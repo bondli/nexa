@@ -26,7 +26,7 @@ const init = () => {
           <CollectorPanelApp />
         </AntdApp>
       </StyleProvider>
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 };
 

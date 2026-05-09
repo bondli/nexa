@@ -1,6 +1,6 @@
+import logger from 'electron-log';
 import type { ToolDefinition, ToolResult } from '../types';
 import { getSandboxExecutor } from '../sandbox';
-import logger from 'electron-log';
 
 /**
  * 创建列表目录工具
@@ -41,7 +41,8 @@ const createListDirectoryTool = (): ToolDefinition => {
 const createReadFileTool = (): ToolDefinition => {
   return {
     name: 'read_file',
-    description: '读取文本文件内容。输入应为 path（文件路径）。支持 txt, md, json, csv, xml, html, css, js, ts 等文本格式。',
+    description:
+      '读取文本文件内容。输入应为 path（文件路径）。支持 txt, md, json, csv, xml, html, css, js, ts 等文本格式。',
     parameters: {
       type: 'object',
       properties: {
@@ -74,7 +75,8 @@ const createReadFileTool = (): ToolDefinition => {
 const createReadDocumentTool = (): ToolDefinition => {
   return {
     name: 'read_document',
-    description: '解析并读取文档内容，支持 Excel (.xlsx, .xls)、Word (.docx)、PDF (.pdf)、CSV 等格式。根据文件扩展名自动选择解析方法。',
+    description:
+      '解析并读取文档内容，支持 Excel (.xlsx, .xls)、Word (.docx)、PDF (.pdf)、CSV 等格式。根据文件扩展名自动选择解析方法。',
     parameters: {
       type: 'object',
       properties: {

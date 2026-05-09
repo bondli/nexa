@@ -1,6 +1,6 @@
+import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
 
 // popup + background 构建配置（ES module 格式）
 export default defineConfig({

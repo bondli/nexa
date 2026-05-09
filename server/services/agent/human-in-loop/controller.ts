@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
-import { getHumanInTheLoopManager } from './manager';
-import { success, notFound, badRequest, serverError } from '../../../utils/response';
 import logger from 'electron-log';
+import { success, notFound, badRequest, serverError } from '../../../utils/response';
+import { getHumanInTheLoopManager } from './manager';
 
 /**
  * 获取会话的待处理任务列表

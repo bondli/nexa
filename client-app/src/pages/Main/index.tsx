@@ -1,19 +1,14 @@
 import { useEffect, useContext } from 'react';
 import { View } from 'react-native';
-
 import { Icon, TabBar } from '@ant-design/react-native';
-
 import { MainContext } from '@commons/context';
 import { PAGE_MAP, type TAB_KEY } from '@commons/constants';
-
 import NavBar from '@components/NavBar';
-
 import CollectPage from './Collect';
 import NotePage from './Note';
 import ArticlePage from './Article';
 import PicturePage from './Picture';
 import ProfilePage from './Profile';
-
 import styles from './styles';
 
 const MainPage = () => {
@@ -31,11 +26,7 @@ const MainPage = () => {
   return (
     <View style={styles.container}>
       <NavBar title={PAGE_MAP[currentPage as TAB_KEY].title} showBack={false} />
-      <TabBar
-        unselectedTintColor="#949494"
-        tintColor="#456efd"
-        barTintColor="#FFFFFF"
-      >
+      <TabBar unselectedTintColor="#949494" tintColor="#456efd" barTintColor="#FFFFFF">
         <TabBar.Item
           title={PAGE_MAP.Collect.title}
           icon={<Icon name={PAGE_MAP.Collect.icon as any} />}

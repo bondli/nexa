@@ -1,10 +1,8 @@
 import { useState, useContext } from 'react';
 import { View, Text, TextInput } from 'react-native';
 import { Button, Toast } from '@ant-design/react-native';
-
 import { MainContext } from '@commons/context';
 import ArticleService from '@services/ArticleService';
-
 import styles from './styles';
 
 interface SharePageProps {
@@ -72,25 +70,15 @@ const Share: React.FC<SharePageProps> = ({ navigationParams, onClose }) => {
       </View>
 
       <View style={styles.actions}>
-        <Button
-          type="primary"
-          loading={saving}
-          onPress={handleSave}
-          style={styles.saveButton}
-        >
+        <Button type="primary" loading={saving} onPress={handleSave} style={styles.saveButton}>
           保存到临时文章
         </Button>
-        <Button
-          onPress={onClose}
-          style={styles.cancelButton}
-        >
+        <Button onPress={onClose} style={styles.cancelButton}>
           取消
         </Button>
       </View>
     </View>
   );
 };
-
-
 
 export default Share;

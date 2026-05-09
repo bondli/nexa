@@ -136,7 +136,8 @@ ${paramsDesc}`;
           if (value === 'true') value = true;
           else if (value === 'false') value = false;
           else if (!isNaN(Number(value)) && value !== '') value = Number(value);
-          else if (typeof value === 'string' && value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
+          else if (typeof value === 'string' && value.startsWith('"') && value.endsWith('"'))
+            value = value.slice(1, -1);
         } catch {
           // 保持原值
         }

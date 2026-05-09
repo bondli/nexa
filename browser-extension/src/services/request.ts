@@ -27,7 +27,7 @@ const createRequest = (): AxiosInstance => {
     (error) => {
       console.error('request error:', error);
       return Promise.reject(error);
-    }
+    },
   );
 
   // 响应拦截器 - 与 frontend 对齐
@@ -43,7 +43,7 @@ const createRequest = (): AxiosInstance => {
     (error) => {
       console.error('response error:', error);
       return Promise.reject(error);
-    }
+    },
   );
 
   return client;

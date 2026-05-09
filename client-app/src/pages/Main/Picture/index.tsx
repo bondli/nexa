@@ -1,11 +1,19 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, FlatList, Image, TouchableOpacity, Modal, ActivityIndicator, NativeModules, PermissionsAndroid, Platform, Text } from 'react-native';
+import {
+  View,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  Modal,
+  ActivityIndicator,
+  NativeModules,
+  PermissionsAndroid,
+  Platform,
+  Text,
+} from 'react-native';
 import { Toast, Icon, Picker } from '@ant-design/react-native';
-
 import PictureService, { type Picture, type PictureCate } from '@services/PictureService';
-
 import Empty from '@components/Empty';
-
 import styles from './styles';
 
 const PAGE_SIZE = 30;
@@ -46,33 +54,36 @@ const PicturePage = () => {
   }, []);
 
   // 加载图片列表
-  const loadPictureList = useCallback(async (pageNum: number = 1, isRefresh: boolean = false) => {
-    try {
-      if (pageNum === 1) {
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
+  const loadPictureList = useCallback(
+    async (pageNum: number = 1, isRefresh: boolean = false) => {
+      try {
+        if (pageNum === 1) {
+          setLoading(true);
+        } else {
+          setLoadingMore(true);
+        }
+
+        const result = await PictureService.getPictureList(pageNum, PAGE_SIZE, selectedCategory);
+
+        if (pageNum === 1) {
+          setPictureList(result.data);
+          setRefreshing(false);
+        } else {
+          setPictureList((prev) => [...prev, ...result.data]);
+        }
+
+        setHasMore(result.data.length === PAGE_SIZE);
+        setPage(pageNum);
+      } catch (error) {
+        Toast.fail('获取图片列表失败');
+        console.error('Error fetching picture list:', error);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
       }
-
-      const result = await PictureService.getPictureList(pageNum, PAGE_SIZE, selectedCategory);
-
-      if (pageNum === 1) {
-        setPictureList(result.data);
-        setRefreshing(false);
-      } else {
-        setPictureList(prev => [...prev, ...result.data]);
-      }
-
-      setHasMore(result.data.length === PAGE_SIZE);
-      setPage(pageNum);
-    } catch (error) {
-      Toast.fail('获取图片列表失败');
-      console.error('Error fetching picture list:', error);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [selectedCategory]);
+    },
+    [selectedCategory],
+  );
 
   useEffect(() => {
     console.log('Picture Page mounted');
@@ -116,28 +127,22 @@ const PicturePage = () => {
 
     try {
       if (Platform.Version >= 33) {
-        const result = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
-          {
-            title: '图片权限请求',
-            message: '需要访问您的图片以进行上传',
-            buttonNeutral: '稍后询问',
-            buttonNegative: '取消',
-            buttonPositive: '确定',
-          }
-        );
+        const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES, {
+          title: '图片权限请求',
+          message: '需要访问您的图片以进行上传',
+          buttonNeutral: '稍后询问',
+          buttonNegative: '取消',
+          buttonPositive: '确定',
+        });
         return result === PermissionsAndroid.RESULTS.GRANTED;
       } else {
-        const result = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-          {
-            title: '存储权限请求',
-            message: '需要访问您的存储以进行上传',
-            buttonNeutral: '稍后询问',
-            buttonNegative: '取消',
-            buttonPositive: '确定',
-          }
-        );
+        const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE, {
+          title: '存储权限请求',
+          message: '需要访问您的存储以进行上传',
+          buttonNeutral: '稍后询问',
+          buttonNegative: '取消',
+          buttonPositive: '确定',
+        });
         return result === PermissionsAndroid.RESULTS.GRANTED;
       }
     } catch (err) {
@@ -255,7 +260,7 @@ const PicturePage = () => {
   // 分类选择器数据（Picker value 不支持 null，用 undefined/数字表示）
   const categoryOptions = [
     { label: '全部图片', value: '' },
-    ...categories.map(c => ({ label: c.name, value: c.id })),
+    ...categories.map((c) => ({ label: c.name, value: c.id })),
   ];
 
   return (
@@ -265,7 +270,7 @@ const PicturePage = () => {
         <Picker
           data={categoryOptions}
           value={selectedCategory !== null ? [selectedCategory] : ['']}
-          onChange={(val) => setSelectedCategory(val[0] !== '' ? val[0] as number : null)}
+          onChange={(val) => setSelectedCategory(val[0] !== '' ? (val[0] as number) : null)}
         >
           <TouchableOpacity style={styles.categoryButton}>
             <Icon name="appstore" size={18} color="#666" />
@@ -273,7 +278,7 @@ const PicturePage = () => {
               <Text style={{ fontSize: 14, color: '#333' }}>
                 {selectedCategory === null
                   ? '全部图片'
-                  : categories.find(c => c.id === selectedCategory)?.name || '全部图片'}
+                  : categories.find((c) => c.id === selectedCategory)?.name || '全部图片'}
               </Text>
             </View>
             <Icon name="down" size={12} color="#999" />
@@ -310,12 +315,7 @@ const PicturePage = () => {
       </TouchableOpacity>
 
       {/* 大图预览弹窗 */}
-      <Modal
-        visible={previewVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={handleClosePreview}
-      >
+      <Modal visible={previewVisible} transparent={true} animationType="fade" onRequestClose={handleClosePreview}>
         <TouchableOpacity
           style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.9)' }}
           activeOpacity={1}
@@ -350,12 +350,12 @@ const PicturePage = () => {
             <Picker
               data={categoryOptions}
               value={selectedUploadCategory !== null ? [selectedUploadCategory] : ['']}
-              onChange={(val) => setSelectedUploadCategory(val[0] !== '' ? val[0] as number : null)}
+              onChange={(val) => setSelectedUploadCategory(val[0] !== '' ? (val[0] as number) : null)}
             >
               <TouchableOpacity style={styles.pickerTrigger}>
                 <Text style={styles.pickerText}>
                   {selectedUploadCategory
-                    ? categories.find(c => c.id === selectedUploadCategory)?.name || '选择分类'
+                    ? categories.find((c) => c.id === selectedUploadCategory)?.name || '选择分类'
                     : '选择分类（可选）'}
                 </Text>
                 <Icon name="down" size={14} color="#999" />

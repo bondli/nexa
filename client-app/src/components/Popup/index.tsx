@@ -13,12 +13,7 @@ type PopupProps = {
   onClose?: () => void;
 };
 const Popup = (props: PopupProps) => {
-  const {
-    visible,
-    showCloseBtn,
-    content,
-    onClose,
-  } = props;
+  const { visible, showCloseBtn, content, onClose } = props;
 
   useEffect(() => {
     // todo something
@@ -40,30 +35,19 @@ const Popup = (props: PopupProps) => {
       style={styles.modal}
     >
       <View style={styles.modalContainer}>
-        <ScrollView 
-          style={[styles.modalContent, !showCloseBtn ? { marginBottom: 10 } : {}]}
-          scrollEnabled={true}
-        >
+        <ScrollView style={[styles.modalContent, !showCloseBtn ? { marginBottom: 10 } : {}]} scrollEnabled={true}>
           {content}
         </ScrollView>
-        {
-          showCloseBtn ? (
-            <View style={styles.modalFooter}>
-              <Button
-                onPress={closeDetailModal}
-                type={`primary`}
-                size={`large`}
-                style={{ width: '100%' }}
-              >
-                关闭
-              </Button>
-            </View>
-          ) : null
-        }
+        {showCloseBtn ? (
+          <View style={styles.modalFooter}>
+            <Button onPress={closeDetailModal} type={`primary`} size={`large`} style={{ width: '100%' }}>
+              关闭
+            </Button>
+          </View>
+        ) : null}
       </View>
     </Modal>
   );
-
 };
 
 export default Popup;

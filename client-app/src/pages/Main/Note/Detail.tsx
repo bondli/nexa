@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import { ActivityIndicator, Toast, List } from '@ant-design/react-native';
-
 import NoteService from '@services/NoteService';
 import type { Note } from '@services/NoteService';
 import Empty from '@components/Empty';
-
 import styles from './styles';
 
 interface DetailProps {

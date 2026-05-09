@@ -1,8 +1,8 @@
 const { execSync } = require('child_process');
 const path = require('path');
 const constants = require('../shared/constants');
-const { bundleAndroid } = require('./bundle');
 const { copyAndroid } = require('../copy-bundle');
+const { bundleAndroid } = require('./bundle');
 
 /**
  * Android Release 构建脚本
@@ -24,10 +24,7 @@ function buildRelease() {
       stdio: 'inherit',
     });
 
-    const apkPath = path.join(
-      constants.projectRoot,
-      'android/app/build/outputs/apk/release/app-release.apk'
-    );
+    const apkPath = path.join(constants.projectRoot, 'android/app/build/outputs/apk/release/app-release.apk');
 
     if (require('fs').existsSync(apkPath)) {
       console.log('');

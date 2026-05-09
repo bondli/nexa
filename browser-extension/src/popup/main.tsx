@@ -18,5 +18,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     >
       <PopupApp />
     </ConfigProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

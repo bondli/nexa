@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import DatabaseService from './DataBaseService';
 
 // 扩展 dayjs 插件
 dayjs.extend(utc);
@@ -8,8 +9,6 @@ dayjs.extend(timezone);
 
 // 设置默认时区为 Asia/Shanghai
 dayjs.tz.setDefault('Asia/Shanghai');
-
-import DatabaseService from './DataBaseService';
 
 export interface Article {
   id: number;
@@ -20,15 +19,19 @@ export interface Article {
   userId: number;
   status: string;
   createdAt: string;
-};
+}
 
 class ArticleService {
-  static async getArticleList(page: number = 1, pageSize: number = 20, cateId?: string): Promise<{ data: Article[], total: number }> {
+  static async getArticleList(
+    page: number = 1,
+    pageSize: number = 20,
+    cateId?: string,
+  ): Promise<{ data: Article[]; total: number }> {
     try {
       const offset = (page - 1) * pageSize;
 
       let isTemp = false;
-      
+
       // 构建查询条件
       let whereClause = `WHERE 1=1`;
       if (cateId === 'trash') {
@@ -42,8 +45,7 @@ class ArticleService {
         // 否则就是普通的分类ID
         whereClause += ` status = 'undo' AND cateId = \`${cateId}\``;
       }
-      
-      
+
       let query = `SELECT * FROM \`Article\` ${whereClause} Order BY createdAt DESC LIMIT ${pageSize} OFFSET ${offset}`;
       let countQuery = `SELECT COUNT(*) as total FROM \`Article\` ${whereClause}`;
 
@@ -51,21 +53,21 @@ class ArticleService {
         query = `SELECT * FROM \`TempArticle\` ${whereClause} Order BY createdAt DESC LIMIT ${pageSize} OFFSET ${offset}`;
         countQuery = `SELECT COUNT(*) as total FROM \`TempArticle\` ${whereClause}`;
       }
-      
+
       const result = await DatabaseService.executeQuery(query);
       const countResult = await DatabaseService.executeQuery(countQuery);
-      
+
       // 处理时间格式
       const formattedResult = result.map((item: any) => {
         return {
           ...item,
-          createdAt: dayjs(item.createdAt).format('YYYY-MM-DD HH:mm:ss')
+          createdAt: dayjs(item.createdAt).format('YYYY-MM-DD HH:mm:ss'),
         };
       });
-      
+
       return {
         data: formattedResult as Article[],
-        total: countResult[0]?.total || 0
+        total: countResult[0]?.total || 0,
       };
     } catch (error) {
       console.error('Error fetching Article list:', error);
@@ -112,7 +114,6 @@ class ArticleService {
       throw error;
     }
   }
-
 }
 
 export default ArticleService;

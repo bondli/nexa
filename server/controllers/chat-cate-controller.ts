@@ -12,7 +12,10 @@ export const getChatCateList = async (req: Request, res: Response) => {
       where: { userId },
       order: [['createdAt', 'DESC']],
     });
-    success(res, result.map((item) => item.toJSON()));
+    success(
+      res,
+      result.map((item) => item.toJSON()),
+    );
   } catch (error) {
     logger.error('Error on getting chat cate list:', error);
     serverError(res, 'Error getting chat cate list');

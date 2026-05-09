@@ -63,7 +63,7 @@ export const getNotes = async (req: Request, res: Response) => {
   try {
     const { cateId, limit = 20, offset: queryOffset } = req.query;
     const limitNum = Number(limit);
-    const offsetNum = queryOffset ? Number(queryOffset) : (Number(queryOffset) || 0);
+    const offsetNum = queryOffset ? Number(queryOffset) : Number(queryOffset) || 0;
 
     const where = {
       userId,

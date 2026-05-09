@@ -18,7 +18,10 @@ interface PictureAttributes {
 /**
  * Picture 创建时的可选属性
  */
-interface PictureCreationAttributes extends Optional<PictureAttributes, 'id' | 'description' | 'categoryId' | 'status' | 'cloudUrl'> {}
+interface PictureCreationAttributes extends Optional<
+  PictureAttributes,
+  'id' | 'description' | 'categoryId' | 'status' | 'cloudUrl'
+> {}
 
 /**
  * Picture 图片模型实例接口

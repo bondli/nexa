@@ -134,10 +134,7 @@ export const deleteCate = async (req: Request, res: Response) => {
 
     // 将该分类下的图片的 categoryId 设为 null
     const Picture = (await import('../models/Picture')).default;
-    await Picture.update(
-      { categoryId: null },
-      { where: { categoryId: Number(id), userId } }
-    );
+    await Picture.update({ categoryId: null }, { where: { categoryId: Number(id), userId } });
 
     await cate.destroy();
 

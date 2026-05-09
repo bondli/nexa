@@ -1,16 +1,11 @@
 import { useEffect, useState, useContext } from 'react';
 import { View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-
 import { Toast, List, Input, Button, Picker } from '@ant-design/react-native';
-
 import ArticleService from '@services/ArticleService';
 import NoteService from '@services/NoteService';
-
-import { MainContext } from '@/commons/context';
-
-import ButtonGroup from '@/components/ButtonGroup';
-
 import styles from './styles';
+import { MainContext } from '@/commons/context';
+import ButtonGroup from '@/components/ButtonGroup';
 
 const options = [
   { label: '收集文章', value: 'write-article' },
@@ -45,7 +40,7 @@ const CollectPage = () => {
       Toast.fail('获取分类失败');
     }
   };
-  
+
   // 提交表单(文章)
   const handleSubmitArticle = async () => {
     // 验证 URL
@@ -113,79 +108,69 @@ const CollectPage = () => {
     console.log('Collect Page inited');
   }, []);
 
-
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView style={styles.container}>
         <View style={styles.searchContainer}>
           <ButtonGroup options={options} onChange={handleTypeChange} />
         </View>
 
-        {
-          collectType === 'write-article' ? (
-            <View style={styles.formContainer}>
-              <List renderHeader="采集文章">
-                <List.Item>
-                  <Input.TextArea
-                    placeholder="请输入文章链接"
-                    allowClear
-                    value={url}
-                    onChangeText={setUrl}
-                    rows={4}
-                  />
+        {collectType === 'write-article' ? (
+          <View style={styles.formContainer}>
+            <List renderHeader="采集文章">
+              <List.Item>
+                <Input.TextArea placeholder="请输入文章链接" allowClear value={url} onChangeText={setUrl} rows={4} />
+              </List.Item>
+              <List.Item>
+                <Input
+                  prefix="文章标题"
+                  placeholder="请输入文章标题"
+                  allowClear
+                  value={title}
+                  onChangeText={setTitle}
+                />
+              </List.Item>
+            </List>
+          </View>
+        ) : (
+          <View style={styles.formContainer}>
+            <List renderHeader="采集笔记">
+              <List.Item>
+                <Input
+                  prefix="笔记标题"
+                  placeholder="请输入笔记标题"
+                  allowClear
+                  value={noteTitle}
+                  onChangeText={setNoteTitle}
+                />
+              </List.Item>
+              <List.Item>
+                <Input.TextArea
+                  placeholder="请输入笔记详情"
+                  allowClear
+                  value={noteDesc}
+                  onChangeText={setNoteDesc}
+                  rows={4}
+                />
+              </List.Item>
+              <Picker
+                data={categories}
+                cols={1}
+                value={cateId}
+                onChange={(val) => setCateId(val as number[])}
+                onVisibleChange={(visible) => {
+                  if (visible) loadCategories();
+                }}
+              >
+                <List.Item arrow="horizontal">
+                  {cateId.length
+                    ? (categories.find((c) => c.value === cateId[0])?.label ?? '请选择分类')
+                    : '请选择分类'}
                 </List.Item>
-                <List.Item>
-                  <Input
-                    prefix="文章标题"
-                    placeholder="请输入文章标题"
-                    allowClear
-                    value={title}
-                    onChangeText={setTitle}
-                  />
-                </List.Item>
-              </List>
-            </View>
-          ) : (
-            <View style={styles.formContainer}>
-              <List renderHeader="采集笔记">
-                <List.Item>
-                  <Input
-                    prefix="笔记标题"
-                    placeholder="请输入笔记标题"
-                    allowClear
-                    value={noteTitle}
-                    onChangeText={setNoteTitle}
-                  />
-                </List.Item>
-                <List.Item>
-                  <Input.TextArea
-                    placeholder="请输入笔记详情"
-                    allowClear
-                    value={noteDesc}
-                    onChangeText={setNoteDesc}
-                    rows={4}
-                  />
-                </List.Item>
-                <Picker
-                  data={categories}
-                  cols={1}
-                  value={cateId}
-                  onChange={(val) => setCateId(val as number[])}
-                  onVisibleChange={(visible) => { if (visible) loadCategories(); }}
-                >
-                  <List.Item arrow="horizontal">
-                    {cateId.length
-                      ? categories.find(c => c.value === cateId[0])?.label ?? '请选择分类'
-                      : '请选择分类'}
-                  </List.Item>
-                </Picker>
-              </List>
-            </View>
-          )
-        }
+              </Picker>
+            </List>
+          </View>
+        )}
       </ScrollView>
 
       <View style={styles.bottomBar}>
@@ -199,7 +184,6 @@ const CollectPage = () => {
       </View>
     </KeyboardAvoidingView>
   );
-
 };
 
 export default CollectPage;

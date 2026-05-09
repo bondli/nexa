@@ -58,7 +58,7 @@ const MySQLManagerModule: MySQLManagerInterface = {
       return Promise.reject(new Error('MySQLManager module not available'));
     }
     return MySQLManager.disconnect();
-  }
+  },
 };
 
 export default MySQLManagerModule;

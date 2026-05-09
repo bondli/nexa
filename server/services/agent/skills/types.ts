@@ -55,9 +55,7 @@ export interface SkillExecutionResult {
 /**
  * 转换为 JSON Schema
  */
-export const skillParametersToJsonSchema = (
-  parameters: SkillParameter[],
-): Record<string, unknown> => {
+export const skillParametersToJsonSchema = (parameters: SkillParameter[]): Record<string, unknown> => {
   const properties: Record<string, unknown> = {};
   const required: string[] = [];
 
@@ -90,9 +88,7 @@ export const skillParametersToJsonSchema = (
 /**
  * 从 JSON Schema 转换为 Skill 参数
  */
-export const jsonSchemaToSkillParameters = (
-  schema: Record<string, unknown>,
-): SkillParameter[] => {
+export const jsonSchemaToSkillParameters = (schema: Record<string, unknown>): SkillParameter[] => {
   const parameters: SkillParameter[] = [];
   const properties = (schema.properties as Record<string, unknown>) || {};
   const required = (schema.required as string[]) || [];

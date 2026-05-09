@@ -30,8 +30,8 @@ const PopupApp = () => {
       // 清理输入：去除首尾空白，过滤空行
       const cleanedDomains = domains
         .split('\n')
-        .map(d => d.trim())
-        .filter(d => d.length > 0)
+        .map((d) => d.trim())
+        .filter((d) => d.length > 0)
         .join('\n');
 
       await chrome.storage.local.set({ [ALLOWED_DOMAINS_KEY]: cleanedDomains });
@@ -59,7 +59,9 @@ const PopupApp = () => {
   return (
     <div style={{ padding: '16px', width: '320px' }}>
       <div style={{ marginBottom: '12px' }}>
-        <Text strong style={{ fontSize: '14px' }}>允许采集的域名</Text>
+        <Text strong style={{ fontSize: '14px' }}>
+          允许采集的域名
+        </Text>
         <Text type="secondary" style={{ display: 'block', fontSize: '12px', marginTop: '4px' }}>
           在这些域名页面右侧会显示悬浮球，一行一个域名
         </Text>

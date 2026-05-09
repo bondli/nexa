@@ -14,6 +14,8 @@ interface NoteAttributes {
   deadline: Date | null;
   priority: number;
   tags: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 /**

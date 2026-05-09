@@ -1,20 +1,15 @@
 import { useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
-
 import { ActivityIndicator, Toast } from '@ant-design/react-native';
 import { format as timeAgoFormat } from 'timeago.js';
-
 import NoteService from '@services/NoteService';
 import type { Note } from '@services/NoteService';
-
 import Empty from '@components/Empty';
 import ListItem from '@components/ListItem';
+import Detail from './Detail';
+import styles from './styles';
 import ButtonGroup from '@/components/ButtonGroup';
 import Popup from '@/components/Popup';
-
-import Detail from './Detail';
-
-import styles from './styles';
 
 const PAGE_SIZE = 20;
 
@@ -63,9 +58,9 @@ const NotePage = () => {
         setNoteList(result.data);
         setRefreshing(false);
       } else {
-        setNoteList(prev => [...prev, ...result.data]);
+        setNoteList((prev) => [...prev, ...result.data]);
       }
-      
+
       // 更新总数和是否有更多数据
       setHasMore(result.data.length === PAGE_SIZE);
       setPage(pageNum);
@@ -112,7 +107,7 @@ const NotePage = () => {
   const renderNoteItem = ({ item }: { item: Note }) => (
     <ListItem
       title={
-        <Text style={{ fontSize: 16, color: '#333'}}>
+        <Text style={{ fontSize: 16, color: '#333' }}>
           {item.title ? item.title.substring(0, 28) + (item.title.length > 28 ? '...' : '') : ''}
         </Text>
       }
@@ -147,7 +142,7 @@ const NotePage = () => {
       <View style={styles.searchContainer}>
         <ButtonGroup options={options} onChange={handleNoteTypeChange} />
       </View>
-      
+
       {loading && page === 1 ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size={`large`} />
@@ -174,10 +169,8 @@ const NotePage = () => {
         content={selectedNote ? <Detail noteId={selectedNote?.id} /> : null}
         showCloseBtn={true}
       />
-
     </View>
   );
-
 };
 
 export default NotePage;

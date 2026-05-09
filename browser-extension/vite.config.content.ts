@@ -1,6 +1,6 @@
+import { resolve } from 'path';
 import { defineConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
 
 // 将提取的 CSS 自动注入到 document.head 的插件
 const injectCssPlugin = (): Plugin => {

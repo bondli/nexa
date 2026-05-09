@@ -179,9 +179,7 @@ export const chatToLLM = async (req: Request, res: Response) => {
     const agent = createAgent({ sessionId, useTools, useRAG, knowledgeIds });
 
     // 只传入当前用户消息，Agent 内部会自动加载历史
-    const messages: Array<{ role: string; content: string }> = [
-      { role: 'user', content: message },
-    ];
+    const messages: Array<{ role: string; content: string }> = [{ role: 'user', content: message }];
 
     // 扩展的流式回调 - 支持多种事件类型
     const extendedCallback: ExtendedStreamCallback = (event: ExecutionEvent) => {

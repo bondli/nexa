@@ -138,13 +138,13 @@ export interface CheckpointMetadata {
  * 执行过程事件类型
  */
 export type ExecutionEventType =
-  | 'thinking'      // Agent 思考中
-  | 'tool_call'      // Agent 决定调用工具
-  | 'tool_start'     // 工具开始执行
-  | 'tool_result'    // 工具执行结果
-  | 'tool_error'     // 工具执行错误
-  | 'reasoning'      // Agent 推理过程
-  | 'final';         // 最终回答
+  | 'thinking' // Agent 思考中
+  | 'tool_call' // Agent 决定调用工具
+  | 'tool_start' // 工具开始执行
+  | 'tool_result' // 工具执行结果
+  | 'tool_error' // 工具执行错误
+  | 'reasoning' // Agent 推理过程
+  | 'final'; // 最终回答
 
 /**
  * 执行过程事件数据

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Spin, Button, App as AntdApp } from 'antd';
-
 import { getCategories, saveArticle, ArticleData, Category } from '../../services/article';
 import { getLoginData, clearLoginData, UserInfo } from '../../services/utils';
 import LoginForm from './LoginForm';
@@ -21,7 +20,10 @@ const isDomainAllowed = async (): Promise<boolean> => {
   }
 
   const currentHost = window.location.hostname;
-  const domainList = allowedDomains.split('\n').map(d => d.trim()).filter(d => d);
+  const domainList = allowedDomains
+    .split('\n')
+    .map((d) => d.trim())
+    .filter((d) => d);
 
   for (const domain of domainList) {
     if (domain === currentHost) return true;
@@ -141,11 +143,7 @@ export const CollectorPanelApp: React.FC = () => {
 
       {/* 悬浮球（面板关闭时显示） */}
       {!isOpen && (
-        <div
-          className="nexa-floating-ball"
-          onClick={() => setIsOpen(true)}
-          title="打开 Nexa 采集面板"
-        >
+        <div className="nexa-floating-ball" onClick={() => setIsOpen(true)} title="打开 Nexa 采集面板">
           <svg viewBox="0 0 24 24">
             <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z" />
           </svg>
@@ -158,26 +156,18 @@ export const CollectorPanelApp: React.FC = () => {
           <div className="nexa-panel-header">
             <span className="nexa-panel-title">Nexa 采集</span>
 
-            <div style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              alignItems: 'center',
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+              }}
+            >
               <span style={{ fontSize: '13px' }}>欢迎，{user.name}</span>
-              <Button
-                type="text"
-                size="small"
-                onClick={handleLogout}
-                style={{ color: '#fff' }}
-              >
+              <Button type="text" size="small" onClick={handleLogout} style={{ color: '#fff' }}>
                 退出
               </Button>
-              <Button
-                type="text"
-                size="small"
-                onClick={() => setIsOpen(false)}
-                style={{ color: '#fff' }}
-              >
+              <Button type="text" size="small" onClick={() => setIsOpen(false)} style={{ color: '#fff' }}>
                 关闭
               </Button>
             </div>

@@ -137,12 +137,7 @@ const ImageCollector: React.FC<ImageCollectorProps> = () => {
         />
       </div>
 
-      <Button
-        type="primary"
-        block
-        loading={collecting}
-        onClick={handleCollect}
-      >
+      <Button type="primary" block loading={collecting} onClick={handleCollect}>
         一键收藏
       </Button>
     </Modal>

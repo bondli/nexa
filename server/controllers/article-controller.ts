@@ -42,11 +42,8 @@ export const createArticle = async (req: Request, res: Response) => {
       if (image !== undefined) {
         createData.image = image;
       }
-      
-      const articleResult = await Article.create(
-        createData,
-        { transaction: t },
-      );
+
+      const articleResult = await Article.create(createData, { transaction: t });
 
       // 更新分类计数
       await ArticleCate.update(
@@ -153,7 +150,7 @@ export const updateArticle = async (req: Request, res: Response) => {
       if (url !== undefined) updateData.url = url;
       if (cateId !== undefined) updateData.cateId = Number(cateId);
       if (status !== undefined) updateData.status = status;
-      
+
       await result.update(updateData);
 
       // 针对不同的操作类型，需要更新分类中的数量字段
@@ -179,7 +176,8 @@ export const updateArticle = async (req: Request, res: Response) => {
               },
             },
           );
-        if (opType === 'move') { // 移动文章时，需要同时更新源分类和目标分类的计数
+        if (opType === 'move') {
+          // 移动文章时，需要同时更新源分类和目标分类的计数
           // 目标分类加1
           const targetCateResult = await ArticleCate.findByPk(Number(cateId));
           targetCateResult &&
@@ -421,7 +419,8 @@ export const summarizeArticle = async (req: Request, res: Response) => {
     }
 
     // 构建提示词
-    const systemPrompt = '你是一个文章总结助手。请对用户提供的内容进行总结，突出关键信息和主要观点。用 Markdown 格式输出总结结果。';
+    const systemPrompt =
+      '你是一个文章总结助手。请对用户提供的内容进行总结，突出关键信息和主要观点。用 Markdown 格式输出总结结果。';
     const messages = [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: `请总结以下内容：\n\n${content}` },
@@ -477,7 +476,8 @@ export const summarizeContent = async (req: Request, res: Response) => {
     }
 
     // 构建提示词
-    const systemPrompt = '你是一个文章总结助手。请对用户提供的内容进行总结，突出关键信息和主要观点。用 Markdown 格式输出总结结果。';
+    const systemPrompt =
+      '你是一个文章总结助手。请对用户提供的内容进行总结，突出关键信息和主要观点。用 Markdown 格式输出总结结果。';
     const messages = [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: `请总结以下内容：\n\n${content}` },
@@ -643,4 +643,3 @@ function getHtmlTemplate(): string {
   </body>
 </html>`;
 }
-

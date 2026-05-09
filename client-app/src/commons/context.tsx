@@ -1,7 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
-
-import DatabaseService from '@/services/DataBaseService';
 import { DB_CONFIG } from '@commons/constants';
+import DatabaseService from '@/services/DataBaseService';
 
 type UserInfo = {
   id: number;
@@ -52,7 +51,7 @@ export const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const initDatabase = async () => {
     try {
       console.log('开始初始化数据库连接...');
-      
+
       const connected = await DatabaseService.connect(DB_CONFIG);
       setIsDBConnected(connected);
       if (connected) {

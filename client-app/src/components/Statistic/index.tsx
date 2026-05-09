@@ -1,5 +1,4 @@
 import { View, Text } from 'react-native';
-
 import styles from './styles';
 
 const Statistic = ({ title, value }: { title: string; value: number | string }) => {

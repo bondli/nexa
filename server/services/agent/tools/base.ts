@@ -29,7 +29,7 @@ export abstract class BaseTool implements ToolDefinition {
     const errors: string[] = [];
     const missingParams: string[] = [];
 
-    const required = this.parameters.required as string[] || [];
+    const required = (this.parameters.required as string[]) || [];
 
     for (const field of required) {
       if (params[field] === undefined || params[field] === null || params[field] === '') {

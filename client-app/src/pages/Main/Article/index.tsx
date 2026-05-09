@@ -1,20 +1,15 @@
 import { useEffect, useState } from 'react';
 import { View, Text, FlatList, Linking } from 'react-native';
-
 import { ActivityIndicator, Toast } from '@ant-design/react-native';
 import { format as timeAgoFormat } from 'timeago.js';
-
 import ArticleService from '@services/ArticleService';
 import type { Article } from '@services/ArticleService';
-
 import Empty from '@components/Empty';
 import ListItem from '@components/ListItem';
+import Detail from './Detail';
+import styles from './styles';
 import ButtonGroup from '@/components/ButtonGroup';
 import Popup from '@/components/Popup';
-
-import Detail from './Detail';
-
-import styles from './styles';
 
 const PAGE_SIZE = 20;
 
@@ -65,9 +60,9 @@ const ArticlePage = () => {
         setArticleList(result.data);
         setRefreshing(false);
       } else {
-        setArticleList(prev => [...prev, ...result.data]);
+        setArticleList((prev) => [...prev, ...result.data]);
       }
-      
+
       // 更新总数和是否有更多数据
       setHasMore(result.data.length === PAGE_SIZE);
       setPage(pageNum);
@@ -133,9 +128,7 @@ const ArticlePage = () => {
               </Text>
             </View>
           }
-          extra={
-            <Text style={{ fontSize: 12, color: '#666' }}>{timeAgoFormat(new Date(item.createdAt))}</Text>
-          }
+          extra={<Text style={{ fontSize: 12, color: '#666' }}>{timeAgoFormat(new Date(item.createdAt))}</Text>}
           onPress={() => handleArticlePress(item)}
         />
       );
@@ -145,14 +138,14 @@ const ArticlePage = () => {
     return (
       <ListItem
         title={
-          <Text style={{ fontSize: 16, color: '#333'}}>
+          <Text style={{ fontSize: 16, color: '#333' }}>
             {item.title ? item.title.substring(0, 24) + (item.title.length > 24 ? '...' : '') : ''}
           </Text>
         }
         subtitle={
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={{ fontSize: 12, color: '#999' }}>
-              {item.desc ? item.desc.substring(0, 30) + (item.desc.length >30 ? '...' : '') : ''}
+              {item.desc ? item.desc.substring(0, 30) + (item.desc.length > 30 ? '...' : '') : ''}
             </Text>
           </View>
         }
@@ -181,7 +174,7 @@ const ArticlePage = () => {
       <View style={styles.searchContainer}>
         <ButtonGroup options={options} onChange={handleArticleTypeChange} />
       </View>
-      
+
       {loading && page === 1 ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size={`large`} />
@@ -208,10 +201,8 @@ const ArticlePage = () => {
         content={selectedArticle ? <Detail articleId={selectedArticle?.id} /> : null}
         showCloseBtn={true}
       />
-
     </View>
   );
-
 };
 
 export default ArticlePage;

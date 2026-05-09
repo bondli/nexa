@@ -1,8 +1,8 @@
 import type { Request, Response } from 'express';
+import logger from 'electron-log';
+import { success, notFound, badRequest, serverError } from '../../../utils/response';
 import { getSkillRegistry, createSkill } from './registry';
 import { skillParametersToJsonSchema, type InstallSkillRequest } from './types';
-import { success, notFound, badRequest, serverError } from '../../../utils/response';
-import logger from 'electron-log';
 
 /**
  * 获取已安装的 Skill 列表
@@ -40,13 +40,15 @@ export const installSkill = async (req: Request, res: Response): Promise<void> =
     // 将 handlerCode 作为函数体执行
     let handler: Function;
     try {
-      // eslint-disable-next-line no-new-func
-      handler = new Function('params', `
+      handler = new Function(
+        'params',
+        `
         const result = (async () => {
           ${handlerCode}
         })();
         return result;
-      `);
+      `,
+      );
     } catch (error) {
       badRequest(res, 'Invalid handler code');
       return;

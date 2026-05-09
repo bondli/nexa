@@ -47,9 +47,7 @@ export const extractDataForImage = async (content: string, title?: string): Prom
 
 请直接返回JSON，不要添加任何解释或markdown代码块标记。`;
 
-  const userPrompt = title
-    ? `文章标题：${title}\n\n文章内容：\n${content}`
-    : `文章内容：\n${content}`;
+  const userPrompt = title ? `文章标题：${title}\n\n文章内容：\n${content}` : `文章内容：\n${content}`;
 
   const messages = [
     { role: 'system', content: systemPrompt },
@@ -97,19 +95,13 @@ export const extractDataForImage = async (content: string, title?: string): Prom
       extractedData.subtitle = '文章核心内容解读';
     }
     if (!extractedData.kpis || extractedData.kpis.length === 0) {
-      extractedData.kpis = [
-        { label: '关键指标', value: '-', desc: '数据提取中' },
-      ];
+      extractedData.kpis = [{ label: '关键指标', value: '-', desc: '数据提取中' }];
     }
     if (!extractedData.keyPoints || extractedData.keyPoints.length === 0) {
-      extractedData.keyPoints = [
-        { label: '核心要点', desc: '内容提取中', tags: [] },
-      ];
+      extractedData.keyPoints = [{ label: '核心要点', desc: '内容提取中', tags: [] }];
     }
     if (!extractedData.conclusions || extractedData.conclusions.length === 0) {
-      extractedData.conclusions = [
-        { id: 'R1', title: '核心结论', desc: '结论提取中' },
-      ];
+      extractedData.conclusions = [{ id: 'R1', title: '核心结论', desc: '结论提取中' }];
     }
 
     logger.info('[extractDataForImage] 成功提取结构化数据');
@@ -129,14 +121,17 @@ export const fillHtmlTemplate = (template: string, data: ImageGenerateData): str
 
   // 1. 替换标题和副标题
   html = html.replace(/<h1><\/h1>/, `<h1>${escapeHtml(data.title || '')}</h1>`);
-  html = html.replace(/<div class="subtitle"><\/div>/, `<div class="subtitle">${escapeHtml(data.subtitle || '')}</div>`);
+  html = html.replace(
+    /<div class="subtitle"><\/div>/,
+    `<div class="subtitle">${escapeHtml(data.subtitle || '')}</div>`,
+  );
 
   // 2. 替换 KPI 区域
   const kpiHtml = buildKpiHtml(data.kpis);
   html = html.replace('<!-- KPI 动态替换 -->', kpiHtml);
 
   // 2.1 替换 KPT数量
-  html = html.replace('<!-- KPI数量 -->', data.kpis.length.toString()); 
+  html = html.replace('<!-- KPI数量 -->', data.kpis.length.toString());
 
   // 3. 替换重点信息区域
   const spectrumHtml = buildSpectrumHtml(data.keyPoints);
@@ -153,21 +148,27 @@ export const fillHtmlTemplate = (template: string, data: ImageGenerateData): str
  * 构建 KPI HTML
  */
 const buildKpiHtml = (kpis: ImageGenerateData['kpis']): string => {
-  return kpis.slice(0, 4).map((kpi) => `
+  return kpis
+    .slice(0, 4)
+    .map(
+      (kpi) => `
             <div class="kpi-card">
               <div class="label">${escapeHtml(kpi.label)}</div>
               <div class="number">${escapeHtml(kpi.value)}<span class="unit">${escapeHtml(kpi.unit || '')}</span></div>
               <div class="desc">${escapeHtml(kpi.desc)}</div>
-            </div>`).join('\n');
+            </div>`,
+    )
+    .join('\n');
 };
 
 /**
  * 构建重点信息 HTML
  */
 const buildSpectrumHtml = (keyPoints: ImageGenerateData['keyPoints']): string => {
-  return keyPoints.map((point) => {
-    const tagText = point.tags ? point.tags.join(' · ') : '';
-    return `
+  return keyPoints
+    .map((point) => {
+      const tagText = point.tags ? point.tags.join(' · ') : '';
+      return `
               <div class="spectrum-item">
                 <div class="s-left">
                   <div class="s-label">${escapeHtml(point.label)}</div>
@@ -177,21 +178,25 @@ const buildSpectrumHtml = (keyPoints: ImageGenerateData['keyPoints']): string =>
                   <span class="s-tag medium">${tagText}</span>
                 </div>
               </div>`;
-  }).join('\n');
+    })
+    .join('\n');
 };
 
 /**
  * 构建结论 HTML
  */
 const buildConclusionsHtml = (conclusions: ImageGenerateData['conclusions']): string => {
-  return conclusions.slice(0, 3).map((c, idx) => {
-    const id = c.id || 'R' + (idx + 1);
-    return `
+  return conclusions
+    .slice(0, 3)
+    .map((c, idx) => {
+      const id = c.id || 'R' + (idx + 1);
+      return `
           <div class="risk-item">
             <span class="idx">${escapeHtml(id)}</span>
             <span><strong>${escapeHtml(c.title)}</strong>${c.desc ? ` — ${escapeHtml(c.desc)}` : ''}</span>
           </div>`;
-  }).join('\n');
+    })
+    .join('\n');
 };
 
 /**

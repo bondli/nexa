@@ -14,6 +14,8 @@ interface ArticleAttributes {
   status: string;
   summary: string | null;
   image: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 /**

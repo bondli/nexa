@@ -1,6 +1,8 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import config from '../../config.json';
+import DatabaseService from './DataBaseService';
 
 // 扩展 dayjs 插件
 dayjs.extend(utc);
@@ -8,9 +10,6 @@ dayjs.extend(timezone);
 
 // 设置默认时区为 Asia/Shanghai
 dayjs.tz.setDefault('Asia/Shanghai');
-
-import config from '../../config.json';
-import DatabaseService from './DataBaseService';
 
 export interface Picture {
   id: number;
@@ -34,7 +33,7 @@ export interface PictureCate {
 // 云端 API 配置
 const CLOUD_API = config.cloudApi || {
   endpoint: 'http://davebella.top/pos/common/upload',
-  apiKey: ''
+  apiKey: '',
 };
 
 class PictureService {
@@ -90,7 +89,11 @@ class PictureService {
    * @param pageSize 每页数量
    * @param categoryId 可选的分类ID筛选
    */
-  static async getPictureList(page: number = 1, pageSize: number = 20, categoryId?: number | null): Promise<{ data: Picture[], total: number }> {
+  static async getPictureList(
+    page: number = 1,
+    pageSize: number = 20,
+    categoryId?: number | null,
+  ): Promise<{ data: Picture[]; total: number }> {
     try {
       const offset = (page - 1) * pageSize;
 
@@ -110,13 +113,13 @@ class PictureService {
       const formattedResult = result.map((item: any) => {
         return {
           ...item,
-          createdAt: dayjs(item.createdAt).format('YYYY-MM-DD HH:mm:ss')
+          createdAt: dayjs(item.createdAt).format('YYYY-MM-DD HH:mm:ss'),
         };
       });
 
       return {
         data: formattedResult as Picture[],
-        total: countResult[0]?.total || 0
+        total: countResult[0]?.total || 0,
       };
     } catch (error) {
       console.error('Error fetching picture list:', error);
@@ -145,7 +148,12 @@ class PictureService {
    * @param userId 用户ID
    * @param categoryId 可选的分类ID
    */
-  static async createPicture(cloudUrl: string, name: string, userId: number = 1, categoryId?: number | null): Promise<void> {
+  static async createPicture(
+    cloudUrl: string,
+    name: string,
+    userId: number = 1,
+    categoryId?: number | null,
+  ): Promise<void> {
     try {
       // 对输入进行转义处理，防止 SQL 注入
       const escapedCloudUrl = cloudUrl.replace(/'/g, "''");

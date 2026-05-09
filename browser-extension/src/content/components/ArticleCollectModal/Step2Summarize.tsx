@@ -12,11 +12,7 @@ interface Step2SummarizeProps {
   onComplete: (summary: string) => void;
 }
 
-const Step2Summarize: React.FC<Step2SummarizeProps> = ({
-  content,
-  alreadySummary,
-  onComplete,
-}) => {
+const Step2Summarize: React.FC<Step2SummarizeProps> = ({ content, alreadySummary, onComplete }) => {
   const { message } = AntdApp.useApp();
   const [summary, setSummary] = useState(alreadySummary || '');
   const [loading, setLoading] = useState(false);
@@ -41,11 +37,15 @@ const Step2Summarize: React.FC<Step2SummarizeProps> = ({
       const userId = await getUserId();
 
       // 调用总结接口
-      const response = await request.post<any>('/article/summarize-content', {
-        content,
-      }, {
-        headers: { 'X-User-Id': String(userId) },
-      });
+      const response = await request.post<any>(
+        '/article/summarize-content',
+        {
+          content,
+        },
+        {
+          headers: { 'X-User-Id': String(userId) },
+        },
+      );
 
       const resData = response.data;
       if (resData.code === 0) {
@@ -90,11 +90,7 @@ const Step2Summarize: React.FC<Step2SummarizeProps> = ({
         <Button onClick={handleSummarize} loading={summarizing} disabled={loading}>
           {summarizing ? '总结中...' : '重新总结'}
         </Button>
-        <Button
-          type="primary"
-          onClick={handleNext}
-          disabled={!summary.trim() || loading}
-        >
+        <Button type="primary" onClick={handleNext} disabled={!summary.trim() || loading}>
           下一步
           <RightOutlined />
         </Button>

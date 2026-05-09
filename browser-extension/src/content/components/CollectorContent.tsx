@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button, App as AntdApp } from 'antd';
 import { ScissorOutlined } from '@ant-design/icons';
-
 import { extractPageContent } from '../../services/contentExtractor';
 
 interface CollectorContentProps {
@@ -10,7 +9,7 @@ interface CollectorContentProps {
 
 const CollectorContent: React.FC<CollectorContentProps> = ({ onCollected }) => {
   const { message } = AntdApp.useApp();
-  
+
   const [extracting, setExtracting] = useState(false);
 
   const handleExtract = () => {
@@ -37,14 +36,7 @@ const CollectorContent: React.FC<CollectorContentProps> = ({ onCollected }) => {
 
   return (
     <div style={{ padding: '16px' }}>
-      <Button
-        type="primary"
-        icon={<ScissorOutlined />}
-        onClick={handleExtract}
-        loading={extracting}
-        block
-        size="large"
-      >
+      <Button type="primary" icon={<ScissorOutlined />} onClick={handleExtract} loading={extracting} block size="large">
         {extracting ? '提取中...' : '一键提取'}
       </Button>
     </div>

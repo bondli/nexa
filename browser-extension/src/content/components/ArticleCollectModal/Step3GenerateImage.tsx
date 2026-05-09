@@ -18,7 +18,7 @@ const Step3GenerateImage: React.FC<Step3GenerateImageProps> = ({
   title,
   onComplete,
   selectedCategory,
-  categories
+  categories,
 }) => {
   const { message: antdMessage } = AntdApp.useApp();
   const previewRef = useRef<HTMLDivElement>(null);
@@ -39,12 +39,16 @@ const Step3GenerateImage: React.FC<Step3GenerateImageProps> = ({
       const userId = await getUserId();
 
       // 调用后端生成HTML内容
-      const response = await request.post<any>('/article/generate-image', {
-        summary,
-        title,
-      }, {
-        headers: { 'X-User-Id': String(userId) },
-      });
+      const response = await request.post<any>(
+        '/article/generate-image',
+        {
+          summary,
+          title,
+        },
+        {
+          headers: { 'X-User-Id': String(userId) },
+        },
+      );
 
       const resData = response.data;
       if (resData.code === 0) {
@@ -82,10 +86,14 @@ const Step3GenerateImage: React.FC<Step3GenerateImageProps> = ({
 
       // 转换为 blob
       const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((b) => {
-          if (b) resolve(b);
-          else reject(new Error('Canvas to Blob failed'));
-        }, 'image/png', 1.0);
+        canvas.toBlob(
+          (b) => {
+            if (b) resolve(b);
+            else reject(new Error('Canvas to Blob failed'));
+          },
+          'image/png',
+          1.0,
+        );
       });
 
       // 创建 FormData 上传
@@ -132,15 +140,8 @@ const Step3GenerateImage: React.FC<Step3GenerateImageProps> = ({
       <div style={{ textAlign: 'center', padding: '20px 0' }}>
         {step === 'generate' && (
           <>
-            <p style={{ marginBottom: 16, color: '#8c8c8c' }}>
-              点击下方按钮，生成用于图片分享的 HTML 内容
-            </p>
-            <Button
-              type="primary"
-              onClick={handleGenerateImage}
-              loading={generating}
-              size="large"
-            >
+            <p style={{ marginBottom: 16, color: '#8c8c8c' }}>点击下方按钮，生成用于图片分享的 HTML 内容</p>
+            <Button type="primary" onClick={handleGenerateImage} loading={generating} size="large">
               {generating ? '生成中...' : '生成图片内容'}
             </Button>
           </>
@@ -148,9 +149,7 @@ const Step3GenerateImage: React.FC<Step3GenerateImageProps> = ({
 
         {step === 'upload' && (
           <>
-            <p style={{ marginBottom: 16, color: '#8c8c8c' }}>
-              HTML 内容已生成，点击转换为图片并上传
-            </p>
+            <p style={{ marginBottom: 16, color: '#8c8c8c' }}>HTML 内容已生成，点击转换为图片并上传</p>
             <div
               ref={previewRef}
               style={{
@@ -162,12 +161,7 @@ const Step3GenerateImage: React.FC<Step3GenerateImageProps> = ({
               }}
               dangerouslySetInnerHTML={{ __html: htmlContent }}
             />
-            <Button
-              type="primary"
-              onClick={handleConvertToImage}
-              loading={loading}
-              size="large"
-            >
+            <Button type="primary" onClick={handleConvertToImage} loading={loading} size="large">
               {loading ? '转换中...' : '转换为图片并上传'}
             </Button>
           </>
@@ -175,9 +169,7 @@ const Step3GenerateImage: React.FC<Step3GenerateImageProps> = ({
 
         {step === 'done' && (
           <>
-            <p style={{ marginBottom: 16, color: '#52c41a' }}>
-              图片上传成功！
-            </p>
+            <p style={{ marginBottom: 16, color: '#52c41a' }}>图片上传成功！</p>
             {previewUrl && (
               <div style={{ marginBottom: 16 }}>
                 <img
@@ -187,7 +179,7 @@ const Step3GenerateImage: React.FC<Step3GenerateImageProps> = ({
                     maxWidth: '100%',
                     maxHeight: 600,
                     borderRadius: 8,
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                   }}
                 />
               </div>
@@ -198,23 +190,16 @@ const Step3GenerateImage: React.FC<Step3GenerateImageProps> = ({
 
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div style={{ fontSize: '12px', color: '#8c8c8c',marginRight: 8 }}>
-            文章分类
-          </div>
+          <div style={{ fontSize: '12px', color: '#8c8c8c', marginRight: 8 }}>文章分类</div>
           <Select
             value={category}
             onChange={setCategory}
             placeholder="请选择文章分类"
             style={{ width: 200 }}
-            options={categories.map(c => ({ label: c.name, value: c.id }))}
+            options={categories.map((c) => ({ label: c.name, value: c.id }))}
           />
         </div>
-        <Button
-          type="primary"
-          onClick={handleFinish}
-          disabled={step !== 'done'}
-          icon={<CheckOutlined />}
-        >
+        <Button type="primary" onClick={handleFinish} disabled={step !== 'done'} icon={<CheckOutlined />}>
           提交保存
         </Button>
       </div>

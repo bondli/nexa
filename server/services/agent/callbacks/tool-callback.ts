@@ -20,7 +20,7 @@ export class ToolExecutionCallbackHandler extends BaseCallbackHandler {
   /**
    * 当工具执行开始时触发
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   handleToolStart(tool: any, input: any, runId: string, parentRunId?: string): void {
     let toolName = 'unknown';
 
@@ -84,7 +84,7 @@ export class ToolExecutionCallbackHandler extends BaseCallbackHandler {
   /**
    * 当工具执行完成时触发
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   handleToolEnd(output: any, runId: string, parentRunId?: string): void {
     const resultStr = typeof output === 'string' ? output : JSON.stringify(output);
 
@@ -106,7 +106,7 @@ export class ToolExecutionCallbackHandler extends BaseCallbackHandler {
   /**
    * 当工具执行出错时触发
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   handleToolError(err: any, runId?: string, parentRunId?: string): void {
     const errorMsg = err instanceof Error ? err.message : String(err);
 

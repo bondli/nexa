@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { Icon } from '@ant-design/react-native';
-
 import styles from './styles';
 
 interface ListItemProps {
@@ -11,7 +10,7 @@ interface ListItemProps {
   extra?: React.ReactNode;
   onPress?: () => void;
   onLongPress?: () => void;
-};
+}
 
 const ListItem: React.FC<ListItemProps> = ({ icon, title, subtitle, extra, onPress, onLongPress }) => {
   return (

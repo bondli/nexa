@@ -1,13 +1,10 @@
 import { useEffect, useState, useContext, useRef } from 'react';
 import { View, DevSettings, DeviceEventEmitter } from 'react-native';
 import { Provider, ActivityIndicator, Modal, Toast } from '@ant-design/react-native';
-
 import { checkUserInfo, getInitialShareParams, parseShareUrl } from '@commons/utils';
 import ArticleService from '@services/ArticleService';
-
 import MainPage from '@pages/Main';
 import UserPage from '@pages/User';
-
 import { MainContext, MainProvider } from '@/commons/context';
 
 const AppContent = () => {
@@ -51,13 +48,7 @@ const AppContent = () => {
     // 5秒之后还是没有连上数据库，说明网络差，给出提示，刷新既可
     const timeoutId = setTimeout(() => {
       if (!isDBConnectedRef.current) {
-        Modal.alert(
-          '提示',
-          '网络差，请检查网络连接',
-          [
-            { text: '重试', onPress: () => DevSettings.reload() },
-          ]
-        );
+        Modal.alert('提示', '网络差，请检查网络连接', [{ text: '重试', onPress: () => DevSettings.reload() }]);
       }
     }, 5000);
 
@@ -121,19 +112,15 @@ const AppContent = () => {
     );
   }
 
-  return (
-    <View style={{ flex: 1 }}>
-      {userInfo?.id ? <MainPage /> : <UserPage />}
-    </View>
-  );
+  return <View style={{ flex: 1 }}>{userInfo?.id ? <MainPage /> : <UserPage />}</View>;
 };
 
 const App = () => {
   return (
     <Provider
       theme={{
-        brand_primary: '#18181b',  // 品牌基础色 #18181b
-        primary_button_fill: '#18181b',     // 按钮背景颜色 <Button type="primary">
+        brand_primary: '#18181b', // 品牌基础色 #18181b
+        primary_button_fill: '#18181b', // 按钮背景颜色 <Button type="primary">
       }}
     >
       <MainProvider>

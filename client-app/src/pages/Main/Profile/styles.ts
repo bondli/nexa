@@ -25,12 +25,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   dataContainer: {
     borderWidth: 1,
     borderColor: '#e0e0e0',
     borderRadius: 8,
-  }
+  },
 });
 
 export default styles;

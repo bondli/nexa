@@ -1,13 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
 import { View } from 'react-native';
 import { Input, Button, WhiteSpace, List, Toast, Icon } from '@ant-design/react-native';
-
 import { MainContext } from '@commons/context';
 import { setStorage } from '@commons/utils';
 import UserService from '@services/UserService';
-
 import NavBar from '@components/NavBar';
-
 import styles from './styles';
 
 const UserPage = () => {
@@ -38,7 +35,7 @@ const UserPage = () => {
       // 保存到本地存储
       setStorage('userInfo', finallyUser);
       setUserInfo(finallyUser);
-      
+
       // 显示成功消息
       Toast.success('登录成功');
     } catch (error: any) {
@@ -84,12 +81,7 @@ const UserPage = () => {
       <WhiteSpace size={`lg`} />
 
       <View style={styles.buttonContainer}>
-        <Button 
-          type={`primary`}
-          loading={loading}
-          onPress={handleLogin}
-          style={{ flex: 1 }}
-        >
+        <Button type={`primary`} loading={loading} onPress={handleLogin} style={{ flex: 1 }}>
           {loading ? '登录中...' : '登录'}
         </Button>
       </View>

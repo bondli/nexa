@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+// / <reference types="vite/client" />
 
 // Less 模块声明
 declare module '*.module.less' {

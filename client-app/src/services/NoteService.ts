@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import DatabaseService from './DataBaseService';
 
 // 扩展 dayjs 插件
 dayjs.extend(utc);
@@ -8,8 +9,6 @@ dayjs.extend(timezone);
 
 // 设置默认时区为 Asia/Shanghai
 dayjs.tz.setDefault('Asia/Shanghai');
-
-import DatabaseService from './DataBaseService';
 
 export interface Note {
   id: number;
@@ -22,13 +21,17 @@ export interface Note {
   priority: number;
   tags: string[];
   createdAt: string;
-};
+}
 
 class NoteService {
-  static async getNoteList(page: number = 1, pageSize: number = 20, cateId?: string): Promise<{ data: Note[], total: number }> {
+  static async getNoteList(
+    page: number = 1,
+    pageSize: number = 20,
+    cateId?: string,
+  ): Promise<{ data: Note[]; total: number }> {
     try {
       const offset = (page - 1) * pageSize;
-      
+
       // 构建查询条件
       let whereClause = `WHERE 1=1`;
       if (cateId) {
@@ -50,25 +53,24 @@ class NoteService {
           whereClause += ` status = 'undo' AND cateId = \`${cateId}\``;
         }
       }
-      
-      
+
       const query = `SELECT * FROM \`Note\` ${whereClause} Order BY createdAt DESC LIMIT ${pageSize} OFFSET ${offset}`;
       const countQuery = `SELECT COUNT(*) as total FROM \`Note\` ${whereClause}`;
-      
+
       const result = await DatabaseService.executeQuery(query);
       const countResult = await DatabaseService.executeQuery(countQuery);
-      
+
       // 处理时间格式
       const formattedResult = result.map((item: any) => {
         return {
           ...item,
-          createdAt: dayjs(item.createdAt).format('YYYY-MM-DD HH:mm:ss')
+          createdAt: dayjs(item.createdAt).format('YYYY-MM-DD HH:mm:ss'),
         };
       });
-      
+
       return {
         data: formattedResult as Note[],
-        total: countResult[0]?.total || 0
+        total: countResult[0]?.total || 0,
       };
     } catch (error) {
       console.error('Error fetching note list:', error);
@@ -136,7 +138,6 @@ class NoteService {
       throw error;
     }
   }
-
 }
 
 export default NoteService;

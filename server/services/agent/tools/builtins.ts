@@ -1,6 +1,6 @@
-import type { ToolDefinition, ToolResult } from '../types';
 import logger from 'electron-log';
 import { Op } from 'sequelize';
+import type { ToolDefinition, ToolResult } from '../types';
 import Note from '../../../models/Note';
 import Cate from '../../../models/Cate';
 import Article from '../../../models/Article';
@@ -22,7 +22,8 @@ const getUserId = (params: Record<string, unknown>): number => {
 const createWriteNoteTool = (): ToolDefinition => {
   return {
     name: 'write_note',
-    description: '创建一条新笔记。输入应包含 title（标题）、content（内容）和 cateId（分类ID）。当分类ID缺失时，会返回分类列表供用户选择。',
+    description:
+      '创建一条新笔记。输入应包含 title（标题）、content（内容）和 cateId（分类ID）。当分类ID缺失时，会返回分类列表供用户选择。',
     parameters: {
       type: 'object',
       properties: {
@@ -46,7 +47,10 @@ const createWriteNoteTool = (): ToolDefinition => {
         if (!cateId) {
           const categories = await Cate.findAll({
             where: { userId: getUserId(params) },
-            order: [['orders', 'ASC'], ['createdAt', 'DESC']],
+            order: [
+              ['orders', 'ASC'],
+              ['createdAt', 'DESC'],
+            ],
           });
 
           if (!categories || categories.length === 0) {
@@ -87,10 +91,7 @@ const createWriteNoteTool = (): ToolDefinition => {
         });
 
         // 更新分类计数
-        await Cate.update(
-          { counts: Note.sequelize!.literal('counts + 1') },
-          { where: { id: cateId } },
-        );
+        await Cate.update({ counts: Note.sequelize!.literal('counts + 1') }, { where: { id: cateId } });
 
         return {
           success: true,
@@ -117,7 +118,8 @@ const createWriteNoteTool = (): ToolDefinition => {
 const createSearchNotesTool = (): ToolDefinition => {
   return {
     name: 'search_notes',
-    description: '根据关键词搜索笔记。输入应为 searchQuery（搜索关键词）。返回笔记列表，用户选择后传入 noteId 获取详情。',
+    description:
+      '根据关键词搜索笔记。输入应为 searchQuery（搜索关键词）。返回笔记列表，用户选择后传入 noteId 获取详情。',
     parameters: {
       type: 'object',
       properties: {
@@ -199,10 +201,7 @@ const createSearchNotesTool = (): ToolDefinition => {
           where: {
             userId: getUserId(params),
             status: 'undo',
-            [Op.or]: [
-              { title: { [Op.like]: `%${searchQuery}%` } },
-              { desc: { [Op.like]: `%${searchQuery}%` } },
-            ],
+            [Op.or]: [{ title: { [Op.like]: `%${searchQuery}%` } }, { desc: { [Op.like]: `%${searchQuery}%` } }],
           },
           order: [['updatedAt', 'DESC']],
           limit: 20,
@@ -309,7 +308,8 @@ const createGetWeatherTool = (): ToolDefinition => {
 const createAlarmClockTool = (): ToolDefinition => {
   return {
     name: 'alarm_clock',
-    description: '设置一个闹钟。输入应包含 title（闹钟标题）和 time（闹钟时间，支持自然语言如：2小时后、明天下午3点、今天上午9点30分等）。到点时会收到桌面通知提醒。',
+    description:
+      '设置一个闹钟。输入应包含 title（闹钟标题）和 time（闹钟时间，支持自然语言如：2小时后、明天下午3点、今天上午9点30分等）。到点时会收到桌面通知提醒。',
     parameters: {
       type: 'object',
       properties: {
@@ -355,7 +355,8 @@ const createAlarmClockTool = (): ToolDefinition => {
 const createSearchArticlesTool = (): ToolDefinition => {
   return {
     name: 'search_articles',
-    description: '根据关键词搜索文章。输入应为 searchQuery（搜索关键词）。返回文章列表，用户选择后传入 articleId 获取详情。',
+    description:
+      '根据关键词搜索文章。输入应为 searchQuery（搜索关键词）。返回文章列表，用户选择后传入 articleId 获取详情。',
     parameters: {
       type: 'object',
       properties: {

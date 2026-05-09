@@ -3,7 +3,6 @@ import { Button, Input, App as AntdApp } from 'antd';
 import { RightOutlined } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
 import { extractPageContent } from '../../../services/contentExtractor';
 
 const { TextArea } = Input;
@@ -14,11 +13,7 @@ interface Step1CollectProps {
   onComplete: (data: { title: string; content: string }) => void;
 }
 
-const Step1Collect: React.FC<Step1CollectProps> = ({
-  initialTitle,
-  initialContent,
-  onComplete,
-}) => {
+const Step1Collect: React.FC<Step1CollectProps> = ({ initialTitle, initialContent, onComplete }) => {
   const { message } = AntdApp.useApp();
   const [title, setTitle] = useState(initialTitle || '');
   const [content, setContent] = useState(initialContent || '');
@@ -64,35 +59,25 @@ const Step1Collect: React.FC<Step1CollectProps> = ({
 
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontSize: 13, color: '#8c8c8c', marginBottom: 6 }}>内容（Markdown）</div>
-        {
-          content ? (
-            <div style={{ maxHeight: '500px', overflowY: 'auto', padding: '16px', border: '1px solid #f0f0f0' }}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-            </div>
-          ) : (
-            <TextArea
-              value={`提取的文章内容将显示在这里`}
-              disabled
-              autoSize={{ minRows: 10, maxRows: 20 }}
-              style={{ fontSize: 13, fontFamily: 'monospace', resize: 'vertical' }}
-            />
-          )
-        }
+        {content ? (
+          <div style={{ maxHeight: '500px', overflowY: 'auto', padding: '16px', border: '1px solid #f0f0f0' }}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+          </div>
+        ) : (
+          <TextArea
+            value={`提取的文章内容将显示在这里`}
+            disabled
+            autoSize={{ minRows: 10, maxRows: 20 }}
+            style={{ fontSize: 13, fontFamily: 'monospace', resize: 'vertical' }}
+          />
+        )}
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <Button
-          onClick={handleExtract}
-          loading={extracting}
-          disabled={!!content.trim()}
-        >
+        <Button onClick={handleExtract} loading={extracting} disabled={!!content.trim()}>
           {extracting ? '提取中...' : '重新提取'}
         </Button>
-        <Button
-          type="primary"
-          onClick={handleNext}
-          disabled={!content.trim()}
-        >
+        <Button type="primary" onClick={handleNext} disabled={!content.trim()}>
           下一步
           <RightOutlined />
         </Button>

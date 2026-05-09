@@ -21,7 +21,8 @@ interface TempArticleCreationAttributes extends Optional<TempArticleAttributes, 
 /**
  * TempArticle 临时文章模型实例接口
  */
-interface TempArticleInstance extends Model<TempArticleAttributes, TempArticleCreationAttributes>, TempArticleAttributes {}
+interface TempArticleInstance
+  extends Model<TempArticleAttributes, TempArticleCreationAttributes>, TempArticleAttributes {}
 
 const TempArticle = sequelize.define<TempArticleInstance, TempArticleCreationAttributes>(
   'TempArticle',
