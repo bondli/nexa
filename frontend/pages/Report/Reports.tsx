@@ -2,9 +2,11 @@ import React, { memo, useContext, useEffect, useRef, useCallback, useState } fro
 import { App, List, Empty, Image, Drawer, Button, Tag } from 'antd';
 import { GithubFilled, DeleteOutlined } from '@ant-design/icons';
 import { format as timeAgoFormat } from 'timeago.js';
+import request from '@commons/request';
 import { ReportContext, Report } from './context';
 import style from './index.module.less';
 import MarkdownPreview from '@/components/MarkdownPreview';
+import GenerateImage from '@/components/GenerateImage';
 
 const Reports: React.FC = () => {
   const { message } = App.useApp();
@@ -18,6 +20,14 @@ const Reports: React.FC = () => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImgUrl, setPreviewImgUrl] = useState<string>('');
   const [currentReport, setCurrentReport] = useState<Report | null>(null);
+
+  // 生成图片 Modal 状态
+  const [generateModalVisible, setGenerateModalVisible] = useState(false);
+  const [selectedReportForImage, setSelectedReportForImage] = useState<{
+    id: number;
+    title: string;
+    desc?: string;
+  } | null>(null);
 
   useEffect(() => {
     getReportList(false);
@@ -48,6 +58,36 @@ const Reports: React.FC = () => {
     }
   };
 
+  // 触发生成图片
+  const handleGenerateImage = (data: any) => {
+    setSelectedReportForImage({ id: data.id, title: data.summary || '工作报告', desc: data.content });
+    setGenerateModalVisible(true);
+  };
+
+  const handleImageGenerated = async (cloudUrl: string) => {
+    if (!selectedReportForImage) return;
+
+    try {
+      // 调用更新报告接口，保存图片URL
+      const response = await request.post<any>('/report/update', {
+        id: selectedReportForImage.id,
+        image: cloudUrl,
+      });
+
+      if (response.code === 0) {
+        message.success('图片已保存到报告中');
+      } else {
+        message.error(response.message || '保存图片失败');
+      }
+    } catch (error) {
+      console.error('保存报告图片失败:', error);
+      message.error('保存图片失败');
+    } finally {
+      setGenerateModalVisible(false);
+      setSelectedReportForImage(null);
+    }
+  };
+
   // 渲染报告类型标签
   const renderReportType = (type: 'daily' | 'monthly') => {
     return type === 'daily' ? <Tag color="magenta">日报</Tag> : <Tag color="volcano">月报</Tag>;
@@ -59,7 +99,8 @@ const Reports: React.FC = () => {
     if (report.image) {
       return <GithubFilled style={{ fontSize: 28, color: 'red' }} onClick={() => handleViewImage(report)} />;
     }
-    return <GithubFilled style={{ fontSize: 28, color }} />;
+    // 无图片时点击触发生成图片
+    return <GithubFilled style={{ fontSize: 28, color }} onClick={() => handleGenerateImage(report)} />;
   };
 
   // 渲染标题（报告日期 + 类型）
@@ -174,6 +215,19 @@ const Reports: React.FC = () => {
       >
         {currentReport ? <MarkdownPreview content={currentReport.content} /> : null}
       </Drawer>
+
+      {/* 生成图片 Modal */}
+      <GenerateImage
+        visible={generateModalVisible}
+        title={selectedReportForImage?.title || ''}
+        summary={selectedReportForImage?.desc}
+        generateApiPath="/report/generate-image"
+        onClose={() => {
+          setGenerateModalVisible(false);
+          setSelectedReportForImage(null);
+        }}
+        onSuccess={handleImageGenerated}
+      />
 
       {/* 隐藏的 Image 组件，用于触发图片预览 */}
       <Image

@@ -2,8 +2,9 @@ import { Request, Response } from 'express';
 import Sequelize, { Op } from 'sequelize';
 import dayjs from 'dayjs';
 import logger from 'electron-log';
-import { success, successWithPage, notFound, serverError } from '../utils/response';
-import { generateReport, generateReportImage } from '../services/report-service';
+import { success, successWithPage, notFound, serverError, badRequest } from '../utils/response';
+import { generateReport } from '../services/report-service';
+import { extractDataForImage, fillHtmlTemplate, getHtmlTemplate } from '../services/report-template-service';
 import Note from '../models/Note';
 import Article from '../models/Article';
 import Report from '../models/Reports';
@@ -128,6 +129,31 @@ export const getReportList = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error('Error getting report list:', error);
     serverError(res, '获取报告列表失败');
+  }
+};
+
+/**
+ * 更新报告
+ * POST /api/report/update
+ */
+export const updateRepport = async (req: Request, res: Response) => {
+  try {
+    const { id, image } = req.body;
+    const report = await Report.findByPk(id);
+
+    if (!report) {
+      notFound(res, '报告不存在');
+      return;
+    }
+
+    await report.update({
+      image,
+    });
+
+    success(res, report.toJSON());
+  } catch (error) {
+    logger.error('Error updating report:', error);
+    serverError(res, '更新报告失败');
   }
 };
 
@@ -297,34 +323,26 @@ export const getReportCounts = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * 生成报告缩略图
- * POST /api/report/generateImage
- */
-export const generateReportImageHandler = async (req: Request, res: Response) => {
+// 基于总结内容生成HTML用于图片生成
+export const generateReportImage = async (req: Request, res: Response) => {
   try {
-    const { id } = req.body;
+    const { summary, title } = req.body;
 
-    if (!id) {
-      success(res, { error: '报告ID不能为空' });
+    if (!summary) {
+      badRequest(res, '总结内容不能为空');
       return;
     }
 
-    const report = await Report.findByPk(Number(id));
-    if (!report) {
-      notFound(res, '报告不存在');
-      return;
-    }
+    // 1. 调用AI提取结构化数据
+    const extractedData = await extractDataForImage(summary, title);
 
-    // 生成缩略图
-    const imageUrl = await generateReportImage(report.toJSON());
+    // 2. 使用内联HTML模板填充数据
+    const htmlContent = fillHtmlTemplate(getHtmlTemplate(), extractedData);
 
-    // 更新报告的缩略图字段
-    await report.update({ image: imageUrl });
-
-    success(res, { image: imageUrl });
+    // 返回HTML内容，前端可以使用html2canvas转换为图片
+    success(res, { htmlContent });
   } catch (error) {
-    logger.error('Error generating report image:', error);
-    serverError(res, '生成报告缩略图失败');
+    logger.error('[generateImage] Error:', error);
+    serverError(res, '生成图片内容失败');
   }
 };

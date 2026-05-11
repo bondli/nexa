@@ -1,11 +1,13 @@
 import React, { memo, useContext, useEffect, useRef, useCallback, useState } from 'react';
-import { List, Empty, Image } from 'antd';
+import { List, Empty, Image, App as AntdApp } from 'antd';
 import { GithubFilled, LinkOutlined } from '@ant-design/icons';
 import { format as timeAgoFormat } from 'timeago.js';
 import { openExternalUrl } from '@commons/electron';
+import request from '@commons/request';
 import { ArticleContext } from './context';
 import Actions from './Actions';
 import style from './index.module.less';
+import GenerateImage from '@/components/GenerateImage';
 
 const Articles: React.FC = () => {
   const {
@@ -19,6 +21,7 @@ const Articles: React.FC = () => {
     isTempCategory,
     isTrashCategory,
     articleHasMore,
+    setCurrentPage,
     total,
   } = useContext(ArticleContext);
 
@@ -48,10 +51,52 @@ const Articles: React.FC = () => {
   const [previewImgUrl, setPreviewImgUrl] = useState<string>('');
   const [previewVisible, setPreviewVisible] = useState(false);
 
+  // 生成图片 Modal 状态
+  const [generateModalVisible, setGenerateModalVisible] = useState(false);
+  const [selectedArticleForImage, setSelectedArticleForImage] = useState<{
+    id: number;
+    title: string;
+    desc?: string;
+  } | null>(null);
+
   // 图片预览，类似于antd的Image组件的预览能力
   const previewImage = (imgUrl: string) => {
     setPreviewImgUrl(imgUrl);
     setPreviewVisible(true);
+  };
+
+  // 触发生成图片
+  const handleGenerateImage = (data: any) => {
+    setSelectedArticleForImage({ id: data.id, title: data.title, desc: data.desc });
+    setGenerateModalVisible(true);
+  };
+
+  // 生成图片成功后刷新列表
+  const { message: antdMessage } = AntdApp.useApp();
+
+  const handleImageGenerated = async (cloudUrl: string) => {
+    if (!selectedArticleForImage) return;
+
+    try {
+      // 调用更新文章接口，保存图片URL
+      const response = await request.post<any>('/article/update', {
+        id: selectedArticleForImage.id,
+        image: cloudUrl,
+      });
+
+      if (response.code === 0) {
+        antdMessage.success('图片已保存到文章');
+      } else {
+        antdMessage.error(response.message || '保存图片失败');
+      }
+    } catch (error) {
+      console.error('保存文章图片失败:', error);
+      antdMessage.error('保存图片失败');
+    } finally {
+      setGenerateModalVisible(false);
+      setSelectedArticleForImage(null);
+      handleStatusUpdate();
+    }
   };
 
   // 渲染头像
@@ -60,7 +105,8 @@ const Articles: React.FC = () => {
     if (data.image) {
       return <GithubFilled style={{ fontSize: 28, color: 'red' }} onClick={() => previewImage(data.image)} />;
     }
-    return <GithubFilled style={{ fontSize: 28, color }} />;
+    // 无图片时点击触发生成图片
+    return <GithubFilled style={{ fontSize: 28, color }} onClick={() => handleGenerateImage(data)} />;
   };
 
   // 渲染标题
@@ -96,6 +142,7 @@ const Articles: React.FC = () => {
   };
 
   const handleStatusUpdate = () => {
+    setCurrentPage(1); // 回到第一页
     getArticleCounts();
     getArticleList();
     getArticleCateList();
@@ -104,13 +151,9 @@ const Articles: React.FC = () => {
   // 触底加载更多
   const handleLoadMore = useCallback(() => {
     if (articleHasMore && !articleLoading) {
-      if (isTempCategory) {
-        getTempArticleList(true);
-      } else {
-        getArticleList(true);
-      }
+      getArticleList(true);
     }
-  }, [articleHasMore, articleLoading, isTempCategory, getArticleList, getTempArticleList]);
+  }, [articleHasMore, articleLoading, getArticleList, getTempArticleList]);
 
   // 使用 Intersection Observer 监听触底
   useEffect(() => {
@@ -190,6 +233,18 @@ const Articles: React.FC = () => {
           open: previewVisible,
           onOpenChange: (visible) => setPreviewVisible(visible),
         }}
+      />
+
+      {/* 生成图片 Modal */}
+      <GenerateImage
+        visible={generateModalVisible}
+        title={selectedArticleForImage?.title || ''}
+        summary={selectedArticleForImage?.desc}
+        onClose={() => {
+          setGenerateModalVisible(false);
+          setSelectedArticleForImage(null);
+        }}
+        onSuccess={handleImageGenerated}
       />
     </div>
   );

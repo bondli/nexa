@@ -79,7 +79,7 @@ import {
   getArticleCounts,
   summarizeArticle,
   summarizeContent,
-  generateImageArticle,
+  generateArticleImage,
 } from '../controllers/article-controller';
 import {
   createArticleCate,
@@ -102,12 +102,13 @@ import {
 import {
   generateReportHandler,
   getReportList,
+  updateRepport,
   checkReportReminder,
   deleteReport,
   getReportDetail,
   getReportGroups,
   getReportCounts,
-  generateReportImageHandler,
+  generateReportImage,
 } from '../controllers/report-controller';
 
 const router = express.Router();
@@ -207,7 +208,7 @@ router.get('/article/recover', recoverArticle);
 router.get('/article/remove', removeArticle);
 router.get('/article/summarize', summarizeArticle);
 router.post('/article/summarize-content', summarizeContent);
-router.post('/article/generate-image', generateImageArticle);
+router.post('/article/generate-image', generateArticleImage);
 
 // 文章分类
 router.post('/article_cate/create', createArticleCate);
@@ -239,11 +240,12 @@ router.post('/skill/import', importSkills);
 // 报告相关
 router.post('/report/generate', generateReportHandler);
 router.get('/report/list', getReportList);
+router.post('/report/update', updateRepport);
 router.get('/report/check', checkReportReminder);
 router.get('/report/delete', deleteReport);
 router.get('/report/detail', getReportDetail);
 router.get('/report/group', getReportGroups);
 router.get('/report/counts', getReportCounts);
-router.post('/report/generateImage', generateReportImageHandler);
+router.post('/report/generate-image', generateReportImage);
 
 export default router;
