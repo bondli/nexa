@@ -49,6 +49,7 @@ type ReportContextType = {
   selectedReport: Report | null;
   setSelectedReport: React.Dispatch<React.SetStateAction<Report | null>>;
   reportCounts: { all: number; daily: number; monthly: number };
+  getReportCounts: () => Promise<void>;
   setReportCounts: React.Dispatch<React.SetStateAction<{ all: number; daily: number; monthly: number }>>;
   getReportList: (isLoadMore?: boolean) => Promise<void>;
   getReportDetail: (id: number) => Promise<Report | null>;
@@ -159,11 +160,7 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       // 生成后刷新列表
       await getReportList(false);
       // 更新计数
-      if (reportType === 'daily') {
-        setReportCounts((prev) => ({ ...prev, daily: prev.daily + 1, all: prev.all + 1 }));
-      } else {
-        setReportCounts((prev) => ({ ...prev, monthly: prev.monthly + 1, all: prev.all + 1 }));
-      }
+      await getReportCounts();
       return response.data || null;
     } catch (error) {
       console.error('生成报告失败:', error);
@@ -209,6 +206,16 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
+  // 获取报告数量统计
+  const getReportCounts = async () => {
+    try {
+      const response = await request.get('/report/counts');
+      setReportCounts(response.data || {});
+    } catch (error) {
+      console.error('获取报告数量统计失败:', error);
+    }
+  };
+
   return (
     <ReportContext.Provider
       value={{
@@ -219,6 +226,7 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         selectedReport,
         setSelectedReport,
         reportCounts,
+        getReportCounts,
         setReportCounts,
         getReportList,
         getReportDetail,

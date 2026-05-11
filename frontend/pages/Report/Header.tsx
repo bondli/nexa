@@ -3,7 +3,7 @@ import { Button, Dropdown, Modal, App } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
 import { ReportContext, ReportType } from './context';
-import style from './index.module.less';
+import styles from './index.module.less';
 
 const Header: React.FC = () => {
   const { message: antdMessage } = App.useApp();
@@ -76,11 +76,11 @@ const Header: React.FC = () => {
   );
 
   return (
-    <div className={style.headerContainer}>
-      <div className={style.headerLeft}>
-        <span className={style.cateName}>{getCateName()}</span>
+    <div className={styles.headerContainer}>
+      <div className={styles.headerLeft}>
+        <span className={styles.cateName}>{getCateName()}</span>
       </div>
-      <div className={style.headerRight}>
+      <div className={styles.headerRight}>
         <Dropdown menu={{ items: menuItems }} trigger={['click']}>
           <Button type="primary" icon={<PlusOutlined />} size="small">
             新增报告
@@ -103,7 +103,7 @@ const Header: React.FC = () => {
         )}
 
         {!generating && generatedContent && (
-          <div className={style.markdownContent}>
+          <div className={styles.markdownContainer}>
             <ReactMarkdown>{generatedContent}</ReactMarkdown>
           </div>
         )}

@@ -106,6 +106,7 @@ import {
   deleteReport,
   getReportDetail,
   getReportGroups,
+  getReportCounts,
   generateReportImageHandler,
 } from '../controllers/report-controller';
 
@@ -242,6 +243,7 @@ router.get('/report/check', checkReportReminder);
 router.get('/report/delete', deleteReport);
 router.get('/report/detail', getReportDetail);
 router.get('/report/group', getReportGroups);
+router.get('/report/counts', getReportCounts);
 router.post('/report/generateImage', generateReportImageHandler);
 
 export default router;

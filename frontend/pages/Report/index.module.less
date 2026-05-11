@@ -52,13 +52,6 @@
   margin-top: 8px;
 }
 
-// 报告内容区域
-.ReportContent {
-  height: calc(100vh - 56px);
-  overflow-y: auto;
-  padding: 16px 24px;
-}
-
 // Header 样式
 .headerContainer {
   display: flex;
@@ -66,312 +59,156 @@
   justify-content: space-between;
   height: 56px;
   padding: 0 24px;
-  background: #fff;
+  background-color: var(--ant-color-bg-container);
   border-bottom: 1px solid var(--ant-color-border);
-}
 
-.headerLeft {
-  display: flex;
-  align-items: center;
-}
+  .headerLeft {
+    display: flex;
+    align-items: center;
+  }
 
-.cateName {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--ant-color-text);
-}
+  .cateName {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ant-color-text);
+  }
 
-.headerRight {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-// Markdown 内容样式
-.markdownContent {
-  max-height: 60vh;
-  overflow-y: auto;
-  padding: 16px;
-  border: 1px solid var(--ant-color-border);
-  border-radius: 8px;
-
-  :global {
-    .react-markdown {
-      font-size: 14px;
-      line-height: 1.8;
-      color: var(--ant-color-text);
-
-      h1 {
-        font-size: 24px;
-        margin: 16px 0;
-        padding-bottom: 8px;
-        border-bottom: 1px solid var(--ant-color-border);
-      }
-
-      h2 {
-        font-size: 20px;
-        margin: 14px 0;
-        color: var(--ant-color-text);
-      }
-
-      h3 {
-        font-size: 16px;
-        margin: 12px 0;
-        color: var(--ant-color-text);
-      }
-
-      p {
-        margin: 8px 0;
-      }
-
-      ul,
-      ol {
-        padding-left: 24px;
-        margin: 8px 0;
-      }
-
-      li {
-        margin: 4px 0;
-      }
-
-      code {
-        background: var(--ant-color-fill-secondary);
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 13px;
-      }
-
-      pre {
-        background: var(--ant-color-fill-secondary);
-        padding: 12px;
-        border-radius: 8px;
-        overflow-x: auto;
-
-        code {
-          background: transparent;
-          padding: 0;
-        }
-      }
-    }
+  .headerRight {
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 }
 
-// 报告列表容器
+// 列表
 .listContainer {
   width: 100%;
-}
+  height: calc(100vh - 65px);
+  background-color: var(--ant-color-bg-container);
+  padding: 0 24px 16px 16px;
+  overflow-y: scroll;
+  scrollbar-width: none;
 
-// 列表标题（报告日期 + 类型标签）
-.listTitle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-
-  &:hover {
-    color: var(--ant-color-primary);
-  }
-}
-
-// 列表描述（摘要）
-.listDesc {
-  cursor: pointer;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-
-  &:hover {
-    color: var(--ant-color-primary);
-  }
-}
-
-// 列表额外操作区域
-.listExtra {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.extraText {
-  font-size: 12px;
-  color: var(--ant-color-text-tertiary);
-}
-
-.extraActions {
-  display: flex;
-  gap: 8px;
-
-  a {
-    font-size: 13px;
-    color: var(--ant-color-text-secondary);
-
-    &:hover {
-      color: var(--ant-color-primary);
+  .listTitle {
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+    .time {
+      margin-top: 4px;
+      padding-left: 14px;
+      color: var(--ant-color-text-secondary);
+      font-size: 12px;
     }
   }
-}
-
-// 报告列表项
-.reportItem {
-  display: flex;
-  align-items: flex-start;
-  padding: 16px;
-  background: #fff;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  transition: box-shadow 0.2s;
-
-  &:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  .listExtra {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    .extraText {
+      color: var(--ant-color-text-secondary);
+      font-size: 12px;
+    }
+    .extraActions {
+      height: 25px;
+      line-height: 25px;
+    }
+  }
+  .listDesc {
+    cursor: pointer;
+    font-size: 12px;
   }
 }
 
-.reportIcon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--ant-color-primary-bg);
-  border-radius: 8px;
-  margin-right: 16px;
-  flex-shrink: 0;
-}
 
-.reportInfo {
-  flex: 1;
-  min-width: 0;
-}
 
-.reportHeader {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.reportDate {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ant-color-text);
-  cursor: pointer;
-  margin-right: 12px;
-
-  &:hover {
-    color: var(--ant-color-primary);
-  }
-}
-
-.typeTag {
-  font-size: 12px;
-  padding: 2px 8px;
-  background: var(--ant-color-primary-bg);
-  color: var(--ant-color-primary);
-  border-radius: 4px;
-}
-
-.typeTagMonth {
-  font-size: 12px;
-  padding: 2px 8px;
-  background: #f6ffed;
-  color: #52c41a;
-  border-radius: 4px;
-}
-
-.reportSummary {
+.markdownContainer {
+  line-height: 1.4;
   font-size: 14px;
-  color: var(--ant-color-text-secondary);
-  margin-bottom: 8px;
-  cursor: pointer;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 
-  &:hover {
-    color: var(--ant-color-primary);
+  h1 {
+    font-size: 20px;
+    margin-bottom: 8px;
   }
-}
 
-.reportTime {
-  font-size: 12px;
-  color: var(--ant-color-text-tertiary);
-}
+  h2 {
+    font-size: 18px;
+    margin-top: 14px;
+    margin-bottom: 6px;
+  }
 
-.reportActions {
-  display: flex;
-  align-items: center;
-  margin-left: 16px;
+  h3 {
+    font-size: 16px;
+    margin-top: 12px;
+    margin-bottom: 4px;
+  }
 
-  a {
-    font-size: 13px;
-    color: var(--ant-color-text-secondary);
+  p {
+    margin: 8px 0;
+  }
 
-    &:hover {
-      color: var(--ant-color-primary);
+  ul,
+  ol {
+    margin: 8px 0;
+    padding-left: 24px;
+  }
+
+  li {
+    margin: 4px 0;
+  }
+
+  code {
+    background-color: var(--ant-color-fill-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+  }
+
+  pre {
+    background-color: var(--ant-color-fill-secondary);
+    padding: 12px;
+    border-radius: 4px;
+    overflow-x: auto;
+
+    code {
+      background: none;
+      padding: 0;
     }
   }
-}
 
-// 详情 Drawer
-.detailContent {
-  padding: 0;
-}
-
-.detailHeader {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--ant-color-border);
-}
-
-.detailDate {
-  font-size: 18px;
-  font-weight: 600;
-  margin-right: 12px;
-}
-
-.detailMarkdown {
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
-  padding: 16px;
-  background: var(--ant-color-fill-secondary);
-  border-radius: 8px;
-
-  :global {
-    .react-markdown {
-      font-size: 14px;
-      line-height: 1.8;
-      color: var(--ant-color-text);
-
-      h1 {
-        font-size: 22px;
-        margin: 16px 0;
-        padding-bottom: 8px;
-        border-bottom: 1px solid var(--ant-color-border);
-      }
-
-      h2 {
-        font-size: 18px;
-        margin: 14px 0;
-      }
-
-      p {
-        margin: 8px 0;
-      }
-
-      ul,
-      ol {
-        padding-left: 24px;
-        margin: 8px 0;
-      }
-
-      li {
-        margin: 4px 0;
-      }
-    }
+  blockquote {
+    margin: 8px 0;
+    padding: 8px 16px;
+    border-left: 4px solid var(--ant-color-border-secondary);
+    background-color: var(--ant-color-fill-quaternary);
   }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+
+  th,
+  td {
+    border: 1px solid var(--ant-color-border-secondary);
+    padding: 8px 12px;
+    text-align: left;
+  }
+
+  th {
+    background-color: var(--ant-color-fill-quaternary);
+    font-weight: 600;
+  }
+
+  tr:nth-child(even) {
+    background-color: var(--ant-color-fill-quaternary);
+  }
+}
+
+.emptyContainer {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--ant-color-text-quaternary);
 }

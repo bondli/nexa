@@ -24,7 +24,7 @@ const MenuItem: React.FC<{ label: string; count: number }> = (props) => {
 };
 
 const Category: React.FC = () => {
-  const { currentCate, setCurrentCate, reportCounts, getReportGroups } = useContext(ReportContext);
+  const { currentCate, setCurrentCate, reportCounts, getReportCounts, getReportGroups } = useContext(ReportContext);
 
   const [monthGroups, setMonthGroups] = useState<{ month: string; count: number }[]>([]);
 
@@ -56,6 +56,7 @@ const Category: React.FC = () => {
     getReportGroups().then((groups) => {
       setMonthGroups(groups);
     });
+    getReportCounts();
   }, []);
 
   // 构建月份分组菜单

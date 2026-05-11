@@ -58,9 +58,7 @@ const ReportPage: React.FC = () => {
       <Layout>
         <Content className={style.content}>
           <Header />
-          <div className={style.ReportContent}>
-            <Reports />
-          </div>
+          <Reports />
         </Content>
       </Layout>
     </Layout>

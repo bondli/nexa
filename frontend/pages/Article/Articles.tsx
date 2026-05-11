@@ -156,15 +156,6 @@ const Articles: React.FC = () => {
 
   return (
     <div className={style.listContainer}>
-      {/* 隐藏的 Image 组件，用于触发图片预览 */}
-      <Image
-        style={{ display: 'none' }}
-        src={previewImgUrl}
-        preview={{
-          open: previewVisible,
-          onOpenChange: (visible) => setPreviewVisible(visible),
-        }}
-      />
       <List
         loading={false}
         itemLayout={`horizontal`}
@@ -190,6 +181,16 @@ const Articles: React.FC = () => {
           <span style={{ color: 'var(--ant-color-text-description)' }}>没有更多数据了（共 {total} 条）</span>
         )}
       </div>
+
+      {/* 隐藏的 Image 组件，用于触发图片预览 */}
+      <Image
+        style={{ display: 'none' }}
+        src={previewImgUrl}
+        preview={{
+          open: previewVisible,
+          onOpenChange: (visible) => setPreviewVisible(visible),
+        }}
+      />
     </div>
   );
 };

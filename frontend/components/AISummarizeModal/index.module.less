@@ -1,5 +1,5 @@
 .content {
-  padding: 8px 0;
+  padding: 0;
 }
 
 .loadingContainer {
@@ -12,29 +12,28 @@
 
 .loadingText {
   margin-top: 16px;
-  color: #666;
+  color: var(--ant-color-text-secondary);
   font-size: 14px;
 }
 
 .errorContainer {
   padding: 16px;
-  background-color: #fff2f0;
-  border: 1px solid #ffccc7;
+  background-color: var(--ant-color-error-bg);
+  border: 1px solid var(--ant-color-error-border);
   border-radius: 4px;
 }
 
 .errorText {
-  color: #ff4d4f;
+  color: var(--ant-color-error);
   margin: 0;
 }
 
 .markdownContainer {
-  line-height: 1.8;
+  line-height: 1.4;
   font-size: 14px;
 
   h1 {
     font-size: 20px;
-    margin-top: 16px;
     margin-bottom: 8px;
   }
 
@@ -65,14 +64,14 @@
   }
 
   code {
-    background-color: #f5f5f5;
+    background-color: var(--ant-color-fill-secondary);
     padding: 2px 6px;
     border-radius: 4px;
     font-family: 'Courier New', monospace;
   }
 
   pre {
-    background-color: #f5f5f5;
+    background-color: var(--ant-color-fill-secondary);
     padding: 12px;
     border-radius: 4px;
     overflow-x: auto;
@@ -86,8 +85,8 @@
   blockquote {
     margin: 8px 0;
     padding: 8px 16px;
-    border-left: 4px solid #d9d9d9;
-    background-color: #fafafa;
+    border-left: 4px solid var(--ant-color-border-secondary);
+    background-color: var(--ant-color-fill-quaternary);
   }
 
   table {
@@ -99,23 +98,23 @@
 
   th,
   td {
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--ant-color-border-secondary);
     padding: 8px 12px;
     text-align: left;
   }
 
   th {
-    background-color: #fafafa;
+    background-color: var(--ant-color-fill-quaternary);
     font-weight: 600;
   }
 
   tr:nth-child(even) {
-    background-color: #fafafa;
+    background-color: var(--ant-color-fill-quaternary);
   }
 }
 
 .emptyContainer {
   text-align: center;
   padding: 40px 0;
-  color: #999;
+  color: var(--ant-color-text-quaternary);
 }

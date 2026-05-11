@@ -24,7 +24,7 @@ interface CustomAxiosInstance extends Omit<AxiosInstance, 'get' | 'post' | 'put'
 // 创建axios实例
 const service = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000,
+  timeout: 90000, // 有些接口调用大模型比较慢，修改成90s
 }) as CustomAxiosInstance;
 
 // 请求拦截器

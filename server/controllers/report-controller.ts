@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Op } from 'sequelize';
+import Sequelize, { Op } from 'sequelize';
 import dayjs from 'dayjs';
 import logger from 'electron-log';
 import { success, successWithPage, notFound, serverError } from '../utils/response';
@@ -113,7 +113,7 @@ export const getReportList = async (req: Request, res: Response) => {
     // 按月份筛选
     if (month) {
       where.reportDate = {
-        $like: `${month}%`,
+        [Op.like]: `${month}%`,
       };
     }
 
@@ -262,6 +262,38 @@ export const getReportGroups = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error('Error getting report groups:', error);
     serverError(res, '获取报告分组失败');
+  }
+};
+
+// 获取虚拟分类下的报告数量
+export const getReportCounts = async (req: Request, res: Response) => {
+  const userId = Number(req.headers['x-user-id']) || 0;
+  try {
+    // 使用一次查询获取按状态分组的统计数据
+    const typeCounts = await Report.findAll({
+      attributes: ['reportType', [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']],
+      where: {
+        userId,
+      },
+      group: ['reportType'],
+      raw: true,
+    });
+
+    // 将结果转换为对象格式，便于访问
+    const typeCountMap = typeCounts.reduce((acc: any, item: any) => {
+      acc[item.status] = parseInt(item.count);
+      return acc;
+    }, {});
+
+    const countData = {
+      daily: typeCountMap.daily || 0,
+      month: typeCountMap.month || 0,
+      all: typeCountMap.daily || 0 + typeCountMap.month || 0,
+    };
+    success(res, countData);
+  } catch (error) {
+    logger.error('Error getting ReportCounts:', error);
+    serverError(res, 'Error getting ReportCounts');
   }
 };
 
