@@ -36,7 +36,7 @@ const NoteBook: React.FC = () => {
 
   return (
     <>
-      <Layout>
+      <Layout className={style.container}>
         <Sider trigger={null} collapsible theme={'light'} width={260} className={style.sider}>
           <Category />
         </Sider>

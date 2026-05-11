@@ -1,4 +1,8 @@
 // 页面主框架
+.container {
+  height: 100%;
+  background: var(--ant-color-bg-container);
+}
 .sider {
   border-right: 1px solid var(--ant-color-border);
 }
@@ -199,4 +203,18 @@
   &:hover {
     color: var(--ant-color-primary-hover);
   }
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.loadingText {
+  margin-top: 16px;
+  color: var(--ant-color-text-secondary);
+  font-size: 14px;
 }

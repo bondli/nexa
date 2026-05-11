@@ -8,11 +8,12 @@ import {
   FileAddOutlined,
   RobotOutlined,
 } from '@ant-design/icons';
-import { Dropdown, Modal, App, Select } from 'antd';
+import { Dropdown, Modal, Drawer, App, Spin, Select } from 'antd';
 import type { MenuProps } from 'antd';
 import request from '@commons/request';
-import AISummarizeModal from '@components/AISummarizeModal';
 import { ArticleContext } from './context';
+import style from './index.module.less';
+import MarkdownPreview from '@/components/MarkdownPreview';
 import { userLog } from '@/commons/electron';
 
 type ActionsProps = {
@@ -36,6 +37,8 @@ const Actions: React.FC<ActionsProps> = (props) => {
 
   // AI总结相关状态
   const [showAISummarizeModal, setShowAISummarizeModal] = useState(false);
+  const [summarizing, setSummarizing] = useState(false);
+  const [articleSummary, setArticleSummary] = useState('');
 
   // 临时文章复制链接
   const copyTempArticleLink = () => {
@@ -209,6 +212,34 @@ const Actions: React.FC<ActionsProps> = (props) => {
       });
   };
 
+  // AI 总结
+  const handleSummarize = () => {
+    if (!selectedArticle.id) return;
+    setShowAISummarizeModal(true);
+    setSummarizing(true);
+    setArticleSummary('');
+
+    // 发起普通请求
+    request
+      .get(`/article/summarize?id=${selectedArticle.id}`)
+      .then((data) => {
+        if (data.code === 0 && data.data?.summary) {
+          setArticleSummary(data.data.summary);
+        } else {
+          message.error('生成文章总结失败，请重试');
+          setShowAISummarizeModal(false);
+        }
+      })
+      .catch((err) => {
+        message.error('生成文章总结失败，请重试');
+        setShowAISummarizeModal(false);
+        console.log(err);
+      })
+      .finally(() => {
+        setSummarizing(false);
+      });
+  };
+
   // 操作菜单
   const getMenus = (): MenuProps['items'] => {
     const menus = [];
@@ -259,7 +290,7 @@ const Actions: React.FC<ActionsProps> = (props) => {
         key: 'aiSummarize',
         icon: <RobotOutlined />,
         label: 'AI 总结',
-        onClick: () => setShowAISummarizeModal(true),
+        onClick: handleSummarize,
       });
       menus.push({
         key: 'addToKnowledge',
@@ -339,11 +370,23 @@ const Actions: React.FC<ActionsProps> = (props) => {
         </div>
       </Modal>
 
-      <AISummarizeModal
+      <Drawer
+        title={summarizing ? '正在生成AI总结...' : 'AI总结结果'}
+        placement="right"
         open={showAISummarizeModal}
-        articleId={selectedArticle?.id}
         onClose={() => setShowAISummarizeModal(false)}
-      />
+        size={800}
+        destroyOnHidden={true}
+      >
+        {summarizing && (
+          <div className={style.loadingContainer}>
+            <Spin size="large" />
+            <p className={style.loadingText}>AI正在分析文章，请稍候...</p>
+          </div>
+        )}
+
+        {!summarizing && articleSummary && <MarkdownPreview content={articleSummary} />}
+      </Drawer>
     </>
   );
 };

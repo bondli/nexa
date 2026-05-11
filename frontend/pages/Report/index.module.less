@@ -46,12 +46,6 @@
   }
 }
 
-.tips {
-  font-size: 12px;
-  color: var(--ant-color-text-secondary);
-  margin-top: 8px;
-}
-
 // Header 样式
 .headerContainer {
   display: flex;
@@ -120,95 +114,22 @@
   }
 }
 
-
-
-.markdownContainer {
-  line-height: 1.4;
-  font-size: 14px;
-
-  h1 {
-    font-size: 20px;
-    margin-bottom: 8px;
-  }
-
-  h2 {
-    font-size: 18px;
-    margin-top: 14px;
-    margin-bottom: 6px;
-  }
-
-  h3 {
-    font-size: 16px;
-    margin-top: 12px;
-    margin-bottom: 4px;
-  }
-
-  p {
-    margin: 8px 0;
-  }
-
-  ul,
-  ol {
-    margin: 8px 0;
-    padding-left: 24px;
-  }
-
-  li {
-    margin: 4px 0;
-  }
-
-  code {
-    background-color: var(--ant-color-fill-secondary);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: 'Courier New', monospace;
-  }
-
-  pre {
-    background-color: var(--ant-color-fill-secondary);
-    padding: 12px;
-    border-radius: 4px;
-    overflow-x: auto;
-
-    code {
-      background: none;
-      padding: 0;
-    }
-  }
-
-  blockquote {
-    margin: 8px 0;
-    padding: 8px 16px;
-    border-left: 4px solid var(--ant-color-border-secondary);
-    background-color: var(--ant-color-fill-quaternary);
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 12px 0;
-    font-size: 14px;
-  }
-
-  th,
-  td {
-    border: 1px solid var(--ant-color-border-secondary);
-    padding: 8px 12px;
-    text-align: left;
-  }
-
-  th {
-    background-color: var(--ant-color-fill-quaternary);
-    font-weight: 600;
-  }
-
-  tr:nth-child(even) {
-    background-color: var(--ant-color-fill-quaternary);
-  }
-}
-
 .emptyContainer {
   text-align: center;
   padding: 40px 0;
   color: var(--ant-color-text-quaternary);
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.loadingText {
+  margin-top: 16px;
+  color: var(--ant-color-text-secondary);
+  font-size: 14px;
 }

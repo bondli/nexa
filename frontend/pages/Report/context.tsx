@@ -250,6 +250,3 @@ export const ReportProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     </ReportContext.Provider>
   );
 };
-
-// 默认分类常量
-export const DEFAULT_CATE_REPORT = DEFAULT_CATE;

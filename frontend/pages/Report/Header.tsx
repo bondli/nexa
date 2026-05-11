@@ -1,13 +1,13 @@
 import React, { memo, useContext, useState } from 'react';
-import { Button, Dropdown, Modal, App } from 'antd';
+import { Button, Dropdown, Modal, Spin, App } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import ReactMarkdown from 'react-markdown';
 import { ReportContext, ReportType } from './context';
-import styles from './index.module.less';
+import style from './index.module.less';
+import MarkdownPreview from '@/components/MarkdownPreview';
 
 const Header: React.FC = () => {
   const { message: antdMessage } = App.useApp();
-  const { currentCate, generateReport, setReportCounts } = useContext(ReportContext);
+  const { currentCate, generateReport } = useContext(ReportContext);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -37,12 +37,6 @@ const Header: React.FC = () => {
       const report = await generateReport(reportType);
       if (report) {
         setGeneratedContent(report.content || report.summary || '');
-        // 更新计数
-        if (reportType === 'daily') {
-          setReportCounts((prev) => ({ ...prev, daily: prev.daily + 1, all: prev.all + 1 }));
-        } else {
-          setReportCounts((prev) => ({ ...prev, monthly: prev.monthly + 1, all: prev.all + 1 }));
-        }
         antdMessage.success(`${reportType === 'daily' ? '日报' : '月报'}生成成功`);
       } else {
         antdMessage.error('生成报告失败，请重试');
@@ -76,11 +70,11 @@ const Header: React.FC = () => {
   );
 
   return (
-    <div className={styles.headerContainer}>
-      <div className={styles.headerLeft}>
-        <span className={styles.cateName}>{getCateName()}</span>
+    <div className={style.headerContainer}>
+      <div className={style.headerLeft}>
+        <span className={style.cateName}>{getCateName()}</span>
       </div>
-      <div className={styles.headerRight}>
+      <div className={style.headerRight}>
         <Dropdown menu={{ items: menuItems }} trigger={['click']}>
           <Button type="primary" icon={<PlusOutlined />} size="small">
             新增报告
@@ -97,16 +91,13 @@ const Header: React.FC = () => {
         afterClose={handleModalAfterClose}
       >
         {generating && (
-          <div style={{ textAlign: 'center', padding: '40px 0' }}>
-            <p>正在基于您的笔记和文章生成报告，请稍候...</p>
+          <div className={style.loadingContainer}>
+            <Spin size="large" />
+            <p className={style.loadingText}>正在基于您的笔记和文章生成报告，请稍候...</p>
           </div>
         )}
 
-        {!generating && generatedContent && (
-          <div className={styles.markdownContainer}>
-            <ReactMarkdown>{generatedContent}</ReactMarkdown>
-          </div>
-        )}
+        {!generating && generatedContent && <MarkdownPreview content={generatedContent} />}
       </Modal>
     </div>
   );

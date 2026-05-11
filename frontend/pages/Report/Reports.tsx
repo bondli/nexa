@@ -1,13 +1,13 @@
 import React, { memo, useContext, useEffect, useRef, useCallback, useState } from 'react';
-import { List, Empty, Image, Drawer, Button, Tag } from 'antd';
+import { App, List, Empty, Image, Drawer, Button, Tag } from 'antd';
 import { GithubFilled, DeleteOutlined } from '@ant-design/icons';
 import { format as timeAgoFormat } from 'timeago.js';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { ReportContext, Report } from './context';
-import styles from './index.module.less';
+import style from './index.module.less';
+import MarkdownPreview from '@/components/MarkdownPreview';
 
 const Reports: React.FC = () => {
+  const { message } = App.useApp();
   const { currentCate, reportList, getReportList, reportLoading, reportHasMore, deleteReport, total } =
     useContext(ReportContext);
 
@@ -29,18 +29,13 @@ const Reports: React.FC = () => {
     setDrawerVisible(true);
   };
 
-  // 图片预览
-  const previewImage = (imgUrl: string) => {
-    setPreviewImgUrl(imgUrl);
-    setPreviewVisible(true);
-  };
-
   // 查看缩略图
   const handleViewImage = (report: Report) => {
     if (!report.image) {
       return;
     }
-    previewImage(report.image);
+    setPreviewImgUrl(report.image);
+    setPreviewVisible(true);
   };
 
   // 删除报告
@@ -49,6 +44,7 @@ const Reports: React.FC = () => {
     const success = await deleteReport(report.id);
     if (success) {
       // 删除成功，无需额外提示
+      message.success('删除成功');
     }
   };
 
@@ -61,7 +57,7 @@ const Reports: React.FC = () => {
   const renderAvatar = (report: Report) => {
     const color = '#1677ff';
     if (report.image) {
-      return <GithubFilled style={{ fontSize: 28, color }} onClick={() => handleViewImage(report)} />;
+      return <GithubFilled style={{ fontSize: 28, color: 'red' }} onClick={() => handleViewImage(report)} />;
     }
     return <GithubFilled style={{ fontSize: 28, color }} />;
   };
@@ -69,7 +65,7 @@ const Reports: React.FC = () => {
   // 渲染标题（报告日期 + 类型）
   const renderTitle = (report: Report) => {
     return (
-      <div className={styles.listTitle} onClick={() => handleViewDetail(report)}>
+      <div className={style.listTitle} onClick={() => handleViewDetail(report)}>
         {renderReportType(report.reportType)}
         <span style={{ marginLeft: 8 }}>{report.reportDate}</span>
       </div>
@@ -81,11 +77,23 @@ const Reports: React.FC = () => {
     const displayDesc =
       report.summary?.length > 50 ? report.summary.substring(0, 50) + '...' : report.summary || '暂无摘要';
     return (
-      <div className={styles.listDesc} onClick={() => handleViewDetail(report)}>
+      <div className={style.listDesc} onClick={() => handleViewDetail(report)}>
         {displayDesc}
       </div>
     );
   };
+
+  // 渲染列表项操作区域
+  const renderExtra = (report: Report) => (
+    <div className={style.listExtra}>
+      <span className={style.extraText}>{`created: ${timeAgoFormat(report.createdAt)}`}</span>
+      <div className={style.extraActions}>
+        <Button onClick={(e) => handleDelete(report, e)} size="small" type="text">
+          <DeleteOutlined />
+        </Button>
+      </div>
+    </div>
+  );
 
   // 触底加载更多
   const handleLoadMore = useCallback(() => {
@@ -127,26 +135,14 @@ const Reports: React.FC = () => {
 
   if (!reportList?.length) {
     return (
-      <div className={styles.listContainer} style={{ paddingTop: 100 }}>
+      <div className={style.listContainer} style={{ paddingTop: 100 }}>
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无报告" />
       </div>
     );
   }
 
-  // 渲染列表项操作区域
-  const renderExtra = (report: Report) => (
-    <div className={styles.listExtra}>
-      <span className={styles.extraText}>{`created: ${timeAgoFormat(report.createdAt)}`}</span>
-      <div className={styles.extraActions}>
-        <Button onClick={(e) => handleDelete(report, e)} size="small" type="text">
-          <DeleteOutlined />
-        </Button>
-      </div>
-    </div>
-  );
-
   return (
-    <div className={styles.listContainer}>
+    <div className={style.listContainer}>
       <List
         loading={false}
         itemLayout="horizontal"
@@ -176,11 +172,7 @@ const Reports: React.FC = () => {
         open={drawerVisible}
         onClose={() => setDrawerVisible(false)}
       >
-        {currentReport && (
-          <div className={styles.markdownContainer}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{currentReport.content || '暂无内容'}</ReactMarkdown>
-          </div>
-        )}
+        {currentReport ? <MarkdownPreview content={currentReport.content} /> : null}
       </Drawer>
 
       {/* 隐藏的 Image 组件，用于触发图片预览 */}

@@ -279,16 +279,16 @@ export const getReportCounts = async (req: Request, res: Response) => {
       raw: true,
     });
 
-    // 将结果转换为对象格式，便于访问
+    // 将结果转换为对象格式,便于访问
     const typeCountMap = typeCounts.reduce((acc: any, item: any) => {
-      acc[item.status] = parseInt(item.count);
+      acc[item.reportType] = parseInt(item.count);
       return acc;
     }, {});
 
     const countData = {
       daily: typeCountMap.daily || 0,
-      month: typeCountMap.month || 0,
-      all: typeCountMap.daily || 0 + typeCountMap.month || 0,
+      monthly: typeCountMap.monthly || 0,
+      all: (typeCountMap.daily || 0) + (typeCountMap.monthly || 0),
     };
     success(res, countData);
   } catch (error) {
