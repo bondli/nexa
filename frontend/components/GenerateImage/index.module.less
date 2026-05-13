@@ -1,73 +1,33 @@
 .content {
-  min-height: 200px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px 0;
 }
 
-.generateContent {
+.tips {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   width: 100%;
-}
-
-.hint {
-  margin-bottom: 16px;
+  height: 100%;
   color: var(--ant-color-text-description);
   font-size: 14px;
-}
-
-.successHint {
-  margin-bottom: 16px;
-  color: var(--ant-color-success);
-  font-size: 16px;
 }
 
 // HTML 预览区域容器
 .previewContainer {
   width: 100%;
-  max-height: 500px;
-  overflow-y: auto;
-  background: var(--ant-color-fill-secondary);
-  &::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+  .preview {
+    width: 100%;
   }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: var(--ant-color-border);
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background-color: var(--ant-color-bg-layout);
-  }
-
-  scrollbar-width: thin;
-  scrollbar-color: var(--ant-color-border) var(--ant-color-bg-layout);
 }
 
-// HTML 预览内容 - 截图时需要完全展开
-.preview {
-  background: var(--ant-color-fill-secondary);
-  padding: 4px;
-  text-align: left;
-  // 动态高度，截图时会临时设为 auto 以获取完整内容
-  min-height: 200px;
-}
-
+// 图片 预览区域容器
 .previewWrapper {
-  margin-bottom: 16px;
-  max-width: 100%;
-  max-height: 500px;
-  overflow: hidden;
-}
-
-.previewImage {
-  max-width: 100%;
-  max-height: 500px;
-  box-shadow: var(--ant-box-shadow);
+  width: 100%;
+  .previewImage {
+    width: 100%;
+  }
 }

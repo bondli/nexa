@@ -1,5 +1,5 @@
 import React, { memo, useContext, useState } from 'react';
-import { Button, Dropdown, Modal, Spin, App } from 'antd';
+import { Button, Dropdown, Drawer, Spin, App } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { ReportContext, ReportType } from './context';
 import style from './index.module.less';
@@ -82,13 +82,18 @@ const Header: React.FC = () => {
         </Dropdown>
       </div>
 
-      <Modal
+      <Drawer
         title={generating ? '正在生成报告...' : '报告预览'}
         open={modalVisible}
-        onCancel={() => !generating && setModalVisible(false)}
+        onClose={() => {
+          !generating && setModalVisible(false);
+          handleModalAfterClose();
+        }}
         footer={modalFooter}
-        width={800}
-        afterClose={handleModalAfterClose}
+        size={800}
+        mask={{
+          closable: false,
+        }}
       >
         {generating && (
           <div className={style.loadingContainer}>
@@ -98,7 +103,7 @@ const Header: React.FC = () => {
         )}
 
         {!generating && generatedContent && <MarkdownPreview content={generatedContent} />}
-      </Modal>
+      </Drawer>
     </div>
   );
 };

@@ -98,48 +98,47 @@ const ImageCollector: React.FC<ImageCollectorProps> = () => {
       title="收藏图片"
       open={collectModalVisible}
       onCancel={() => setCollectModalVisible(false)}
-      footer={null}
-      width={400}
+      footer={
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'row', width: '400px', justifyContent: 'flex-start', alignItems: 'center' }}>
+            <div style={{ fontWeight: 500, paddingRight: 10 }}>选择分类</div>
+            <Select
+              style={{ width: 200, textAlign: 'left' }}
+              placeholder="请选择分类"
+              allowClear
+              value={selectedCateId}
+              onChange={setSelectedCateId}
+              options={categories.map((cate) => ({
+                label: cate.name,
+                value: cate.id,
+              }))}
+            />
+          </div>
+          <Button type="primary" loading={collecting} onClick={handleCollect}>
+            一键收藏
+          </Button>
+        </div>
+      }
+      width={1200}
     >
       <div style={{ marginBottom: 16 }}>
-        <div style={{ marginBottom: 8, fontWeight: 500 }}>图片预览</div>
-        <div style={{ textAlign: 'center', maxHeight: 200, overflow: 'hidden' }}>
-          <img
-            src={currentImgSrc}
-            alt={currentImgAlt}
-            style={{ maxWidth: '100%', maxHeight: 200, objectFit: 'contain' }}
-          />
-        </div>
-      </div>
-
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ marginBottom: 8, fontWeight: 500 }}>选择分类</div>
-        <Select
-          style={{ width: '100%' }}
-          placeholder="请选择分类"
-          allowClear
-          value={selectedCateId}
-          onChange={setSelectedCateId}
-          options={categories.map((cate) => ({
-            label: cate.name,
-            value: cate.id,
-          }))}
+        <img
+          src={currentImgSrc}
+          alt={currentImgAlt}
+          style={{ width: '100%', objectFit: 'contain' }}
         />
       </div>
 
       <div style={{ marginBottom: 16 }}>
         <div style={{ marginBottom: 8, fontWeight: 500 }}>图片描述（可选）</div>
-        <Input
+        <Input.TextArea
+          rows={3}
           placeholder="请输入图片描述"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           maxLength={100}
         />
       </div>
-
-      <Button type="primary" block loading={collecting} onClick={handleCollect}>
-        一键收藏
-      </Button>
     </Modal>
   );
 };

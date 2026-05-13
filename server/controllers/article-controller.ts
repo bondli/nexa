@@ -139,7 +139,7 @@ export const getArticles = async (req: Request, res: Response) => {
 // 更新一篇文章
 export const updateArticle = async (req: Request, res: Response) => {
   try {
-    const { id, title, desc, url, cateId, status, opType } = req.body;
+    const { id, title, desc, url, cateId, status, opType, image } = req.body;
     const result = await Article.findByPk(Number(id));
     const operatorArticle = result.toJSON();
     if (result) {
@@ -150,6 +150,7 @@ export const updateArticle = async (req: Request, res: Response) => {
       if (url !== undefined) updateData.url = url;
       if (cateId !== undefined) updateData.cateId = Number(cateId);
       if (status !== undefined) updateData.status = status;
+      if (image !== undefined) updateData.image = image;
 
       await result.update(updateData);
 

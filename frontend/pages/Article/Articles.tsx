@@ -1,5 +1,5 @@
 import React, { memo, useContext, useEffect, useRef, useCallback, useState } from 'react';
-import { List, Empty, Image, App as AntdApp } from 'antd';
+import { List, Empty, Image, Drawer, Spin, App as AntdApp } from 'antd';
 import { GithubFilled, LinkOutlined } from '@ant-design/icons';
 import { format as timeAgoFormat } from 'timeago.js';
 import { openExternalUrl } from '@commons/electron';
@@ -8,11 +8,13 @@ import { ArticleContext } from './context';
 import Actions from './Actions';
 import style from './index.module.less';
 import GenerateImage from '@/components/GenerateImage';
+import MarkdownPreview from '@/components/MarkdownPreview';
 
 const Articles: React.FC = () => {
+  // 生成图片成功后刷新列表
+  const { message: antdMessage } = AntdApp.useApp();
   const {
     articleList,
-    setSelectedArticle,
     getArticleCateList,
     getArticleCounts,
     getArticleList,
@@ -28,15 +30,43 @@ const Articles: React.FC = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  // 点击查看详情
-  const gotoDetail = (data: any) => {
+  // AI总结相关状态
+  const [showAISummarizeModal, setShowAISummarizeModal] = useState(false);
+  const [summarizing, setSummarizing] = useState(false);
+  const [articleSummary, setArticleSummary] = useState('');
+
+  // 点击查看详情 -> AI总结
+  const gotoDetail = (article: any) => {
     if (isTempCategory) {
       // 临时文章点击 URL 跳转系统浏览器
-      if (data.url) {
-        openExternalUrl(data.url);
+      if (article.url) {
+        openExternalUrl(article.url);
       }
     } else {
-      setSelectedArticle(data);
+      if (!article.id) return;
+      setShowAISummarizeModal(true);
+      setSummarizing(true);
+      setArticleSummary('');
+
+      // 发起普通请求
+      request
+        .get(`/article/summarize?id=${article.id}`)
+        .then((data) => {
+          if (data.code === 0 && data.data?.summary) {
+            setArticleSummary(data.data.summary);
+          } else {
+            antdMessage.error('生成文章总结失败，请重试');
+            setShowAISummarizeModal(false);
+          }
+        })
+        .catch((err) => {
+          antdMessage.error('生成文章总结失败，请重试');
+          setShowAISummarizeModal(false);
+          console.log(err);
+        })
+        .finally(() => {
+          setSummarizing(false);
+        });
     }
   };
 
@@ -70,9 +100,6 @@ const Articles: React.FC = () => {
     setSelectedArticleForImage({ id: data.id, title: data.title, desc: data.desc });
     setGenerateModalVisible(true);
   };
-
-  // 生成图片成功后刷新列表
-  const { message: antdMessage } = AntdApp.useApp();
 
   const handleImageGenerated = async (cloudUrl: string) => {
     if (!selectedArticleForImage) return;
@@ -113,7 +140,7 @@ const Articles: React.FC = () => {
   const renderTitle = (data: any) => {
     // 文章显示标题和 URL 图标
     const { title, url } = data;
-    const titleTxt = title.length > 40 ? title.substring(0, 40) + '...' : title;
+    const titleTxt = title.length > 60 ? title.substring(0, 60) + '...' : title;
 
     return (
       <div className={style.listTitle} onClick={() => gotoDetail(data)}>
@@ -224,6 +251,24 @@ const Articles: React.FC = () => {
           <span style={{ color: 'var(--ant-color-text-description)' }}>没有更多数据了（共 {total} 条）</span>
         )}
       </div>
+
+      <Drawer
+        title={summarizing ? '正在生成AI总结...' : 'AI总结结果'}
+        placement="right"
+        open={showAISummarizeModal}
+        onClose={() => setShowAISummarizeModal(false)}
+        size={800}
+        destroyOnHidden={true}
+      >
+        {summarizing && (
+          <div className={style.loadingContainer}>
+            <Spin size="large" />
+            <p className={style.loadingText}>AI正在分析文章，请稍候...</p>
+          </div>
+        )}
+
+        {!summarizing && articleSummary && <MarkdownPreview content={articleSummary} />}
+      </Drawer>
 
       {/* 隐藏的 Image 组件，用于触发图片预览 */}
       <Image

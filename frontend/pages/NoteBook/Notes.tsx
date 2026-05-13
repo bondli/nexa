@@ -42,7 +42,7 @@ const Notes: React.FC = () => {
   // 笔记标题
   const renderTitle = (data: any) => {
     const { title, deadline } = data;
-    const titleTxt = title.length > 40 ? title.substring(0, 40) + '...' : title;
+    const titleTxt = title.length > 60 ? title.substring(0, 60) + '...' : title;
     let titleContainer = <span>{titleTxt}</span>;
     if (deadline) {
       titleContainer = (

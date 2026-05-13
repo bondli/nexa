@@ -326,7 +326,7 @@ export const getReportCounts = async (req: Request, res: Response) => {
 // 基于总结内容生成HTML用于图片生成
 export const generateReportImage = async (req: Request, res: Response) => {
   try {
-    const { summary, title } = req.body;
+    const { summary } = req.body;
 
     if (!summary) {
       badRequest(res, '总结内容不能为空');
@@ -334,7 +334,7 @@ export const generateReportImage = async (req: Request, res: Response) => {
     }
 
     // 1. 调用AI提取结构化数据
-    const extractedData = await extractDataForImage(summary, title);
+    const extractedData = await extractDataForImage(summary);
 
     // 2. 使用内联HTML模板填充数据
     const htmlContent = fillHtmlTemplate(getHtmlTemplate(), extractedData);

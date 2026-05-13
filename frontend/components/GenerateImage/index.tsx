@@ -1,11 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { Modal, Button, App as AntdApp, Spin } from 'antd';
+import { Drawer, Flex, Button, App as AntdApp, Spin } from 'antd';
 import { CheckOutlined, ReloadOutlined } from '@ant-design/icons';
 import request from '@commons/request';
 import html2canvas from 'html2canvas';
 import styles from './index.module.less';
 
-export type GenerateImageModalProps = {
+export type GenerateImageProps = {
   visible: boolean;
   /** 文章标题 */
   title: string;
@@ -23,7 +23,7 @@ export type GenerateImageModalProps = {
 // 步骤状态
 type Step = 'generate' | 'upload' | 'done';
 
-const GenerateImage: React.FC<GenerateImageModalProps> = ({
+const GenerateImage: React.FC<GenerateImageProps> = ({
   visible,
   title,
   summary = '',
@@ -93,20 +93,6 @@ const GenerateImage: React.FC<GenerateImageModalProps> = ({
     setUploading(true);
     try {
       const previewEl = previewRef.current;
-      const containerEl = containerRef.current;
-
-      // 记录原始样式
-      const originalOverflow = containerEl.style.overflow;
-      const originalMaxHeight = containerEl.style.maxHeight;
-      const originalHeight = previewEl.style.height;
-
-      // 临时展开元素以获取完整内容
-      containerEl.style.overflow = 'visible';
-      containerEl.style.maxHeight = 'none';
-      previewEl.style.height = 'auto';
-
-      // 等待 DOM 更新
-      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // 使用 html2canvas 捕获完整内容
       const canvas = await html2canvas(previewEl, {
@@ -116,11 +102,6 @@ const GenerateImage: React.FC<GenerateImageModalProps> = ({
         backgroundColor: '#ffffff',
         height: previewEl.scrollHeight, // 明确指定高度为内容实际高度
       });
-
-      // 恢复原始样式
-      containerEl.style.overflow = originalOverflow;
-      containerEl.style.maxHeight = originalMaxHeight;
-      previewEl.style.height = originalHeight;
 
       // 转换为 blob
       const blob = await new Promise<Blob>((resolve, reject) => {
@@ -177,11 +158,9 @@ const GenerateImage: React.FC<GenerateImageModalProps> = ({
   const renderContent = () => {
     if (step === 'generate') {
       return (
-        <div className={styles.content}>
+        <div className={styles.content} style={{ height: '100%' }}>
           <Spin spinning={generating}>
-            <div className={styles.generateContent}>
-              <p className={styles.hint}>点击下方按钮，生成用于图片分享的 HTML 内容</p>
-            </div>
+            <div className={styles.tips}>点击下方按钮，生成用于图片分享的 HTML 内容</div>
           </Spin>
         </div>
       );
@@ -189,7 +168,7 @@ const GenerateImage: React.FC<GenerateImageModalProps> = ({
 
     if (step === 'upload') {
       return (
-        <div className={styles.content} style={{ padding: 0 }}>
+        <div className={styles.content}>
           <div ref={containerRef} className={styles.previewContainer}>
             <div ref={previewRef} className={styles.preview} dangerouslySetInnerHTML={{ __html: htmlContent }} />
           </div>
@@ -200,7 +179,6 @@ const GenerateImage: React.FC<GenerateImageModalProps> = ({
     // done
     return (
       <div className={styles.content}>
-        <p className={styles.successHint}>图片上传成功！</p>
         {imageUrl && (
           <div className={styles.previewWrapper}>
             <img src={imageUrl} alt="生成的图片" className={styles.previewImage} />
@@ -214,53 +192,57 @@ const GenerateImage: React.FC<GenerateImageModalProps> = ({
   const renderFooter = () => {
     if (step === 'generate') {
       return (
-        <Button type="primary" onClick={handleGenerate} loading={generating} size="middle">
-          {generating ? '生成中...' : '生成图片内容'}
-        </Button>
+        <Flex gap="medium" justify="flex-end">
+          <Button type="primary" onClick={handleGenerate} loading={generating} size="middle">
+            {generating ? '生成中...' : '生成图片内容'}
+          </Button>
+        </Flex>
       );
     }
 
     if (step === 'upload') {
       return (
-        <Button
-          type="primary"
-          onClick={handleConvertAndUpload}
-          loading={uploading}
-          size="middle"
-          disabled={!htmlContent}
-        >
-          {uploading ? '转换中...' : '转换为图片并上传'}
-        </Button>
+        <Flex gap="medium" justify="flex-end">
+          <Button
+            type="primary"
+            onClick={handleConvertAndUpload}
+            loading={uploading}
+            size="middle"
+            disabled={!htmlContent}
+          >
+            {uploading ? '转换中...' : '转换为图片并上传'}
+          </Button>
+        </Flex>
       );
     }
 
     // done
     return (
-      <>
+      <Flex gap="medium" justify="flex-end">
         <Button onClick={handleRegenerate} icon={<ReloadOutlined />} size="middle">
           重新生成
         </Button>
         <Button type="primary" onClick={handleFinish} icon={<CheckOutlined />} size="middle">
           完成
         </Button>
-      </>
+      </Flex>
     );
   };
 
   return (
-    <Modal
+    <Drawer
       title="AI生成概览图片"
       mask={{
         closable: false,
       }}
       open={visible}
-      onCancel={handleClose}
+      onClose={handleClose}
       footer={renderFooter()}
-      width={1016}
+      size={1010}
       destroyOnHidden
     >
       {renderContent()}
-    </Modal>
+    </Drawer>
   );
 };
 

@@ -51,7 +51,7 @@ export function getHtmlTemplate(): string {
         font-family: 'Noto Sans SC', 'DM Sans', sans-serif;
       }
 
-      .container { width: 952px; background: var(--white); position: relative; display: flex; flex-direction: column; }
+      .container { width: 950px; border: 1px solid var(--navy); background: var(--white); position: relative; display: flex; flex-direction: column; }
 
       .header-bar { background: var(--navy); padding: 56px 72px 48px; position: relative; }
       .header-bar::after { content: ''; position: absolute; bottom: 0; left: 72px; width: 80px; height: 6px; background: var(--accent); }
@@ -313,7 +313,8 @@ const buildConclusionsHtml = (conclusions: ImageGenerateData['conclusions']): st
 /**
  * HTML特殊字符转义
  */
-const escapeHtml = (str: string): string => {
+const escapeHtml = (str: string | undefined | null): string => {
+  if (str == null) return '';
   const map: Record<string, string> = {
     '&': '&amp;',
     '<': '&lt;',
@@ -321,5 +322,5 @@ const escapeHtml = (str: string): string => {
     '"': '&quot;',
     "'": '&#39;',
   };
-  return str.replace(/[&<>"']/g, (c) => map[c]);
+  return String(str).replace(/[&<>"']/g, (c) => map[c]);
 };

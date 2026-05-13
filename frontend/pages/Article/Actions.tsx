@@ -6,15 +6,13 @@ import {
   SettingOutlined,
   CopyOutlined,
   FileAddOutlined,
-  RobotOutlined,
+  EditOutlined,
 } from '@ant-design/icons';
-import { Dropdown, Modal, Drawer, App, Spin, Select } from 'antd';
+import { Dropdown, Modal, App, Select } from 'antd';
 import type { MenuProps } from 'antd';
 import request from '@commons/request';
 import { ArticleContext } from './context';
-import style from './index.module.less';
-import MarkdownPreview from '@/components/MarkdownPreview';
-import { userLog } from '@/commons/electron';
+import { userLog, openExternalUrl } from '@/commons/electron';
 
 type ActionsProps = {
   selectedArticle: any;
@@ -22,7 +20,7 @@ type ActionsProps = {
 };
 
 const Actions: React.FC<ActionsProps> = (props) => {
-  const { cateList, isTrashCategory, isTempCategory } = useContext(ArticleContext);
+  const { cateList, isTrashCategory, isTempCategory, setSelectedArticle } = useContext(ArticleContext);
   const { message } = App.useApp();
   const { selectedArticle, onUpdated } = props;
 
@@ -34,11 +32,6 @@ const Actions: React.FC<ActionsProps> = (props) => {
   const [selectedKnowledgeId, setSelectedKnowledgeId] = useState<number | undefined>(undefined);
   const [addingToKnowledge, setAddingToKnowledge] = useState(false);
   const [knowledgeList, setKnowledgeList] = useState<any[]>([]);
-
-  // AI总结相关状态
-  const [showAISummarizeModal, setShowAISummarizeModal] = useState(false);
-  const [summarizing, setSummarizing] = useState(false);
-  const [articleSummary, setArticleSummary] = useState('');
 
   // 临时文章复制链接
   const copyTempArticleLink = () => {
@@ -212,32 +205,16 @@ const Actions: React.FC<ActionsProps> = (props) => {
       });
   };
 
-  // AI 总结
-  const handleSummarize = () => {
-    if (!selectedArticle.id) return;
-    setShowAISummarizeModal(true);
-    setSummarizing(true);
-    setArticleSummary('');
-
-    // 发起普通请求
-    request
-      .get(`/article/summarize?id=${selectedArticle.id}`)
-      .then((data) => {
-        if (data.code === 0 && data.data?.summary) {
-          setArticleSummary(data.data.summary);
-        } else {
-          message.error('生成文章总结失败，请重试');
-          setShowAISummarizeModal(false);
-        }
-      })
-      .catch((err) => {
-        message.error('生成文章总结失败，请重试');
-        setShowAISummarizeModal(false);
-        console.log(err);
-      })
-      .finally(() => {
-        setSummarizing(false);
-      });
+  // 点击查看详情
+  const gotoDetail = () => {
+    if (isTempCategory) {
+      // 临时文章点击 URL 跳转系统浏览器
+      if (selectedArticle.url) {
+        openExternalUrl(selectedArticle.url);
+      }
+    } else {
+      setSelectedArticle(selectedArticle);
+    }
   };
 
   // 操作菜单
@@ -275,6 +252,12 @@ const Actions: React.FC<ActionsProps> = (props) => {
     } else {
       // 正常状态：显示删除、移动分类和添加到知识库
       menus.push({
+        key: 'gotoDetail',
+        icon: <EditOutlined />,
+        label: '详情编辑',
+        onClick: gotoDetail,
+      });
+      menus.push({
         key: 'delete',
         icon: <DeleteOutlined />,
         label: '删除文章',
@@ -285,12 +268,6 @@ const Actions: React.FC<ActionsProps> = (props) => {
         icon: <DragOutlined />,
         label: '移动分类',
         onClick: handleMove,
-      });
-      menus.push({
-        key: 'aiSummarize',
-        icon: <RobotOutlined />,
-        label: 'AI 总结',
-        onClick: handleSummarize,
       });
       menus.push({
         key: 'addToKnowledge',
@@ -369,24 +346,6 @@ const Actions: React.FC<ActionsProps> = (props) => {
           </Select>
         </div>
       </Modal>
-
-      <Drawer
-        title={summarizing ? '正在生成AI总结...' : 'AI总结结果'}
-        placement="right"
-        open={showAISummarizeModal}
-        onClose={() => setShowAISummarizeModal(false)}
-        size={800}
-        destroyOnHidden={true}
-      >
-        {summarizing && (
-          <div className={style.loadingContainer}>
-            <Spin size="large" />
-            <p className={style.loadingText}>AI正在分析文章，请稍候...</p>
-          </div>
-        )}
-
-        {!summarizing && articleSummary && <MarkdownPreview content={articleSummary} />}
-      </Drawer>
     </>
   );
 };
