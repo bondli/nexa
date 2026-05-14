@@ -28,8 +28,7 @@ class DatabaseService {
         return true;
       }
 
-      console.log(
-        `Attempting to connect to database at ${config.host}:${config.port}/${config.database} with user ${config.username}`,
+      console.log(`Attempting to connect to database at ${config.host}:${config.port}/${config.database} with user ${config.username}`);
 
       const result = await MySQLManager.connect(
         config.host,
@@ -101,6 +100,19 @@ class DatabaseService {
 
   getIsConnected(): boolean {
     return this.isConnected;
+  }
+
+  async reconnect(config: DatabaseConfig): Promise<boolean> {
+    console.log('Attempting to reconnect to database...');
+    // 先断开现有连接
+    this.isConnected = false;
+    try {
+      await MySQLManager.disconnect();
+    } catch (e) {
+      // 忽略断开错误
+    }
+    // 重新建立连接
+    return this.connect(config);
   }
 }
 

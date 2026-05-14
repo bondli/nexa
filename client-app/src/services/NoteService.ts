@@ -138,6 +138,53 @@ class NoteService {
       throw error;
     }
   }
+
+  /**
+   * 更新笔记内容
+   * @param noteId 笔记ID
+   * @param title 新标题
+   * @param desc 新描述
+   */
+  static async updateNote(noteId: number, title: string, desc: string): Promise<void> {
+    try {
+      const escapedTitle = title.replace(/'/g, "''");
+      const escapedDesc = desc.replace(/'/g, "''");
+      const query = `UPDATE \`Note\` SET title = '${escapedTitle}', \`desc\` = '${escapedDesc}', updatedAt = now() WHERE id = ${noteId}`;
+      await DatabaseService.executeUpdate(query);
+    } catch (error) {
+      console.error('Error updating note:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 更新笔记状态
+   * @param noteId 笔记ID
+   * @param status 新状态 (undo/done/deleted)
+   */
+  static async updateNoteStatus(noteId: number, status: string): Promise<void> {
+    try {
+      const query = `UPDATE \`Note\` SET status = '${status}', updatedAt = now() WHERE id = ${noteId}`;
+      await DatabaseService.executeUpdate(query);
+    } catch (error) {
+      console.error('Error updating note status:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 删除笔记（软删除，移到回收站）
+   * @param noteId 笔记ID
+   */
+  static async deleteNote(noteId: number): Promise<void> {
+    try {
+      const query = `UPDATE \`Note\` SET status = 'deleted', updatedAt = now() WHERE id = ${noteId}`;
+      await DatabaseService.executeUpdate(query);
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      throw error;
+    }
+  }
 }
 
 export default NoteService;

@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
 import { DB_CONFIG } from '@commons/constants';
 import DatabaseService from '@/services/DataBaseService';
 
@@ -71,9 +72,32 @@ export const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children
       initDatabase();
     }, 1000);
 
+    // 监听App前后台切换
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      console.log('App State changed to:', nextAppState);
+      if (nextAppState === 'active') {
+        // App切换到前台，检测数据库连接状态
+        if (!DatabaseService.getIsConnected()) {
+          console.log('数据库连接已断开，尝试重连...');
+          DatabaseService.reconnect(DB_CONFIG).then((connected) => {
+            setIsDBConnected(connected);
+            if (!connected) {
+              console.log('数据库重连失败');
+            } else {
+              console.log('数据库重连成功');
+            }
+          });
+        }
+      }
+    };
+
+    // 订阅AppState变化
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
     // 组件卸载时断开数据库连接
     return () => {
       clearTimeout(timer);
+      subscription.remove();
       DatabaseService.disconnect();
     };
   }, []);
