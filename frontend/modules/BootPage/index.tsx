@@ -5,6 +5,7 @@ import { userLog, setStore } from '@commons/electron';
 import request from '@commons/request';
 import { MainContext } from '@commons/context';
 import Logo from '@components/Logo';
+import TitleBar from '@components/TitleBar';
 import style from './index.module.less';
 
 const { Header, Content } = Layout;
@@ -45,87 +46,90 @@ const BootPage: React.FC = () => {
   };
 
   return (
-    <Layout className={style.layout}>
-      <Header className={style.header}>
-        <Logo title={'NEXA'} />
-        <div className={style.sologon}>{'AI Knowledage Manager'}</div>
-      </Header>
-      <Content className={style.content}>
-        <Row
-          style={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Col span={24}>
-            <div className={style.mainForm}>
-              <Form
-                name="basic"
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 16 }}
-                style={{ minWidth: 600, maxWidth: 800 }}
-                onFinish={onRegister}
-                autoComplete="off"
-              >
-                <Form.Item<installFieldType>
-                  label={`数据库服务器`}
-                  name="dbhost"
-                  hasFeedback
-                  rules={[{ required: true, message: '数据库服务器不能为空' }]}
+    <>
+      <TitleBar />
+      <Layout className={style.layout} style={{ paddingTop: 32 }}>
+        <Header className={style.header}>
+          <Logo title={'NEXA'} />
+          <div className={style.sologon}>{'AI Knowledage Manager'}</div>
+        </Header>
+        <Content className={style.content}>
+          <Row
+            style={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Col span={24}>
+              <div className={style.mainForm}>
+                <Form
+                  name="basic"
+                  labelCol={{ span: 6 }}
+                  wrapperCol={{ span: 16 }}
+                  style={{ minWidth: 600, maxWidth: 800 }}
+                  onFinish={onRegister}
+                  autoComplete="off"
                 >
-                  <Input />
-                </Form.Item>
+                  <Form.Item<installFieldType>
+                    label={`数据库服务器`}
+                    name="dbhost"
+                    hasFeedback
+                    rules={[{ required: true, message: '数据库服务器不能为空' }]}
+                  >
+                    <Input />
+                  </Form.Item>
 
-                <Form.Item<installFieldType>
-                  label={`数据库端口`}
-                  name="dbport"
-                  hasFeedback
-                  rules={[{ required: true, message: '数据库端口不能为空' }]}
-                >
-                  <Input />
-                </Form.Item>
+                  <Form.Item<installFieldType>
+                    label={`数据库端口`}
+                    name="dbport"
+                    hasFeedback
+                    rules={[{ required: true, message: '数据库端口不能为空' }]}
+                  >
+                    <Input />
+                  </Form.Item>
 
-                <Form.Item<installFieldType>
-                  label={`数据库名称`}
-                  name="dbname"
-                  hasFeedback
-                  rules={[{ required: true, message: '数据库名称不能为空' }]}
-                >
-                  <Input />
-                </Form.Item>
+                  <Form.Item<installFieldType>
+                    label={`数据库名称`}
+                    name="dbname"
+                    hasFeedback
+                    rules={[{ required: true, message: '数据库名称不能为空' }]}
+                  >
+                    <Input />
+                  </Form.Item>
 
-                <Form.Item<installFieldType>
-                  label={`用户名`}
-                  name="dbuser"
-                  hasFeedback
-                  rules={[{ required: true, message: '用户名不能为空' }]}
-                >
-                  <Input />
-                </Form.Item>
+                  <Form.Item<installFieldType>
+                    label={`用户名`}
+                    name="dbuser"
+                    hasFeedback
+                    rules={[{ required: true, message: '用户名不能为空' }]}
+                  >
+                    <Input />
+                  </Form.Item>
 
-                <Form.Item<installFieldType>
-                  label={`密码`}
-                  name="dbpwd"
-                  hasFeedback
-                  rules={[{ required: true, message: '密码不能为空' }]}
-                >
-                  <Input.Password />
-                </Form.Item>
+                  <Form.Item<installFieldType>
+                    label={`密码`}
+                    name="dbpwd"
+                    hasFeedback
+                    rules={[{ required: true, message: '密码不能为空' }]}
+                  >
+                    <Input.Password />
+                  </Form.Item>
 
-                <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-                  <Button type="primary" htmlType="submit">
-                    提交初始化
-                  </Button>
-                </Form.Item>
-              </Form>
-            </div>
-          </Col>
-        </Row>
-      </Content>
-    </Layout>
+                  <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
+                    <Button type="primary" htmlType="submit">
+                      提交初始化
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </div>
+            </Col>
+          </Row>
+        </Content>
+      </Layout>
+    </>
   );
 };
 

@@ -5,6 +5,7 @@ import { userLog, setStore } from '@commons/electron';
 import request from '@commons/request';
 import { MainContext } from '@commons/context';
 import Logo from '@components/Logo';
+import TitleBar from '@components/TitleBar';
 import style from './index.module.less';
 
 const { Header, Content } = Layout;
@@ -85,132 +86,135 @@ const UserPage: React.FC = () => {
   };
 
   return (
-    <Layout className={style.layout}>
-      <Header className={style.header}>
-        <Logo title={'NEXA'} />
-        <div className={style.sologon}>{'AI Knowledage Manager'}</div>
-      </Header>
-      <Content className={style.content}>
-        <Row
-          style={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Col span={24}>
-            {showLogin ? (
-              <div className={style.loginForm}>
-                <Form
-                  name="basic"
-                  labelCol={{ span: 6 }}
-                  wrapperCol={{ span: 16 }}
-                  style={{ minWidth: 400, maxWidth: 600 }}
-                  onFinish={onLogin}
-                  autoComplete="off"
-                >
-                  <Form.Item<FieldType>
-                    label={`username`}
-                    name="username"
-                    hasFeedback
-                    rules={[{ required: true, message: '用户名不能为空' }]}
+    <>
+      <Layout className={style.layout} style={{ paddingTop: 32 }}>
+        <TitleBar />
+        <Header className={style.header}>
+          <Logo title={'NEXA'} />
+          <div className={style.sologon}>{'AI Knowledage Manager'}</div>
+        </Header>
+        <Content className={style.content}>
+          <Row
+            style={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Col span={24}>
+              {showLogin ? (
+                <div className={style.loginForm}>
+                  <Form
+                    name="basic"
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 16 }}
+                    style={{ minWidth: 400, maxWidth: 600 }}
+                    onFinish={onLogin}
+                    autoComplete="off"
                   >
-                    <Input />
-                  </Form.Item>
+                    <Form.Item<FieldType>
+                      label={`username`}
+                      name="username"
+                      hasFeedback
+                      rules={[{ required: true, message: '用户名不能为空' }]}
+                    >
+                      <Input />
+                    </Form.Item>
 
-                  <Form.Item<FieldType>
-                    label={`password`}
-                    name="password"
-                    hasFeedback
-                    rules={[{ required: true, message: '密码不能为空' }]}
+                    <Form.Item<FieldType>
+                      label={`password`}
+                      name="password"
+                      hasFeedback
+                      rules={[{ required: true, message: '密码不能为空' }]}
+                    >
+                      <Input.Password />
+                    </Form.Item>
+
+                    <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
+                      <Button type="primary" htmlType="submit">
+                        {'login'}
+                      </Button>
+                      <span className={style.userTips} onClick={() => handleSwitch('register')}>
+                        {'go register'}
+                      </span>
+                    </Form.Item>
+                  </Form>
+                </div>
+              ) : (
+                <div className={style.loginForm}>
+                  <Form
+                    name="basic"
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 16 }}
+                    style={{ minWidth: 400, maxWidth: 600 }}
+                    onFinish={onRegister}
+                    autoComplete="off"
                   >
-                    <Input.Password />
-                  </Form.Item>
+                    <Form.Item<RegFieldType>
+                      label={`username`}
+                      name="regname"
+                      hasFeedback
+                      rules={[{ required: true, message: '用户名不能为空' }]}
+                    >
+                      <Input />
+                    </Form.Item>
 
-                  <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-                    <Button type="primary" htmlType="submit">
-                      {'login'}
-                    </Button>
-                    <span className={style.userTips} onClick={() => handleSwitch('register')}>
-                      {'go register'}
-                    </span>
-                  </Form.Item>
-                </Form>
-              </div>
-            ) : (
-              <div className={style.loginForm}>
-                <Form
-                  name="basic"
-                  labelCol={{ span: 6 }}
-                  wrapperCol={{ span: 16 }}
-                  style={{ minWidth: 400, maxWidth: 600 }}
-                  onFinish={onRegister}
-                  autoComplete="off"
-                >
-                  <Form.Item<RegFieldType>
-                    label={`username`}
-                    name="regname"
-                    hasFeedback
-                    rules={[{ required: true, message: '用户名不能为空' }]}
-                  >
-                    <Input />
-                  </Form.Item>
+                    <Form.Item<RegFieldType>
+                      label={`email`}
+                      name="regmail"
+                      hasFeedback
+                      rules={[{ required: true, message: '邮箱不能为空' }]}
+                    >
+                      <Input />
+                    </Form.Item>
 
-                  <Form.Item<RegFieldType>
-                    label={`email`}
-                    name="regmail"
-                    hasFeedback
-                    rules={[{ required: true, message: '邮箱不能为空' }]}
-                  >
-                    <Input />
-                  </Form.Item>
+                    <Form.Item<RegFieldType>
+                      label={`password`}
+                      name="regpwd"
+                      hasFeedback
+                      rules={[{ required: true, message: '密码不能为空' }]}
+                    >
+                      <Input.Password />
+                    </Form.Item>
 
-                  <Form.Item<RegFieldType>
-                    label={`password`}
-                    name="regpwd"
-                    hasFeedback
-                    rules={[{ required: true, message: '密码不能为空' }]}
-                  >
-                    <Input.Password />
-                  </Form.Item>
+                    <Form.Item<RegFieldType>
+                      label={`repeat`}
+                      name="repregpwd"
+                      dependencies={['regpwd']}
+                      hasFeedback
+                      rules={[
+                        { required: true, message: '请输入重复密码' },
+                        ({ getFieldValue }) => ({
+                          validator(_, value) {
+                            if (!value || getFieldValue('regpwd') === value) {
+                              return Promise.resolve();
+                            }
+                            return Promise.reject(new Error('两次密码不一致'));
+                          },
+                        }),
+                      ]}
+                    >
+                      <Input.Password />
+                    </Form.Item>
 
-                  <Form.Item<RegFieldType>
-                    label={`repeat`}
-                    name="repregpwd"
-                    dependencies={['regpwd']}
-                    hasFeedback
-                    rules={[
-                      { required: true, message: '请输入重复密码' },
-                      ({ getFieldValue }) => ({
-                        validator(_, value) {
-                          if (!value || getFieldValue('regpwd') === value) {
-                            return Promise.resolve();
-                          }
-                          return Promise.reject(new Error('两次密码不一致'));
-                        },
-                      }),
-                    ]}
-                  >
-                    <Input.Password />
-                  </Form.Item>
-
-                  <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-                    <Button type="primary" htmlType="submit">
-                      {'register'}
-                    </Button>
-                    <span className={style.userTips} onClick={() => handleSwitch('login')}>
-                      {'go login'}
-                    </span>
-                  </Form.Item>
-                </Form>
-              </div>
-            )}
-          </Col>
-        </Row>
-      </Content>
-    </Layout>
+                    <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
+                      <Button type="primary" htmlType="submit">
+                        {'register'}
+                      </Button>
+                      <span className={style.userTips} onClick={() => handleSwitch('login')}>
+                        {'go login'}
+                      </span>
+                    </Form.Item>
+                  </Form>
+                </div>
+              )}
+            </Col>
+          </Row>
+        </Content>
+      </Layout>
+    </>
   );
 };
 

@@ -85,6 +85,7 @@ const Reports: React.FC = () => {
     } finally {
       setGenerateModalVisible(false);
       setSelectedReportForImage(null);
+      getReportList(false);
     }
   };
 

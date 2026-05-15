@@ -55,21 +55,21 @@ export function getHtmlTemplate(): string {
 
       .header-bar { background: var(--navy); padding: 56px 72px 48px; position: relative; }
       .header-bar::after { content: ''; position: absolute; bottom: 0; left: 72px; width: 80px; height: 6px; background: var(--accent); }
-      .header-bar h1 { font-size: 72px; font-weight: 700; color: var(--white); line-height: 1.25; margin-bottom: 16px; }
-      .header-bar .subtitle { font-size: 30px; font-weight: 300; color: var(--steel); line-height: 1.6; }
+      .header-bar h1 { font-size: 44px; font-weight: 700; color: var(--white); line-height: 1.25; margin-bottom: 16px; }
+      .header-bar .subtitle { font-size: 20px; font-weight: 300; color: var(--steel); line-height: 1.6; }
 
       .content-area { flex: 1; padding: 40px 72px; display: flex; flex-direction: column; gap: 32px; }
 
       .sec-head { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
       .sec-head .num { font-family: 'DM Sans', sans-serif; font-size: 28px; font-weight: 700; color: var(--accent); background: var(--accent-light); width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-      .sec-head h2 { font-size: 40px; font-weight: 700; color: var(--navy); }
+      .sec-head h2 { font-size: 36px; font-weight: 700; color: var(--navy); margin-bottom: 0; }
 
       .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
       .kpi-card { background: var(--ice); border-radius: 12px; padding: 28px 24px; border-left: 5px solid var(--accent); }
-      .kpi-card .label { font-size: 26px; font-weight: 500; color: var(--steel); margin-bottom: 10px; }
-      .kpi-card .number { font-family: 'DM Sans', sans-serif; font-size: 56px; font-weight: 700; color: var(--navy); line-height: 1; }
-      .kpi-card .number .unit { font-size: 32px; font-weight: 400; color: var(--steel); }
-      .kpi-card .desc { font-size: 24px; word-break: break-all; font-weight: 500; color: var(--slate); margin-top: 8px; line-height: 1.4; }
+      .kpi-card .label { font-size: 18px; font-weight: 500; color: var(--steel); margin-bottom: 10px; }
+      .kpi-card .number { font-family: 'DM Sans', sans-serif; font-size: 40px; font-weight: 700; color: var(--navy); line-height: 1; }
+      .kpi-card .number .unit { font-size: 24px; font-weight: 400; color: var(--steel); }
+      .kpi-card .desc { font-size: 14px; word-break: break-all; font-weight: 500; color: var(--slate); margin-top: 12px; line-height: 1.4; }
 
       .grid-60-40 { display: grid; gap: 32px; }
 
@@ -78,10 +78,10 @@ export function getHtmlTemplate(): string {
       .spectrum-item.mid { border-left-color: #93c5fd; }
       .spectrum-item.low { border-left-color: var(--sky); }
       .spectrum-item .s-left { min-width: 140px; }
-      .spectrum-item .s-label { font-size: 28px; font-weight: 700; color: var(--navy); }
-      .spectrum-item .s-en { font-family: 'DM Sans', sans-serif; font-size: 24px; font-weight: 500; color: var(--steel); display: block; margin-top: 4px; }
-      .spectrum-item .s-desc { font-size: 26px; word-break: break-all; color: var(--slate); line-height: 1.6; }
-      .spectrum-item .s-tag { font-size: 20px; font-weight: 600; padding: 4px 12px; border-radius: 4px; display: inline-block; margin-top: 8px; }
+      .spectrum-item .s-label { font-size: 20px; font-weight: 700; color: var(--navy); }
+      .spectrum-item .s-en { font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 500; color: var(--steel); display: block; margin-top: 4px; }
+      .spectrum-item .s-desc { font-size: 16px; word-break: break-all; color: var(--slate); line-height: 1.6; }
+      .spectrum-item .s-tag { font-size: 14px; font-weight: 600; padding: 4px 12px; border-radius: 4px; display: inline-block; margin-top: 8px; }
       .s-tag.high { background: #dcfce7; color: #166534; }
       .s-tag.medium { background: #fef9c3; color: #854d0e; }
       .s-tag.zero { background: #fee2e2; color: #991b1b; }
@@ -89,7 +89,7 @@ export function getHtmlTemplate(): string {
       .risk-box { background: var(--warn-light); border: 1px solid #fecaca; border-radius: 12px; padding: 28px 32px; }
       .risk-box .sec-head .num { background: #fee2e2; color: var(--warn); }
       .risk-box .sec-head h2 { color: var(--warn); }
-      .risk-item { display: flex; gap: 16px; padding: 12px 0; border-bottom: 1px solid #fecaca; font-size: 30px; color: #7f1d1d; line-height: 1.6; }
+      .risk-item { display: flex; gap: 16px; padding: 12px 0; border-bottom: 1px solid #fecaca; font-size: 18px; color: #7f1d1d; line-height: 1.6; }
       .risk-item:last-child { border-bottom: none; }
       .risk-item .idx { font-family: 'DM Sans', sans-serif; font-weight: 700; color: var(--warn); flex-shrink: 0; }
     </style>
