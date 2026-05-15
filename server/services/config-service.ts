@@ -80,12 +80,12 @@ export const getConfig = (): UnifiedConfig => {
   const config = readJsonFile<UnifiedConfig>(CONFIG_FILE);
 
   if (config) {
-    logger.info('[ConfigService] Loaded config from config.json');
+    logger.debug('[ConfigService] Loaded config from config.json');
     return config;
   }
 
   // 配置文件不存在，返回空对象
-  logger.info('[ConfigService] No config file found, returning empty config');
+  logger.debug('[ConfigService] No config file found, returning empty config');
   return {};
 };
 

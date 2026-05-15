@@ -1,3 +1,4 @@
+import logger from 'electron-log';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { getQdrantConfig as getConfigFromService } from '../services/config-service';
 
@@ -39,9 +40,9 @@ export const initVectorDB = async (): Promise<void> => {
 
     // 测试连接
     await qdrantClient.getCollections();
-    console.log('Qdrant 向量数据库连接成功');
+    logger.info('Qdrant 向量数据库连接成功');
   } catch (error) {
-    console.error('Qdrant 向量数据库连接失败:', error);
+    logger.error('Qdrant 向量数据库连接失败:', error);
     throw error;
   }
 };
@@ -61,7 +62,7 @@ export const getVectorDBClient = (): QdrantClient => {
  */
 export const closeVectorDB = async (): Promise<void> => {
   qdrantClient = null;
-  console.log('Qdrant 向量数据库连接已关闭');
+  logger.log('Qdrant 向量数据库连接已关闭');
 };
 
 export default qdrantClient;

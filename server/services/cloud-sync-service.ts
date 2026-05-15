@@ -269,10 +269,7 @@ export const startSyncScheduler = (intervalMs: number = 5 * 60 * 1000): void => 
     clearInterval(syncIntervalId);
   }
 
-  // 立即执行一次
-  processQueue();
-
-  // 设置定时任务
+  // 设置定时任务（不再立即执行，避免与 initSyncQueue 重复）
   syncIntervalId = setInterval(() => {
     processQueue();
   }, intervalMs);

@@ -42,7 +42,8 @@ const sequelize = new Sequelize({
   username: configObj.DB_USERNAME,
   password: configObj.DB_PASSWORD,
   database: configObj.DB_NAME,
-  logging: (sql) => logger.info('[SQL]', sql),
+  // logging: (sql) => logger.info('[SQL]', sql),
+  logging: false,
   timezone: '+08:00',
 });
 
@@ -117,9 +118,14 @@ export const syncDatabase = async (force = false): Promise<void> => {
     // 建立模型关联
     setupAssociations();
 
-    // 使用 alter: true 自动同步表结构（添加新列等）
-    await sequelize.sync({ force: false });
-    logger.info('数据库模型同步成功');
+    if (force) {
+      // 仅在显式指定 force 时才执行完整 sync（会检查所有表结构，较慢）
+      await sequelize.sync({ force: true });
+      logger.info('数据库模型强制同步成功');
+    } else {
+      // 正常启动只建立关联，不执行耗时的 sync，表结构由迁移脚本管理
+      logger.info('数据库模型关联已建立（跳过 sync）');
+    }
   } catch (error: any) {
     logger.error('数据库模型同步失败:', error.message || error);
   }

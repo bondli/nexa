@@ -83,29 +83,35 @@ app.all('*', (req, res, next) => {
 
 (async () => {
   try {
-    // 如果已配置数据库，则连接
+    // 先启动 HTTP 服务器，让 Electron 主进程尽快收到就绪信号
+    await new Promise<void>((resolve) => {
+      app.listen(PORT, () => {
+        logger.info(`[API Server] server is running on port ${PORT}`);
+        if (typeof process.send === 'function') {
+          process.send('server is ready');
+        }
+        resolve();
+      });
+    });
+
+    // 所有后台初始化任务完全异步，不阻塞 HTTP 服务
+    // 云端同步队列与 DB 初始化并行启动，互不依赖
+    initSyncQueue();
+    startSyncScheduler();
+
     if (isDatabaseConfigured()) {
-      await testConnection();
-      await syncDatabase();
-      await initVectorDB();
-      // 初始化 Agent Skills（从 DB 加载已安装的 skills）
-      await initializeAgentSkills();
+      // 不 await，完全后台执行
+      testConnection()
+        .then(() => syncDatabase())
+        .then(() => initVectorDB())
+        .then(() => initializeAgentSkills())
+        .catch((dbError) => {
+          logger.error('[API Server] Database initialization error:', dbError);
+        });
     } else {
       logger.info('[API Server] 数据库未配置，跳过数据库连接');
     }
 
-    // 初始化云端同步队列
-    initSyncQueue();
-    // 启动同步调度器（每5分钟扫描一次）
-    startSyncScheduler();
-
-    // 启动服务器
-    app.listen(PORT, () => {
-      logger.info(`[API Server] server is running on port ${PORT}`);
-      if (typeof process.send === 'function') {
-        process.send('server is ready');
-      }
-    });
   } catch (error) {
     logger.error('[API Server] Error starting server:', error);
   }

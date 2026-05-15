@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState } from 'react';
+import React, { memo, useContext, useState, Suspense, lazy } from 'react';
 import { App, Layout } from 'antd';
 import {
   AliwangwangOutlined,
@@ -13,13 +13,15 @@ import { deleteStore } from '@commons/electron';
 import User from '@components/User';
 import Logo from '@components/Logo';
 import Setting from '@components/Setting';
-import ChatBox from '@pages/ChatBox';
-import NoteBook from '@pages/NoteBook';
-import Knowledge from '@pages/Knowledge';
-import Picture from '@pages/Picture';
-import Article from '@pages/Article';
-import Report from '@pages/Report';
 import style from './index.module.less';
+
+// 懒加载各页面，Vite 自动拆分 chunk，减少首屏 JS 体积
+const ChatBox = lazy(() => import('@pages/ChatBox'));
+const NoteBook = lazy(() => import('@pages/NoteBook'));
+const Knowledge = lazy(() => import('@pages/Knowledge'));
+const Picture = lazy(() => import('@pages/Picture'));
+const Article = lazy(() => import('@pages/Article'));
+const Report = lazy(() => import('@pages/Report'));
 
 const { Sider, Content } = Layout;
 
@@ -93,12 +95,14 @@ const MainPage: React.FC = () => {
 
       <Layout>
         <Content className={style.content}>
-          {currentPage === 'chat' && <ChatBox />}
-          {currentPage === 'notebook' && <NoteBook />}
-          {currentPage === 'article' && <Article />}
-          {currentPage === 'knowledge' && <Knowledge />}
-          {currentPage === 'picture' && <Picture />}
-          {currentPage === 'report' && <Report />}
+          <Suspense fallback={null}>
+            {currentPage === 'chat' && <ChatBox />}
+            {currentPage === 'notebook' && <NoteBook />}
+            {currentPage === 'article' && <Article />}
+            {currentPage === 'knowledge' && <Knowledge />}
+            {currentPage === 'picture' && <Picture />}
+            {currentPage === 'report' && <Report />}
+          </Suspense>
         </Content>
       </Layout>
     </Layout>
