@@ -227,7 +227,7 @@ const Header: React.FC = () => {
         <Input
           value={tempCateName}
           onChange={handleCateNameChange}
-          maxLength={8}
+          maxLength={18}
           allowClear
           ref={inputRef}
           onPressEnter={handleSaveEdit}

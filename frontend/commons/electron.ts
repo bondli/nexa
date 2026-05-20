@@ -48,7 +48,9 @@ export const userLog = (msg: any, msgData?: any) => {
       }
     }
   }
-  ipcRenderer?.userLog?.(outMsg);
+  if (isInElectron) {
+    ipcRenderer?.userLog?.(outMsg);
+  }
 };
 
 // 关闭快速笔记窗口

@@ -8,8 +8,17 @@ import Actions from './Actions';
 import style from './index.module.less';
 
 const Notes: React.FC = () => {
-  const { noteList, setSelectedNote, getCateList, getNoteCounts, getNoteList, notesLoading, notesHasMore, notesTotal } =
-    useContext(NoteContext);
+  const {
+    noteList,
+    setSelectedNote,
+    cateList,
+    getCateList,
+    getNoteCounts,
+    getNoteList,
+    notesLoading,
+    notesHasMore,
+    notesTotal,
+  } = useContext(NoteContext);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -68,6 +77,9 @@ const Notes: React.FC = () => {
     if (displayDesc.length > 50) {
       displayDesc = displayDesc.substring(0, 50);
     }
+    // 获取该笔记的分类
+    const cateName = cateList.find((item) => item.id === data.cateId)?.name || '未分类';
+    displayDesc = `[${cateName}] ${displayDesc}`;
     return (
       <div className={style.listDesc} onClick={() => gotoDetail(data)}>
         {displayDesc}

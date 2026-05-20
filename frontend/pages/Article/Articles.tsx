@@ -15,6 +15,7 @@ const Articles: React.FC = () => {
   const { message: antdMessage } = AntdApp.useApp();
   const {
     articleList,
+    cateList,
     getArticleCateList,
     getArticleCounts,
     getArticleList,
@@ -161,6 +162,9 @@ const Articles: React.FC = () => {
     if (displayDesc.length > 50) {
       displayDesc = displayDesc.substring(0, 50);
     }
+    // 获取文章分类
+    const cateName = cateList.find((item: any) => item.id === data.cateId)?.name || '未分类';
+    displayDesc = `[${cateName}] ${displayDesc}`;
     return (
       <div className={style.listDesc} onClick={() => gotoDetail(data)}>
         {displayDesc}

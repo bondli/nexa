@@ -184,7 +184,7 @@ const Category: React.FC = () => {
       <Input
         placeholder={`最多8个字符`}
         value={newCateName}
-        maxLength={8}
+        maxLength={18}
         allowClear
         onChange={handleNameInput}
         onPressEnter={handleCreateNote}

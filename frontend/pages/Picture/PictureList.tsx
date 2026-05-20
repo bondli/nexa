@@ -54,7 +54,8 @@ const PictureList: React.FC = () => {
       return picture.cloudUrl;
     }
     // 降级使用本地链接
-    return `${API_BASE_URL}${picture.path}`;
+    const finnalUrl = picture.path.split('/files');
+    return `${API_BASE_URL}files${finnalUrl[1]}`;
   };
 
   // 触底加载更多
