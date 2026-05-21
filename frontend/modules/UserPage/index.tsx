@@ -115,7 +115,7 @@ const UserPage: React.FC = () => {
                     autoComplete="off"
                   >
                     <Form.Item<FieldType>
-                      label={`username`}
+                      label={`用户名`}
                       name="username"
                       hasFeedback
                       rules={[{ required: true, message: '用户名不能为空' }]}
@@ -124,7 +124,7 @@ const UserPage: React.FC = () => {
                     </Form.Item>
 
                     <Form.Item<FieldType>
-                      label={`password`}
+                      label={`密码`}
                       name="password"
                       hasFeedback
                       rules={[{ required: true, message: '密码不能为空' }]}
@@ -134,10 +134,10 @@ const UserPage: React.FC = () => {
 
                     <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
                       <Button type="primary" htmlType="submit">
-                        {'login'}
+                        {'登录'}
                       </Button>
                       <span className={style.userTips} onClick={() => handleSwitch('register')}>
-                        {'go register'}
+                        {'去注册'}
                       </span>
                     </Form.Item>
                   </Form>
@@ -153,7 +153,7 @@ const UserPage: React.FC = () => {
                     autoComplete="off"
                   >
                     <Form.Item<RegFieldType>
-                      label={`username`}
+                      label={`用户名`}
                       name="regname"
                       hasFeedback
                       rules={[{ required: true, message: '用户名不能为空' }]}
@@ -162,7 +162,7 @@ const UserPage: React.FC = () => {
                     </Form.Item>
 
                     <Form.Item<RegFieldType>
-                      label={`email`}
+                      label={`邮箱`}
                       name="regmail"
                       hasFeedback
                       rules={[{ required: true, message: '邮箱不能为空' }]}
@@ -171,7 +171,7 @@ const UserPage: React.FC = () => {
                     </Form.Item>
 
                     <Form.Item<RegFieldType>
-                      label={`password`}
+                      label={`密码`}
                       name="regpwd"
                       hasFeedback
                       rules={[{ required: true, message: '密码不能为空' }]}
@@ -180,7 +180,7 @@ const UserPage: React.FC = () => {
                     </Form.Item>
 
                     <Form.Item<RegFieldType>
-                      label={`repeat`}
+                      label={`确认密码`}
                       name="repregpwd"
                       dependencies={['regpwd']}
                       hasFeedback
@@ -201,10 +201,10 @@ const UserPage: React.FC = () => {
 
                     <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
                       <Button type="primary" htmlType="submit">
-                        {'register'}
+                        {'注册'}
                       </Button>
                       <span className={style.userTips} onClick={() => handleSwitch('login')}>
-                        {'go login'}
+                        {'去登录'}
                       </span>
                     </Form.Item>
                   </Form>

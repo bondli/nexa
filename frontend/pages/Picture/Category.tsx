@@ -193,7 +193,7 @@ const Category: React.FC = () => {
             className={style.menuContainer}
             style={{ borderRight: 0 }}
             onSelect={handleCateSelect}
-          ></Menu>
+          />
         )}
       </div>
     </>
