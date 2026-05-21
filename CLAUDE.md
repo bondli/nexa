@@ -26,3 +26,5 @@ Always follow rules in:
 - .claude/rules/project-structure.md
 
 These rules override default behavior.
+
+> 如果 `.codegraph/` 存在，**优先用 CodeGraph 工具**，尤其是 `codegraph_explore`。不要重复读取 CodeGraph 已返回的源码。

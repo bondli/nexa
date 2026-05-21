@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -7,6 +7,19 @@
       content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
     />
     <title>NEXA - AI Knowledge Manager</title>
+    <script>
+      // 立即设置主题，避免 JS 加载前的闪烁
+      (function () {
+        try {
+          var themeMode = localStorage.getItem('app_theme_mode') || 'followSystem';
+          var theme = 'light';
+          if (themeMode === 'dark') theme = 'dark';
+          else if (themeMode === 'light') theme = 'light';
+          else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) theme = 'dark';
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <style>
     #root {

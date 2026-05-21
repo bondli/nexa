@@ -1,10 +1,12 @@
 import path from 'path';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, nativeTheme } from 'electron';
 import logger from 'electron-log';
 import { getTrayBounds } from './tray';
+import Store from 'electron-store';
 
 let quickNoteWindow: BrowserWindow | null = null;
 let apiServerStatus = '';
+const store = new Store();
 
 const windowWidth = 400;
 const windowHeight = 200;
@@ -34,6 +36,17 @@ const getQuickNotePosition = (): { x: number; y: number } | null => {
 };
 
 /**
+ * 根据应用主题设置获取窗口背景色
+ */
+const getBackgroundColor = (): string => {
+  const themeMode = store.get('app_theme_mode', 'followSystem') as string;
+  if (themeMode === 'dark') return '#18181b';
+  if (themeMode === 'light') return '#ffffff';
+  // followSystem 模式：跟随系统
+  return nativeTheme.shouldUseDarkColors ? '#18181b' : '#ffffff';
+};
+
+/**
  * 创建快速笔记窗口
  */
 export const createQuickNoteWindow = (): void => {
@@ -50,7 +63,8 @@ export const createQuickNoteWindow = (): void => {
     height: windowHeight,
     resizable: false,
     frame: false,
-    transparent: true,
+    transparent: false,
+    backgroundColor: getBackgroundColor(),
     alwaysOnTop: true,
     skipTaskbar: true,
     webPreferences: {
@@ -94,6 +108,14 @@ export const createQuickNoteWindow = (): void => {
   // 关闭窗口时销毁引用
   quickNoteWindow.on('closed', () => {
     quickNoteWindow = null;
+  });
+
+  // 监听系统主题变化，动态更新窗口背景色（仅在 followSystem 模式下）
+  nativeTheme.on('updated', () => {
+    const themeMode = store.get('app_theme_mode', 'followSystem') as string;
+    if (themeMode === 'followSystem' && quickNoteWindow && !quickNoteWindow.isDestroyed()) {
+      quickNoteWindow.setBackgroundColor(getBackgroundColor());
+    }
   });
 };
 

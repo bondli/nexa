@@ -8,6 +8,7 @@ import utc from 'dayjs/plugin/utc';
 import { MainProvider } from '@commons/context';
 import QuickNote from '@blocks/QuickNote';
 import CaptureSave from '@blocks/CaptureSave';
+import ThemeProvider from '@components/ThemeProvider';
 import AppContainer from './App';
 
 import 'antd/dist/reset.css';
@@ -27,27 +28,6 @@ notification.config({
   rtl: false,
 });
 
-// 共享的主题配置
-const themeConfig = {
-  token: {
-    colorPrimary: '#18181b',
-    colorPrimaryActive: 'rgb(24 24 27 / 80%)',
-    colorPrimaryHover: 'rgb(24 24 27 / 80%)',
-    borderRadius: 6,
-  },
-  components: {
-    Menu: {
-      itemHeight: 36,
-      itemSelectedColor: 'white',
-      itemSelectedBg: '#18181b',
-    },
-    Button: {
-      contentFontSizeSM: 12,
-      primaryShadow: '0',
-    },
-  },
-};
-
 // 判断是否为快速笔记窗口
 const isQuickNote = (): boolean => {
   const hash = window.location.hash;
@@ -65,28 +45,34 @@ const root = createRoot(document.getElementById('root'));
 // 截图快存窗口独立渲染
 if (isScreenshotCapture()) {
   root.render(
-    <App>
-      <ConfigProvider locale={zhCN} input={{ autoComplete: 'off' }} theme={themeConfig}>
-        <CaptureSave />
-      </ConfigProvider>
-    </App>,
+    <ThemeProvider>
+      <App>
+        <ConfigProvider locale={zhCN} input={{ autoComplete: 'off' }}>
+          <CaptureSave />
+        </ConfigProvider>
+      </App>
+    </ThemeProvider>,
   );
 } else if (isQuickNote()) {
   root.render(
-    <App>
-      <ConfigProvider locale={zhCN} input={{ autoComplete: 'off' }} theme={themeConfig}>
-        <QuickNote />
-      </ConfigProvider>
-    </App>,
+    <ThemeProvider>
+      <App>
+        <ConfigProvider locale={zhCN} input={{ autoComplete: 'off' }}>
+          <QuickNote />
+        </ConfigProvider>
+      </App>
+    </ThemeProvider>,
   );
 } else {
   root.render(
-    <App>
-      <ConfigProvider locale={zhCN} input={{ autoComplete: 'off' }} theme={themeConfig}>
-        <MainProvider>
-          <AppContainer />
-        </MainProvider>
-      </ConfigProvider>
-    </App>,
+    <ThemeProvider>
+      <App>
+        <ConfigProvider locale={zhCN} input={{ autoComplete: 'off' }}>
+          <MainProvider>
+            <AppContainer />
+          </MainProvider>
+        </ConfigProvider>
+      </App>
+    </ThemeProvider>,
   );
 }

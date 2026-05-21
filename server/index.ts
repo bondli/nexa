@@ -111,7 +111,6 @@ app.all('*', (req, res, next) => {
     } else {
       logger.info('[API Server] 数据库未配置，跳过数据库连接');
     }
-
   } catch (error) {
     logger.error('[API Server] Error starting server:', error);
   }

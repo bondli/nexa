@@ -97,14 +97,14 @@ const CaptureSave = () => {
       setProgress(50);
 
       // 上传图片
-      const uploadRes = await request.post('/common/uploadImage', formData);
+      const uploadRes = await request.post('/common/uploadFile', formData);
       setProgress(70);
 
-      if (!uploadRes || !uploadRes.data || !uploadRes.data.url) {
+      if (!uploadRes || !uploadRes.data || !uploadRes.data.cloudUrl) {
         throw new Error('上传失败');
       }
 
-      const imageUrl = uploadRes.data.url;
+      const imageUrl = uploadRes.data.cloudUrl;
       setUploadedImageUrl(imageUrl);
       setProgress(90);
 
@@ -169,7 +169,7 @@ const CaptureSave = () => {
         const formData = new FormData();
         formData.append('file', blob, 'screenshot.png');
 
-        const uploadRes = await request.post('/common/uploadImage', formData);
+        const uploadRes = await request.post('/common/uploadFile?fileType=image', formData);
         if (!uploadRes || !uploadRes.data || !uploadRes.data.url) {
           throw new Error('上传失败');
         }
@@ -260,7 +260,7 @@ const CaptureSave = () => {
       <div className={styles.overlay}>
         <div className={styles.header}>
           <span className={styles.title}>截图快存</span>
-          <Button icon={<CloseOutlined />} type="primary" onClick={handleClose} size="small" />
+          <Button icon={<CloseOutlined />} type="text" onClick={handleClose} size="small" />
         </div>
 
         <div className={styles.content}>
@@ -335,16 +335,10 @@ const CaptureSave = () => {
                 />
               </div>
               <div className={styles.actions}>
-                <Button onClick={handleBackToPreview} size="small">
+                <Button onClick={handleBackToPreview} type="default" size="small">
                   返回
                 </Button>
-                <Button
-                  onClick={handleSave}
-                  loading={saving}
-                  disabled={!selectedCateId}
-                  size="small"
-                  style={{ color: !selectedCateId ? '#ccc' : '#000' }}
-                >
+                <Button onClick={handleSave} loading={saving} disabled={!selectedCateId} size="small" type="primary">
                   存到笔记
                 </Button>
               </div>
@@ -382,7 +376,7 @@ const CaptureSave = () => {
                 </div>
               </div>
               <div className={styles.actions}>
-                <Button onClick={handleBackToPreview} size="small">
+                <Button onClick={handleBackToPreview} size="small" type="default">
                   返回
                 </Button>
                 <Button
@@ -390,7 +384,7 @@ const CaptureSave = () => {
                   loading={saving}
                   disabled={!selectedPictureCateId}
                   size="small"
-                  style={{ color: !selectedPictureCateId ? '#ccc' : '#000' }}
+                  type="primary"
                 >
                   保存到图片库
                 </Button>

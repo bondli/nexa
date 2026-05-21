@@ -65,7 +65,7 @@ const QuickNote = () => {
       <div className={styles.overlay}>
         <div className={styles.header}>
           <span className={styles.title}>快速记录</span>
-          <Button icon={<CloseOutlined />} type="primary" onClick={handleClose} size="small" />
+          <Button icon={<CloseOutlined />} type="text" onClick={handleClose} size="small" />
         </div>
         <div className={styles.content}>
           <TextArea
@@ -78,7 +78,7 @@ const QuickNote = () => {
           />
         </div>
         <div className={styles.footer}>
-          <Button onClick={handleSave} loading={loading}>
+          <Button onClick={handleSave} type="primary" loading={loading}>
             保存
           </Button>
         </div>

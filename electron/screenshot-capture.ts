@@ -1,10 +1,12 @@
 import path from 'path';
-import { app, BrowserWindow, clipboard, nativeImage } from 'electron';
+import { app, BrowserWindow, clipboard, nativeImage, nativeTheme } from 'electron';
 import logger from 'electron-log';
 import { getTrayBounds } from './tray';
+import Store from 'electron-store';
 
 let screenshotWindow: BrowserWindow | null = null;
 let apiServerStatus = '';
+const store = new Store();
 
 const windowWidth = 500;
 const windowHeight = 450;
@@ -30,6 +32,17 @@ const getScreenshotPosition = (): { x: number; y: number } | null => {
   const y = trayBounds.y + offset;
 
   return { x, y };
+};
+
+/**
+ * 根据应用主题设置获取窗口背景色
+ */
+const getBackgroundColor = (): string => {
+  const themeMode = store.get('app_theme_mode', 'followSystem') as string;
+  if (themeMode === 'dark') return '#18181b';
+  if (themeMode === 'light') return '#ffffff';
+  // followSystem 模式：跟随系统
+  return nativeTheme.shouldUseDarkColors ? '#18181b' : '#ffffff';
 };
 
 /**
@@ -65,7 +78,7 @@ export const createScreenshotCaptureWindow = (): void => {
     resizable: true,
     frame: false,
     transparent: false,
-    backgroundColor: '#000000',
+    backgroundColor: getBackgroundColor(),
     alwaysOnTop: true,
     skipTaskbar: true,
     webPreferences: {
@@ -109,6 +122,14 @@ export const createScreenshotCaptureWindow = (): void => {
   // 关闭窗口时销毁引用
   screenshotWindow.on('closed', () => {
     screenshotWindow = null;
+  });
+
+  // 监听系统主题变化，动态更新窗口背景色（仅在 followSystem 模式下）
+  nativeTheme.on('updated', () => {
+    const themeMode = store.get('app_theme_mode', 'followSystem') as string;
+    if (themeMode === 'followSystem' && screenshotWindow && !screenshotWindow.isDestroyed()) {
+      screenshotWindow.setBackgroundColor(getBackgroundColor());
+    }
   });
 };
 

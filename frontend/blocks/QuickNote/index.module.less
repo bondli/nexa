@@ -1,8 +1,29 @@
+// QuickNote 主题变量 - 使用 CSS 变量支持运行时切换
+// 浅色模式 (默认)
+:root {
+  --qn-bg-container: #ffffff;
+  --qn-bg-overlay: #fafafa;
+  --qn-text-primary: #18181b;
+  --qn-text-secondary: #71717a;
+  --qn-border-color: #d9d9d9;
+  --qn-textarea-bg: #ffffff;
+}
+
+// 暗黑模式
+[data-theme='dark'] {
+  --qn-bg-container: #18181b;
+  --qn-bg-overlay: #27272a;
+  --qn-text-primary: #ffffff;
+  --qn-text-secondary: #a1a1aa;
+  --qn-border-color: #3f3f46;
+  --qn-textarea-bg: #27272a;
+}
+
 .container {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: #000;
+  background: var(--qn-bg-container);
 }
 
 .overlay {
@@ -12,6 +33,7 @@
   flex-direction: column;
   padding: 16px;
   box-sizing: border-box;
+  background: var(--qn-bg-overlay);
 }
 
 .header {
@@ -24,7 +46,7 @@
 .title {
   font-size: 14px;
   font-weight: 500;
-  color: #fff;
+  color: var(--qn-text-primary);
 }
 
 .content {
@@ -38,19 +60,19 @@
   resize: none;
   font-size: 14px;
   line-height: 1.6;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  color: #fff;
+  background: var(--qn-textarea-bg);
+  border: 1px solid var(--qn-border-color);
+  color: var(--qn-text-primary);
   border-radius: 8px;
   padding: 12px;
 
   &::placeholder {
-    color: #666;
+    color: var(--qn-text-secondary);
   }
 
   &:focus {
-    background: #1a1a1a;
-    border-color: #555;
+    background: var(--qn-textarea-bg);
+    border-color: var(--qn-text-secondary);
     box-shadow: none;
   }
 }

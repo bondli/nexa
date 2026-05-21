@@ -155,8 +155,8 @@ export const uploadFile = (req: RequestWithFile, res: Response): void => {
       }
 
       const originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
-      const fileName = path.basename(req.file.path);
-      const localUrl = `http://localhost:${PORT}/files/${fileName}`;
+      // const fileName = path.basename(req.file.path);
+      // const localUrl = `http://localhost:${PORT}/files/${fileName}`;
       const fileRelativePath = req.file.path;
       const fileSize = req.file.size;
       const fileExt = path.extname(originalName).toLowerCase();

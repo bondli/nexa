@@ -3,7 +3,7 @@
  * 使用 Ant Design ConfigProvider 实现主题切换
  */
 
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState, useEffect, useLayoutEffect } from 'react';
 import { ConfigProvider, theme as antdTheme } from 'antd';
 import { getThemeMode, getResolvedTheme, watchSystemThemeChange, ThemeMode } from '@utils/theme';
 
@@ -46,6 +46,12 @@ const ThemeProvider: React.FC<ThemeProviderProps> = (props) => {
       win.electron.ipcRenderer.setWindowBackgroundColor(isDark);
     }
   }, [isDark]);
+
+  // 设置 HTML 根元素的 data-theme 属性，使自定义 CSS 可以响应主题变化
+  // 使用 useLayoutEffect 确保在 DOM 更新前同步设置，避免闪烁
+  useLayoutEffect(() => {
+    document.documentElement.setAttribute('data-theme', resolvedTheme);
+  }, [resolvedTheme]);
 
   // Ant Design 主题配置
   const antdThemeConfig = {

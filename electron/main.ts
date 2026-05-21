@@ -144,6 +144,10 @@ let mainWindow: BrowserWindow | null = null;
  * 获取当前系统主题对应的背景色
  */
 const getSystemBackgroundColor = (): string => {
+  const themeMode = store.get('app_theme_mode', 'followSystem') as string;
+  if (themeMode === 'dark') return '#18181b';
+  if (themeMode === 'light') return '#ffffff';
+  // followSystem 模式：跟随系统
   return nativeTheme.shouldUseDarkColors ? '#18181b' : '#ffffff';
 };
 
@@ -207,7 +211,9 @@ const createWindow = () => {
 
   // 监听系统主题变化，动态更新窗口背景色
   nativeTheme.on('updated', () => {
-    if (mainWindow && !mainWindow.isDestroyed()) {
+    const themeMode = store.get('app_theme_mode', 'followSystem') as string;
+    // 仅在 followSystem 模式下才跟随系统主题变化
+    if (themeMode === 'followSystem' && mainWindow && !mainWindow.isDestroyed()) {
       const newColor = getSystemBackgroundColor();
       mainWindow.setBackgroundColor(newColor);
       logger.info(`[Main Process] System theme changed, updated background to: ${newColor}`);

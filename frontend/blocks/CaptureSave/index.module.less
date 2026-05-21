@@ -1,17 +1,42 @@
+// CaptureSave 主题变量 - 使用 CSS 变量支持运行时切换
+// 浅色模式 (默认)
+:root {
+  --cs-bg-container: #ffffff;
+  --cs-bg-overlay: #fafafa;
+  --cs-bg-header: #f4f4f5;
+  --cs-text-primary: #18181b;
+  --cs-text-secondary: #71717a;
+  --cs-border-color: #d9d9d9;
+  --cs-textarea-bg: #ffffff;
+  --cs-select-bg: #ffffff;
+}
+
+// 暗黑模式
+[data-theme='dark'] {
+  --cs-bg-container: #18181b;
+  --cs-bg-overlay: #27272a;
+  --cs-bg-header: #3f3f46;
+  --cs-text-primary: #ffffff;
+  --cs-text-secondary: #a1a1aa;
+  --cs-border-color: #3f3f46;
+  --cs-textarea-bg: #27272a;
+  --cs-select-bg: #27272a;
+}
+
 .container {
   width: 100vw;
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #000;
+  background: var(--cs-bg-container);
   box-sizing: border-box;
 }
 
 .overlay {
   width: 100%;
   height: 100%;
-  background: #18181b;
+  background: var(--cs-bg-overlay);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -24,14 +49,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background: #27272a;
-  border-bottom: 1px solid #3f3f46;
+  background: var(--cs-bg-header);
+  border-bottom: 1px solid var(--cs-border-color);
   flex-shrink: 0;
   -webkit-app-region: drag;
 }
 
 .title {
-  color: #fff;
+  color: var(--cs-text-primary);
   font-size: 13px;
   font-weight: 500;
 }
@@ -55,12 +80,12 @@
 
   .icon {
     font-size: 40px;
-    color: #71717a;
+    color: var(--cs-text-secondary);
     margin-bottom: 12px;
   }
 
   p {
-    color: #d4d4d8;
+    color: var(--cs-text-secondary);
     font-size: 13px;
     margin: 0;
   }
@@ -72,7 +97,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #fff;
+  color: var(--cs-text-primary);
 
   :global(.ant-progress) {
     margin-top: 16px;
@@ -107,21 +132,21 @@
     .textarea {
       width: 100%;
       height: 100%;
-      background: #27272a;
-      border: 1px solid #3f3f46;
+      background: var(--cs-textarea-bg);
+      border: 1px solid var(--cs-border-color);
       border-radius: 4px;
-      color: #fff;
+      color: var(--cs-text-primary);
       font-size: 13px;
       padding: 8px;
       resize: none;
 
       &::placeholder {
-        color: #71717a;
+        color: var(--cs-text-secondary);
       }
 
       &:focus {
         outline: none;
-        border-color: #52525b;
+        border-color: var(--cs-text-secondary);
       }
     }
   }
@@ -131,16 +156,16 @@
     flex-shrink: 0;
 
     :global(.ant-select-selector) {
-      background: #27272a !important;
-      border-color: #3f3f46 !important;
+      background: var(--cs-select-bg) !important;
+      border-color: var(--cs-border-color) !important;
     }
 
     :global(.ant-select-selection-item) {
-      color: #fff !important;
+      color: var(--cs-text-primary) !important;
     }
 
     :global(.ant-select-selection-placeholder) {
-      color: #71717a !important;
+      color: var(--cs-text-secondary) !important;
     }
   }
 
@@ -221,36 +246,36 @@
       gap: 8px;
 
       label {
-        color: #d4d4d8;
+        color: var(--cs-text-primary);
         font-size: 13px;
         font-weight: 500;
       }
 
       :global(.ant-select-selector) {
-        background: #27272a !important;
-        border-color: #3f3f46 !important;
+        background: var(--cs-select-bg) !important;
+        border-color: var(--cs-border-color) !important;
       }
 
       :global(.ant-select-selection-item) {
-        color: #fff !important;
+        color: var(--cs-text-primary) !important;
       }
 
       :global(.ant-select-selection-placeholder) {
-        color: #71717a !important;
+        color: var(--cs-text-secondary) !important;
       }
 
       :global(.ant-input) {
-        background: #27272a;
-        border-color: #3f3f46;
-        color: #fff;
+        background: var(--cs-textarea-bg);
+        border-color: var(--cs-border-color);
+        color: var(--cs-text-primary);
         font-size: 13px;
 
         &::placeholder {
-          color: #71717a;
+          color: var(--cs-text-secondary);
         }
 
         &:focus {
-          border-color: #52525b;
+          border-color: var(--cs-text-secondary);
           box-shadow: none;
         }
       }
