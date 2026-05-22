@@ -108,6 +108,13 @@
     "files": [
       "dist/**/*"
     ],
+    "extraResources": [
+      {
+        "from": "public/icons",
+        "to": "icons",
+        "filter": ["**/*"]
+      }
+    ],
     "directories": {
       "output": "release/${version}"
     },
