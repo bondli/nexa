@@ -29,7 +29,7 @@ const MainPage: React.FC = () => {
   const { message } = App.useApp();
 
   const { userInfo, setUserInfo } = useContext(MainContext);
-  const [currentPage, setCurrentPage] = useState<string>('chat'); // 默认页面
+  const [currentPage, setCurrentPage] = useState<string>('notebook'); // 默认页面
 
   const onLogout = () => {
     deleteStore('loginData');
@@ -48,16 +48,16 @@ const MainPage: React.FC = () => {
         <div className={style.list}>
           <div className={style.menu}>
             <div
-              className={`${style.iconItem} ${currentPage === 'chat' ? style.active : ''}`}
-              onClick={() => setCurrentPage('chat')}
-            >
-              <AliwangwangOutlined style={{ fontSize: 24 }} />
-            </div>
-            <div
               className={`${style.iconItem} ${currentPage === 'notebook' ? style.active : ''}`}
               onClick={() => setCurrentPage('notebook')}
             >
               <SnippetsOutlined style={{ fontSize: 24 }} />
+            </div>
+            <div
+              className={`${style.iconItem} ${currentPage === 'chat' ? style.active : ''}`}
+              onClick={() => setCurrentPage('chat')}
+            >
+              <AliwangwangOutlined style={{ fontSize: 24 }} />
             </div>
             <div
               className={`${style.iconItem} ${currentPage === 'article' ? style.active : ''}`}
